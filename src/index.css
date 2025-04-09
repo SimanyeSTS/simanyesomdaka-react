@@ -1,0 +1,374 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  list-style: none;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-hue: 270;
+  --black-lightness: 15%;
+  --dark-lightness: 44%;
+  --light-lightness: 94%;
+  --white-lightness: 100%;
+  --color-primary: hsl(var(--primary-hue), 89%, 41%);
+  --color-white: hsl(0, 5%, var(--white-lightness));
+  --color-light: hsl(var(--primary-hue), 5%, var(--light-lightness));
+  --color-black: hsl(var(--primary-hue), 5%, var(--black-lightness));
+  --color-dark: hsl(var(--primary-hue), 5%, var(--dark-lightness));
+
+  /* GENERAL CONTAINER VARIABLES */
+  --container-width-lg: 76%;
+  --container-width-md: 90%;
+
+  /* BORDER RADIUS VARIABLES */
+  --border-radius-1: 1.2rem;
+  --border-radius-2: 0.8rem;
+  --border-radius-3: 0.5rem;
+
+  /* GENERAL TRANSITION VARIABLE */
+  --transition: all 500ms ease;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Keep the default cursor visible */
+}
+
+body {
+  font-family: "Montserrat", sans-serif;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+/* THEME CHANGE */
+main.color-1 {
+  --primary-hue: 270;
+}
+
+main.color-2 {
+  --primary-hue: 110;
+}
+
+main.color-3 {
+  --primary-hue: 240;
+}
+
+main.color-4 {
+  --primary-hue: 325;
+}
+
+main.color-5 {
+  --primary-hue: 0;
+}
+
+main.color-6 {
+  --primary-hue: 55;
+}
+
+main.bg-2 {
+  --black-lightness: 96%;
+  --dark-lightness: 60%;
+  --light-lightness: 12%;
+  --white-lightness: 6%;
+  --color-white: hsl(0, 5%, var(--white-lightness));
+  --color-light: hsl(var(--primary-hue), 5%, var(--light-lightness));
+  --color-black: hsl(var(--primary-hue), 5%, var(--black-lightness));
+  --color-dark: hsl(var(--primary-hue), 5%, var(--dark-lightness));
+}
+
+main {
+  color: var(--color-dark);
+  --color-primary: hsl(var(--primary-hue), 89%, 41%);
+}
+
+/* GENERAL CONTAINER CLASS */
+.container {
+  width: var(--container-width-lg);
+  margin-inline: auto;
+  max-width: 1920px;
+}
+
+/* GENERAL SECTION STYLES */
+section {
+  padding: 10rem 0;
+  background: var(--color-light);
+  transition: var(--transition);
+}
+
+section:nth-child(even) {
+  background: var(--color-white);
+}
+
+section > h2 {
+  text-align: center;
+}
+
+section > p {
+  text-align: center;
+  margin: 0.5rem auto 4rem;
+  width: 40%;
+}
+
+/* GENERAL SECTION STYLES */
+a {
+  /* color: var(--color-white); */
+  transition: var(--transition);
+}
+
+/* GENERAL HEADING STYLES */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.1;
+  color: var(--color-black);
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.6rem;
+}
+
+h4 {
+  font-size: 1.1rem;
+}
+
+h5 {
+  font-size: 0.95rem;
+}
+
+h6 {
+  font-size: 0.8rem;
+}
+
+/* GENERAL IMAGES STYLES */
+img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* GENERAL BUTTON STYLES */
+.btn {
+  display: inline-block;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--color-light);
+  color: var(--color-black);
+  padding: 0.6rem 2.5rem;
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-2);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: transparent;
+  border-color: var(--color-light);
+  transform: translateY(-0.5rem);
+}
+
+.btn.white {
+  background: var(--color-white);
+}
+
+.btn.white:hover {
+  background: transparent;
+  border-color: var(--color-white);
+}
+
+.btn.primary {
+  background: var(--color-primary);
+  /* text color always white that's why i didn't use a variable color */
+  color: white;
+}
+
+.btn.primary:hover {
+  background: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn.sm {
+  padding: 0.5rem 1.2rem;
+}
+
+/*Scrollbar Styles*/
+
+/* Define CSS variables for scrollbar colors */
+:root {
+  --scrollbar-thumb-color: hsl(270, 89%, 41%); /* Default primary color */
+  --scrollbar-track-color: transparent; /* Default track color */
+}
+
+/* WebKit Browsers (Chrome, Edge, Safari, Opera) */
+::-webkit-scrollbar {
+  width: 8px; /* Match the width from about.css */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color); /* Use the track color */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color); /* Use the primary color */
+  border-radius: 10px; /* Match the border-radius from about.css */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--primary-hue), 89%, 35%); /* Darker shade on hover */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color); /* Use the track color */
+}
+
+/* Internet Explorer & Old Edge */
+body {
+  scrollbar-face-color: var(--scrollbar-thumb-color);
+  scrollbar-track-color: var(--scrollbar-track-color); /* Use the track color */
+}
+
+/* Hide custom cursor on mobile/touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-small, .cursor-large {
+    display: none !important;
+  }
+}
+
+/* Add this to your index.css or create a new loading-screen.css file and import it */
+
+/* Ensure the loading animation works on all screen sizes */
+@media screen and (max-width: 1023px) {
+  .loading-screen .outer__circle {
+    width: 20rem !important;
+  }
+
+  .loading-screen .inner__circle {
+    width: 15rem !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .loading-screen .outer__circle {
+    width: 16rem !important;
+    height: 16rem !important;
+  }
+
+  .loading-screen .outer__circle span {
+    width: 3rem !important;
+  }
+
+  .loading-screen .outer__circle span:nth-child(1) {
+    left: calc(50% - 1.5rem) !important;
+    top: -1.5rem !important;
+  }
+
+  .loading-screen .outer__circle span:nth-child(2) {
+    right: -1.5rem !important;
+    top: calc(50% - 1.5rem) !important;
+  }
+
+  .loading-screen .outer__circle span:nth-child(3) {
+    left: -1.5rem !important;
+    top: calc(50% - 1.5rem) !important;
+  }
+
+  .loading-screen .outer__circle span:nth-child(4) {
+    bottom: -1.5rem !important;
+    left: calc(50% - 1.5rem) !important;
+  }
+
+  .loading-screen .inner__circle {
+    width: 10rem !important;
+  }
+}
+
+/* Additional animation to ensure smooth transition */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Make sure the loading screen blocks all content */
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+/* Ensure body doesn't scroll during loading */
+body.loading {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* MEDIA QUERIES (tablets) */
+@media screen and (max-width: 1024px) {
+  body {
+    font-size: 1rem;
+  }
+
+  .container {
+    width: var(--container-width-md);
+  }
+
+  section {
+    padding: 8rem 0;
+  }
+
+  section > p {
+    width: 72%;
+    margin-bottom: 3rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* MEDIA QUERIES (phones) */
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+  }
+
+  h3 {
+    font-size: 1.4rem;
+  }
+
+  h4 {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.5rem;
+  }
+
+  section > p {
+    width: var(--container-width-md);
+  }
+}

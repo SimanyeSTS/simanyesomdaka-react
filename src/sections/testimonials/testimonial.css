@@ -1,0 +1,164 @@
+/* Base Styles */
+#resume {
+  padding: 4rem 0;
+}
+
+.education-section,
+.experience-section {
+  margin: 0 auto;
+  max-width: 1000px;
+  padding: 50px 0;
+}
+
+/* These remain unchanged from your original CSS */
+h2 {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.subtext {
+  text-align: center;
+  margin-bottom: 40px;
+  color: var(--color-dark);
+}
+
+/* Education and Experience Tabs */
+.education-list,
+.job-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.education-tabs,
+.job-tabs {
+  list-style: none;
+  padding: 0;
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.education-tabs li,
+.job-tabs li {
+  padding: 15px;
+  cursor: pointer;
+  color: var(--color-dark);
+  border-left: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.education-tabs li.active,
+.job-tabs li.active {
+  color: var(--color-primary);
+  border-left: 2px solid var(--color-primary);
+}
+
+.institution-logo,
+.company-logo {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+
+.education-tabs li.active .institution-logo,
+.job-tabs li.active .company-logo {
+  filter: none;
+}
+
+/* Education and Experience Details */
+.education-details,
+.job-details {
+  width: 65%;
+}
+
+.education-details h3,
+.job-details h3 {
+  font-size: 1.75rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.education-duration,
+.job-duration {
+  font-size: 1rem;
+  color: var(--color-dark);
+  margin-bottom: 20px;
+}
+
+/* Responsive Styles - Updated to match Vue breakpoints */
+@media (max-width: 768px) {
+  .subtext {
+    font-size: 0.9rem;
+  }
+
+  .education-tabs li,
+  .job-tabs li {
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+
+  .education-details h3,
+  .job-details h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  h2 {
+    font-size: 2rem;
+  }
+
+  p {
+    font-size: 0.8rem;
+  }
+}
+
+/* This is the critical media query for mobile responsiveness */
+@media (max-width: 475px) {
+  .education-list,
+  .job-list {
+    flex-direction: row; /* Keep side-by-side on mobile */
+  }
+
+  .education-tabs,
+  .job-tabs {
+    width: 50%;
+  }
+
+  .education-tabs li,
+  .job-tabs li {
+    font-size: 0.8rem;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .education-details,
+  .job-details {
+    width: 50%;
+    text-align: left;
+    padding-left: 2rem;
+  }
+
+  .education-details h3,
+  .job-details h3 {
+    font-size: 1.2rem;
+  }
+
+  .institution-logo,
+  .company-logo {
+    width: 25px;
+    height: 25px;
+  }
+
+  /* Add padding to the container to centralize content on mobile */
+  #resume {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

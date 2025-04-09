@@ -1,0 +1,72 @@
+footer {
+  background: var(--color-primary);
+  padding-top: 8rem;
+  box-shadow: 0 -1rem 1.5rem hsla(var(--primary-hue), 68%, 42%, 20%);
+  transition: var(--transition);
+}
+
+footer .nav__menu {
+  justify-content: center;
+}
+
+/* Adding navbar styles for links */
+footer .nav__menu a {
+  color: white;
+  text-decoration: none;
+  position: relative;
+}
+
+footer .nav__menu a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+/* Hover animation */
+footer .nav__menu a.hovered::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Active animation */
+footer .nav__menu a.active::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Prevent redrawing active style */
+footer .nav__menu a.active.hovered::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+.footer__socials {
+  width: fit-content;
+  display: flex;
+  gap: 1.5rem;
+  margin: 3rem auto 4rem;
+}
+
+.footer__socials a {
+  background: var(--color-black);
+  color: var(--color-white);
+  padding: 0.6rem;
+  border-radius: var(--border-radius-3);
+}
+
+.footer__socials a:hover {
+  opacity: 0.7;
+  transform: translateY(-0.5rem);
+}
+
+.footer__copyright {
+  color: white;
+  text-align: center;
+  border-top: 2px solid rgba(0, 0, 0, 0.2);
+  padding: 1.5rem 0;
+}

@@ -1,0 +1,139 @@
+.certificates__categories {
+  margin-bottom: 2rem;
+}
+
+.certificates__container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 4rem;
+}
+
+.card.certificate {
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  min-height: 100px;
+}
+
+.card.certificate:hover {
+  background: var(--color-white);
+}
+
+.certificate > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.certificate h5 {
+  line-height: 1.4;
+  margin: 0;
+  max-height: 4.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.certificate__icon {
+  font-size: 1.2rem;
+  color: var(--color-black);
+  background: transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.certificate__details {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+  opacity: 0;
+  animation: animateDetails 500ms ease-in forwards;
+  flex-grow: 1;
+  position: relative;
+  min-height: 200px;
+}
+
+@keyframes animateDetails {
+  to {
+    opacity: 1;
+  }
+}
+
+.certificate__description-wrapper {
+  max-height: 100px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.certificate__description {
+  height: 100%;
+  overflow-y: auto;
+  margin: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.certificate__description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.certificate__description::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.certificate__description::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 10px;
+}
+
+.certificate__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-black);
+  margin-bottom: 1.5rem;
+  margin-top: auto;
+}
+
+.certificate__issuer,
+.certificate__date {
+  margin: 0;
+}
+
+.certificate__button-wrapper {
+  margin-top: auto;
+  width: 100%;
+}
+
+.certificate__view-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.certificate__view-btn:focus {
+  outline: none;
+}
+
+/* MEDIA QUERIES (tablets) */
+@media screen and (max-width: 1024px) {
+  .certificates__container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* MEDIA QUERIES (phones) */
+@media screen and (max-width: 600px) {
+  .certificates__container {
+    gap: 1rem;
+  }
+  
+  .certificate__meta {
+    gap: 0.3rem;
+  }
+}

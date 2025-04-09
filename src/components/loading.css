@@ -1,0 +1,217 @@
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: background-color 0.8s ease-out;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.loading-screen .profile__area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+  z-index: 2;
+}
+
+.loading-screen .loading-profile {
+  position: relative;
+  margin-bottom: 120px;
+}
+
+.loading-screen .profile__area.fade-out {
+  opacity: 0;
+}
+
+.loading-screen .outer__circle {
+  width: 26rem;
+  aspect-ratio: 1/1;
+  border: 1px solid var(--color-primary);
+  border-radius: 50%;
+  position: relative;
+  animation: move 30s linear infinite;
+  animation-play-state: running !important;
+}
+
+.loading-screen.dim-screen .keep-bright {
+  filter: brightness(1.5) !important;
+  opacity: 1 !important;
+}
+
+.loading-screen .tech-icon {
+  font-size: 1.2rem;
+  width: 4rem;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  position: absolute;
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-screen .tech-icon:nth-child(1) {
+  left: calc(50% - 2rem);
+  top: -2rem;
+}
+
+.loading-screen .tech-icon:nth-child(2) {
+  right: -2rem;
+  top: calc(50% - 2rem);
+}
+
+.loading-screen .tech-icon:nth-child(3) {
+  left: -2rem;
+  top: calc(50% - 2rem);
+}
+
+.loading-screen .tech-icon:nth-child(4) {
+  bottom: -2rem;
+  left: calc(50% - 2rem);
+}
+
+.loading-screen .inner__circle {
+  position: absolute;
+  width: 18rem;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.loading-screen .progress-container {
+  position: absolute;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+  z-index: 1;
+  width: 100%;
+}
+
+.loading-screen .progress-bar {
+  width: 200px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.loading-screen .progress-bar-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.loading-screen .progress-text {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.loading-screen .progress-container.fade-out {
+  opacity: 0;
+}
+
+.loading-screen.dim-screen {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+  color: white !important;
+}
+
+.loading-screen.brighten-screen {
+  background-color: transparent !important;
+  transition: background-color 0.7s ease-in-out;
+}
+
+@keyframes move {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.loading-screen .outer__circle {
+  will-change: transform;
+}
+.loading-screen .inner__circle {
+  will-change: transform, opacity;
+}
+
+@media screen and (max-width: 1023px) {
+  .loading-screen .outer__circle {
+    width: 20rem;
+  }
+
+  .loading-screen .inner__circle {
+    width: 15rem;
+  }
+  
+  .loading-screen .loading-profile {
+    margin-bottom: 100px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .loading-screen .outer__circle {
+    width: 16rem;
+    height: 16rem;
+  }
+
+  .loading-screen .tech-icon {
+    width: 3rem;
+  }
+
+  .loading-screen .tech-icon:nth-child(1) {
+    left: calc(50% - 1.5rem);
+    top: -1.5rem;
+  }
+
+  .loading-screen .tech-icon:nth-child(2) {
+    right: -1.5rem;
+    top: calc(50% - 1.5rem);
+  }
+
+  .loading-screen .tech-icon:nth-child(3) {
+    left: -1.5rem;
+    top: calc(50% - 1.5rem);
+  }
+
+  .loading-screen .tech-icon:nth-child(4) {
+    bottom: -1.5rem;
+    left: calc(50% - 1.5rem);
+  }
+
+  .loading-screen .inner__circle {
+    width: 10rem;
+  }
+  
+  .loading-screen .loading-profile {
+    margin-bottom: 80px;
+  }
+}

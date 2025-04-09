@@ -1,0 +1,217 @@
+/* Add these styles to your portfolio.css file */
+
+/* Image container styling */
+.portfolio__project-image .image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Style for both theme images */
+.portfolio__project-image .theme-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Visibility classes */
+.portfolio__project-image .visible {
+  opacity: 1;
+  z-index: 2;
+}
+
+.portfolio__project-image .hidden {
+  opacity: 0;
+  z-index: 1;
+}
+
+/* Keep existing styles */
+.portfolio__project-image {
+  width: 100%;
+  height: 180px;
+  background: transparent;
+  border-radius: var(--border-radius-2);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Original styles */
+.portfolio__categories {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn.cat__btn {
+  transition: var(--transition);
+}
+
+.btn.cat__btn:hover {
+  transform: translateY(0);
+}
+
+.portfolio__projects {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  align-items: stretch;
+}
+
+.card.portfolio__project {
+  animation: animateProject 800ms ease-in forwards;
+  height: 430px; /* Fixed height for all cards */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1.5rem; /* Consistent padding */
+  position: relative;
+}
+
+@keyframes animateProject {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.portfolio__project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Fixed height title container */
+.portfolio__project-title {
+  height: 2rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.portfolio__project-title h4 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fixed height description container with scrolling */
+.portfolio__project-description {
+  height: 100px; /* Fixed height */
+  margin-bottom: 3.5rem; /* Add space for buttons below */
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.portfolio__project-description p {
+  height: 100%;
+  margin: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+  padding-right: 6px;
+}
+
+.portfolio__project-description p::-webkit-scrollbar {
+  width: 6px;
+}
+
+.portfolio__project-description p::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portfolio__project-description p::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 10px;
+}
+
+/* Button container always at bottom */
+.portfolio__project-cta {
+  display: flex;
+  gap: 1rem;
+  position: absolute;
+  bottom:.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+}
+
+.portfolio__project:hover .btn.sm {
+  border-color: var(--color-white);
+}
+
+.portfolio__project:hover .btn.sm.primary {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.tech-keyword {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.portfolio__project-image img.project-image-transition {
+  transition: all 0.6s ease-in-out;
+}
+
+.portfolio_project-image {
+  position: relative;
+}
+
+/* MEDIA QUERIES (tablets) */
+@media screen and (max-width: 1024px) {
+  .portfolio__projects {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .card.portfolio__project {
+    height: 400px;
+  }
+  
+  .portfolio__project-description {
+    height: 80px;
+    margin-bottom: 3.5rem; /* Maintain space for buttons */
+  }
+
+  .portfolio__project-image img.project-image-transition {
+    transition: all 0.5s ease-in-out;
+  }
+}
+
+/* MEDIA QUERIES (phones) */
+@media screen and (max-width: 600px) {
+  .portfolio__categories {
+    gap: 0.6rem;
+  }
+
+  .btn.cat__btn {
+    padding: 0.7rem 0.8rem;
+  }
+
+  .portfolio__projects {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .card.portfolio__project {
+    height: 420px;
+  }
+  
+  .portfolio__project-description {
+    height: 90px;
+    margin-bottom: 3.5rem; /* Maintain space for buttons */
+  }
+
+  .portfolio__project-image img.project-image-transition {
+    transition: all 0.4s ease-in-out;
+  }
+}

@@ -1,0 +1,80 @@
+nav {
+  width: 100vw;
+  height: 5rem;
+  display: grid;
+  place-items: center;
+  background: var(--color-primary);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100; /* Lower than backdrop but above main content */
+  box-shadow: 0 1rem 1.5rem hsla(var(--color-primary), 68%, 42%, 20%);
+  transition: var(--transition);
+}
+
+.nav__container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav__logo {
+  width: 2.5rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.nav__menu {
+  display: flex;
+  gap: 3.5rem;
+}
+
+.nav__menu a {
+  color: white;
+  text-decoration: none;
+  position: relative;
+}
+
+.nav__menu a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: white;
+  transition: width 0.3s ease;
+}
+
+/* Hover animation */
+.nav__menu a.hovered::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Active animation */
+.nav__menu a.active::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Prevent redrawing active style */
+.nav__menu a.active.hovered::after {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+#theme__icon {
+  background: transparent;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer !important;
+}
+
+/* HIDE NAV MENU ON TABLETS AND PHONES */
+@media screen and (max-width: 1024px) {
+  .nav__menu {
+    display: none;
+  }
+}

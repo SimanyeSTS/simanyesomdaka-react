@@ -1,0 +1,61 @@
+.contact__container {
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+}
+.contact__container a {
+  width: 5rem;
+  aspect-ratio: 1/1;
+  color: white;
+  background: var(--color-primary);
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-1);
+}
+.contact__container a:hover {
+  background: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-0.5rem);
+}
+
+/* Added address styling */
+.address-container {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.address-icon {
+  color: var(--color-primary);
+  font-size: 1.2rem;
+}
+
+.address-text {
+  color: var(--color-black);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.address-container:hover .address-text {
+  color: var(--color-primary);
+}
+
+
+/* MEDIA QUERIES (phones) */
+@media screen and (max-width: 600px) {
+  .contact__container {
+    gap: 1.5rem;
+  }
+  
+  .address-container {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}

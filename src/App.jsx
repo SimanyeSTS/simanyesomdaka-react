@@ -12,7 +12,7 @@ import Theme from "./theme/Theme";
 import CustomAnimatedCursor from "./components/CustomAnimatedCursor";
 import LoadingScreen from "./components/LoadingScreen";
 import { useThemeContext } from "./context/theme-context";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 const App = ({ onLoaded }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +58,7 @@ const App = ({ onLoaded }) => {
     setShowFloatingNav(false);
   };
 
-  const floatingNavToggleHandler = () => {
+  const floatingNavToggleHandler = useCallback(() => {
     if (
       siteYPostion < mainRef?.current?.getBoundingClientRect().y - 20 ||
       siteYPostion > mainRef?.current?.getBoundingClientRect().y + 20
@@ -69,22 +69,21 @@ const App = ({ onLoaded }) => {
     }
 
     setSiteYPosition(mainRef?.current?.getBoundingClientRect().y);
-  };
+  }, [siteYPostion]);
 
   useEffect(() => {
     const checkYPosition = setInterval(floatingNavToggleHandler, 2000);
 
     return () => clearInterval(checkYPosition);
-  }, [siteYPostion]);
+  }, [floatingNavToggleHandler]);
 
   const handleLoadingComplete = () => {
     setIsLoading(false);
-    if (onLoaded) onLoaded(); // ✅ Trigger removal of loading screen
+    if (onLoaded) onLoaded();
   };
 
   return (
     <>
-      {}
       <CustomAnimatedCursor />
       
       {isLoading && <LoadingScreen onLoadingComplete={handleLoadingComplete} />}

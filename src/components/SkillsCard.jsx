@@ -9,20 +9,19 @@ function SkillsCard({ data }) {
   const skillsContainerRef = useRef(null);
 
   const handleSkillClick = (skillName) => {
-    // Find the index of the clicked skill
     const index = skills_names.indexOf(skillName);
     if (index !== -1 && skillsContainerRef.current) {
       const cloud = skillsContainerRef.current.querySelector('.icon-cloud');
       if (cloud) {
-        // Get all icon elements
         const icons = cloud.querySelectorAll('a');
         if (icons.length > index) {
-          // Simulate click on the corresponding icon
+          icons[index].focus();
           icons[index].click();
         }
       }
     }
   };
+  
 
   return (
     <div className="skills__container" ref={skillsContainerRef}>

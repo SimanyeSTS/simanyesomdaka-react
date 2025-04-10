@@ -18,7 +18,8 @@ import {
   SiCsharp, SiFirebase, SiVercel, 
   SiNetlify, SiPostman, SiVisualstudio,
   SiFlask, SiUnity, SiApache,
-  SiRender, SiMicrosoftazure, SiGooglecloud
+  SiRender, SiMicrosoftazure, SiGooglecloud,
+  SiTypescript, SiDotnet
 } from "react-icons/si";
 
 const About = memo(() => {
@@ -41,54 +42,56 @@ const About = memo(() => {
     { id: 4, name: "C++", icon: <SiCplusplus />, category: "language" },
     { id: 5, name: "C#", icon: <SiCsharp />, category: "language" },
     { id: 6, name: "Dart", icon: <SiDart />, category: "language" },
-    
+    { id: 7, name: "TypeScript", icon: <SiTypescript />, category: "language" },
+  
     // Frontend
-    { id: 7, name: "HTML5", icon: <FaHtml5 />, category: "frontend" },
-    { id: 8, name: "CSS3", icon: <FaCss3Alt />, category: "frontend" },
-    { id: 9, name: "React", icon: <FaReact />, category: "frontend" },
-    { id: 10, name: "Vue.js", icon: <FaVuejs />, category: "frontend" },
-    { id: 11, name: "Next.js", icon: <SiNextdotjs />, category: "frontend" },
-    { id: 12, name: "Bootstrap", icon: <FaBootstrap />, category: "frontend" },
-    { id: 13, name: "Tailwind CSS", icon: <SiTailwindcss />, category: "frontend" },
-    { id: 14, name: "Vite", icon: <SiVite />, category: "frontend" },
-    
+    { id: 8, name: "HTML5", icon: <FaHtml5 />, category: "frontend" },
+    { id: 9, name: "CSS3", icon: <FaCss3Alt />, category: "frontend" },
+    { id: 10, name: "React", icon: <FaReact />, category: "frontend" },
+    { id: 11, name: "Vue.js", icon: <FaVuejs />, category: "frontend" },
+    { id: 12, name: "Next.js", icon: <SiNextdotjs />, category: "frontend" },
+    { id: 13, name: "Bootstrap", icon: <FaBootstrap />, category: "frontend" },
+    { id: 14, name: "Tailwind CSS", icon: <SiTailwindcss />, category: "frontend" },
+    { id: 15, name: "Vite", icon: <SiVite />, category: "frontend" },
+  
     // Backend
-    { id: 15, name: "Node.js", icon: <FaNode />, category: "backend" },
-    { id: 16, name: "Express.js", icon: <SiExpress />, category: "backend" },
-    { id: 17, name: "Flask", icon: <SiFlask />, category: "backend" },
-    
+    { id: 16, name: "Node.js", icon: <FaNode />, category: "backend" },
+    { id: 17, name: "Express.js", icon: <SiExpress />, category: "backend" },
+    { id: 18, name: "Flask", icon: <SiFlask />, category: "backend" },
+    { id: 19, name: ".NET & ASP.NET Core", icon: <SiDotnet />, category: "backend" },
+  
     // Database
-    { id: 18, name: "MongoDB", icon: <SiMongodb />, category: "database" },
-    { id: 19, name: "MySQL", icon: <SiMysql />, category: "database" },
-    { id: 20, name: "Firebase", icon: <SiFirebase />, category: "database" },    
-    
+    { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
+    { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
+    { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },    
+  
     // Cloud & Hosting (Complete Cloud Section)
-    { id: 21, name: "AWS", icon: <FaAws />, category: "cloud" },
-    { id: 22, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
-    { id: 23, name: "Google Cloud", icon: <SiGooglecloud />, category: "cloud" },
-    { id: 24, name: "Vercel", icon: <SiVercel />, category: "cloud" },
-    { id: 25, name: "Netlify", icon: <SiNetlify />, category: "cloud" },
-    { id: 26, name: "Render", icon: <SiRender />, category: "cloud" },
-    { id: 27, name: "Clever Cloud", icon: <FaCloud />, category: "cloud" },
-    
+    { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
+    { id: 24, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
+    { id: 25, name: "Google Cloud", icon: <SiGooglecloud />, category: "cloud" },
+    { id: 26, name: "Vercel", icon: <SiVercel />, category: "cloud" },
+    { id: 27, name: "Netlify", icon: <SiNetlify />, category: "cloud" },
+    { id: 28, name: "Render", icon: <SiRender />, category: "cloud" },
+    { id: 29, name: "Clever Cloud", icon: <FaCloud />, category: "cloud" },
+  
     // Mobile Development
-    { id: 28, name: "Flutter", icon: <SiFlutter />, category: "mobile" },
-    { id: 29, name: "Android Studio", icon: <FaAndroid />, category: "mobile" },
-    
+    { id: 30, name: "Flutter", icon: <SiFlutter />, category: "mobile" },
+    { id: 31, name: "Android Studio", icon: <FaAndroid />, category: "mobile" },
+  
     // Game Development
-    { id: 30, name: "Unity", icon: <SiUnity />, category: "game" },
-    
+    { id: 32, name: "Unity", icon: <SiUnity />, category: "game" },
+  
     // DevOps & Tools
-    { id: 31, name: "Git", icon: <FaGitAlt />, category: "devops" },
-    { id: 32, name: "GitHub", icon: <FaGithub />, category: "devops" },
-    { id: 33, name: "NPM", icon: <FaNpm />, category: "devops" },
-    
+    { id: 33, name: "Git", icon: <FaGitAlt />, category: "devops" },
+    { id: 34, name: "GitHub", icon: <FaGithub />, category: "devops" },
+    { id: 35, name: "NPM", icon: <FaNpm />, category: "devops" },
+  
     // IDE & Design
-    { id: 34, name: "Visual Studio", icon: <SiVisualstudio />, category: "tools" },
-    { id: 35, name: "Netbeans", icon: <SiApache />, category: "tools" },
-    { id: 36, name: "Figma", icon: <SiFigma />, category: "tools" },
-    { id: 37, name: "Postman", icon: <SiPostman />, category: "tools" },
-    { id: 38, name: "Testing", icon: <SiTestinglibrary />, category: "tools" },
+    { id: 36, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
+    { id: 37, name: "Netbeans", icon: <SiApache />, category: "tools" },
+    { id: 38, name: "Figma", icon: <SiFigma />, category: "tools" },
+    { id: 39, name: "Postman", icon: <SiPostman />, category: "tools" },
+    { id: 40, name: "Testing", icon: <SiTestinglibrary />, category: "tools" },
   ], []);
 
   const LazySkillIcon = ({ icon }) => {

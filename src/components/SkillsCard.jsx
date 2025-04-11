@@ -8,20 +8,34 @@ function SkillsCard({ data }) {
   const skills_names = Object.values(data.skills);
   const skillsContainerRef = useRef(null);
 
-  const handleSkillClick = (skillName) => {
+  const handleSkillClick = (skillName, e) => {
+    e?.stopPropagation();
     const index = skills_names.indexOf(skillName);
     if (index !== -1 && skillsContainerRef.current) {
       const cloud = skillsContainerRef.current.querySelector('.icon-cloud');
       if (cloud) {
         const icons = cloud.querySelectorAll('a');
         if (icons.length > index) {
-          icons[index].focus();
-          icons[index].click();
+          const clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          icons[index].dispatchEvent(clickEvent);
+          
+          const skillNameElement = e?.target.closest('.skill__name') || 
+            document.querySelector(`.skill__name:nth-child(${index + 1})`);
+          if (skillNameElement) {
+            skillNameElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'center'
+            });
+          }
         }
       }
     }
   };
-  
 
   return (
     <div className="skills__container" ref={skillsContainerRef}>
@@ -35,7 +49,8 @@ function SkillsCard({ data }) {
           <span 
             key={index} 
             className="skill__name"
-            onClick={() => handleSkillClick(name)}
+            onClick={(e) => handleSkillClick(name, e)}
+            onTouchEnd={(e) => handleSkillClick(name, e)}
           >
             {name}
           </span>

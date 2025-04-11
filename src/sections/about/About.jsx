@@ -115,6 +115,17 @@ const About = memo(() => {
   };
 
   const centerSkillIcon = React.useCallback((icon, container) => {
+    // Handle both direct element and event inputs
+    if (icon instanceof Event) {
+      icon = icon.target.closest('.skill__icon-wrapper');
+      if (!icon) return;
+      
+      // Prevent default for touch events
+      if (icon.type === 'touchend') {
+        icon.preventDefault();
+      }
+    }
+
     const iconElements = container.querySelectorAll('.skill__icon-wrapper');
     const skillNames = container.querySelectorAll('.skill__name');
 
@@ -153,14 +164,11 @@ const About = memo(() => {
     const index = Array.from(iconElements).indexOf(icon);
     if (skillNames[index]) {
       skillNames[index].classList.add('active');
-      // Scroll the skill name into view on mobile
-      if (window.innerWidth <= 600) {
-        skillNames[index].scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center'
-        });
-      }
+      skillNames[index].scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
     }
   }, []);
 
@@ -214,10 +222,13 @@ const About = memo(() => {
       icon.dataset.z = point.z;
       icon.dataset.speedFactor = "1.0";
 
-      icon.addEventListener('click', (e) => {
+      const handleIconClick = (e) => {
         e.stopPropagation();
-        centerSkillIcon(icon, container);
-      });
+        centerSkillIcon(e.currentTarget, container);
+      };
+
+      icon.addEventListener('click', handleIconClick);
+      icon.addEventListener('touchend', handleIconClick);
     });
 
     const animate = () => {
@@ -401,10 +412,13 @@ const About = memo(() => {
 
     const skillNames = container.querySelectorAll('.skill__name');
     skillNames.forEach((skillName, index) => {
-      skillName.addEventListener('click', () => {
+      const handleSkillNameClick = (e) => {
         const icon = iconElements[index];
         centerSkillIcon(icon, container);
-      });
+      };
+
+      skillName.addEventListener('click', handleSkillNameClick);
+      skillName.addEventListener('touchend', handleSkillNameClick);
     });
 
     return () => {
@@ -424,6 +438,7 @@ const About = memo(() => {
 
       skillNames.forEach((skillName) => {
         skillName.removeEventListener('click', () => {});
+        skillName.removeEventListener('touchend', () => {});
       });
     };
   }, [centerSkillIcon, skillsData]);
@@ -469,7 +484,19 @@ const About = memo(() => {
           >
             {skillsData.map((skill) => (
               <div key={skill.id} className="skill__icon-wrapper" draggable="false">
-                <div className="skill__icon">
+                <div 
+                  className="skill__icon"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    centerSkillIcon(e.currentTarget.parentElement, skillsContainerRef.current);
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    centerSkillIcon(e.currentTarget.parentElement, skillsContainerRef.current);
+                  }}
+                >
                   <LazySkillIcon icon={skill.icon} />
                 </div>
               </div>
@@ -477,7 +504,24 @@ const About = memo(() => {
           </div>
           <div className="skills__names">
             {skillsData.map((skill) => (
-              <span key={skill.id} className="skill__name">{skill.name}</span>
+              <span 
+                key={skill.id} 
+                className="skill__name"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const index = skillsData.findIndex(s => s.id === skill.id);
+                  const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
+                  centerSkillIcon(icon, skillsContainerRef.current);
+                }}
+                onTouchEnd={(e) => {
+                  e.stopPropagation();
+                  const index = skillsData.findIndex(s => s.id === skill.id);
+                  const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
+                  centerSkillIcon(icon, skillsContainerRef.current);
+                }}
+              >
+                {skill.name}
+              </span>
             ))}
           </div>
         </div>

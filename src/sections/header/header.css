@@ -133,6 +133,13 @@ header {
   overflow: hidden;
 }
 
+@media screen and (min-width: 1025px) {
+  .info {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
 /* MEDIA QUERIES (tablets) */
 @media screen and (max-width: 1024px) {
   header {

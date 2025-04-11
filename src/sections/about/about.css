@@ -66,7 +66,6 @@
   min-height: 500px;
   overflow: hidden;
   perspective: 1500px;
-  touch-action: none;
 }
 
 .skills__container h2 {
@@ -88,6 +87,7 @@
   transform-style: preserve-3d;
   margin-bottom: 1rem;
   overflow: visible;
+  touch-action: none;
 }
 
 .skills__floating-area:active {
@@ -105,6 +105,7 @@
   user-select: none;
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .skill__icon {
@@ -121,6 +122,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   backface-visibility: hidden;
   pointer-events: auto;
+  touch-action: none;
 }
 
 .skill__icon:hover, .skill__icon.active {
@@ -154,6 +156,8 @@
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 .skill__name:hover, .skill__name.active {

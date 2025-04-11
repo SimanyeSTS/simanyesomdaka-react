@@ -1,3 +1,4 @@
+/* Updated styling for the loading screen to keep progress bar visible */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -18,6 +19,10 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  height: 100%;
+  width: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .loading-screen .profile__area {
@@ -32,7 +37,7 @@
 
 .loading-screen .loading-profile {
   position: relative;
-  margin-bottom: 120px;
+  margin-bottom: 0; /* Remove fixed margin */
 }
 
 .loading-screen .profile__area.fade-out {
@@ -95,9 +100,10 @@
   overflow: hidden;
 }
 
+/* Fixed progress container positioning */
 .loading-screen .progress-container {
-  position: absolute;
-  bottom: -100px;
+  position: fixed; /* Changed from absolute to fixed */
+  bottom: 10%; /* Percentage-based position from bottom */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -105,12 +111,13 @@
   align-items: center;
   opacity: 1;
   transition: opacity 0.6s ease-out;
-  z-index: 1;
-  width: 100%;
+  z-index: 10; /* Increased z-index */
+  width: 80%; /* Responsive width */
+  max-width: 400px;
 }
 
 .loading-screen .progress-bar {
-  width: 200px;
+  width: 100%; /* Full width of container */
   height: 6px;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 3px;
@@ -171,16 +178,15 @@
   .loading-screen .inner__circle {
     width: 15rem;
   }
-  
-  .loading-screen .loading-profile {
-    margin-bottom: 100px;
-  }
 }
 
 @media screen and (max-width: 600px) {
   .loading-screen .outer__circle {
     width: 16rem;
-    height: 16rem;
+  }
+
+  .loading-screen .inner__circle {
+    width: 10rem;
   }
 
   .loading-screen .tech-icon {
@@ -206,12 +212,20 @@
     bottom: -1.5rem;
     left: calc(50% - 1.5rem);
   }
+  
+  /* Ensure progress bar stays visible on very small screens */
+  .loading-screen .progress-container {
+    bottom: 5%;
+  }
+}
 
-  .loading-screen .inner__circle {
-    width: 10rem;
+/* Fix for very short screens */
+@media screen and (max-height: 600px) {
+  .loading-screen .loading-profile {
+    transform: scale(0.8);
   }
   
-  .loading-screen .loading-profile {
-    margin-bottom: 80px;
+  .loading-screen .progress-container {
+    bottom: 10px; /* Fixed pixel distance from bottom */
   }
 }

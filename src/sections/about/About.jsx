@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo, memo } from "react";
 import { throttle } from 'lodash';
-import CV from "../../assets/cv.pdf";
+import CV from "../../assets/Simanye Somdaka's Resume (OA).PDF";
 import { HiDownload } from "react-icons/hi";
 import data from "./data";
 import Card from "../../components/Card";
@@ -24,11 +24,12 @@ import {
 
 const About = memo(() => {
   const skillsContainerRef = useRef(null);
+  const floatingAreaRef = useRef(null);
   const animationRef = useRef(null);
   const isDraggingRef = useRef(false);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
   const rotationSpeedRef = useRef({ x: 0, y: 0 });
-  const sphereRotationRef = useRef({ x: 0.3, y: 0.3 }); 
+  const sphereRotationRef = useRef({ x: 0.3, y: 0.3 });
   const useDefaultRotationRef = useRef(true);
   const animatingToFrontRef = useRef(false);
   const targetRotationRef = useRef({ x: 0, y: 0 });
@@ -65,7 +66,7 @@ const About = memo(() => {
     { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
     { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },    
   
-    // Cloud & Hosting (Complete Cloud Section)
+    // Cloud & Hosting
     { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
     { id: 24, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
     { id: 25, name: "Google Cloud", icon: <SiGooglecloud />, category: "cloud" },
@@ -88,7 +89,7 @@ const About = memo(() => {
   
     // IDE & Design
     { id: 36, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
-    { id: 37, name: "Netbeans", icon: <SiApache />, category: "tools" },
+    { id: 37, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
     { id: 38, name: "Figma", icon: <SiFigma />, category: "tools" },
     { id: 39, name: "Postman", icon: <SiPostman />, category: "tools" },
     { id: 40, name: "Testing", icon: <SiTestinglibrary />, category: "tools" },
@@ -103,7 +104,7 @@ const About = memo(() => {
           const loadedIcon = await Promise.resolve(icon);
           setLoadedIcon(() => () => loadedIcon);
         } catch (error) {
-          console.error('Icon loading failed', error);
+          alert('Icon loading failed', error);
         }
       };
 
@@ -150,13 +151,24 @@ const About = memo(() => {
     }
 
     const index = Array.from(iconElements).indexOf(icon);
-    skillNames[index].classList.add('active');
+    if (skillNames[index]) {
+      skillNames[index].classList.add('active');
+      // Scroll the skill name into view on mobile
+      if (window.innerWidth <= 600) {
+        skillNames[index].scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (!skillsContainerRef.current) return;
+    if (!skillsContainerRef.current || !floatingAreaRef.current) return;
 
     const container = skillsContainerRef.current;
+    const floatingArea = floatingAreaRef.current;
     const iconElements = container.querySelectorAll('.skill__icon-wrapper');
     const total = iconElements.length;
 
@@ -175,19 +187,15 @@ const About = memo(() => {
 
     const createSpherePoints = (n) => {
       const points = [];
-
       const goldenRatio = (1 + Math.sqrt(5)) / 2;
       const alpha = 2 * Math.PI / (goldenRatio * goldenRatio);
 
       for (let i = 0; i < n; i++) {
         const z = 1 - (2 * i + 1) / n;
         const radius = Math.sqrt(1 - z * z);
-
         const theta = alpha * i;
-
         const x = Math.cos(theta) * radius;
         const y = Math.sin(theta) * radius;
-
         points.push({ x, y, z });
       }
 
@@ -198,15 +206,12 @@ const About = memo(() => {
 
     iconElements.forEach((icon, index) => {
       const point = spherePoints[index];
-
       icon.dataset.baseX = point.x;
       icon.dataset.baseY = point.y;
       icon.dataset.baseZ = point.z;
-
       icon.dataset.x = point.x;
       icon.dataset.y = point.y;
       icon.dataset.z = point.z;
-
       icon.dataset.speedFactor = "1.0";
 
       icon.addEventListener('click', (e) => {
@@ -219,7 +224,6 @@ const About = memo(() => {
       if (!isDraggingRef.current) {
         if (animatingToFrontRef.current) {
           const easeAmount = 0.1;
-
           sphereRotationRef.current.x += (targetRotationRef.current.x - sphereRotationRef.current.x) * easeAmount;
           sphereRotationRef.current.y += (targetRotationRef.current.y - sphereRotationRef.current.y) * easeAmount;
 
@@ -256,7 +260,6 @@ const About = memo(() => {
         const finalZ = tempZ * cosX - y * sinX;
 
         const scale = (finalZ + 2) / 3;
-
         const translateX = tempX * radius * scale + center.x;
         const translateY = tempY * radius * scale + center.y;
 
@@ -271,6 +274,10 @@ const About = memo(() => {
     animate();
 
     const handleMouseDown = (e) => {
+      if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
+        return;
+      }
+      
       isDraggingRef.current = true;
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
 
@@ -283,7 +290,7 @@ const About = memo(() => {
       skillNames.forEach(name => name.classList.remove('active'));
 
       e.preventDefault();
-      container.style.cursor = 'grabbing';
+      floatingArea.style.cursor = 'grabbing';
       animatingToFrontRef.current = false;
     };
 
@@ -294,7 +301,6 @@ const About = memo(() => {
       const deltaY = e.clientY - lastMousePosRef.current.y;
     
       const rotationMultiplier = 0.005;
-    
       const cosX = Math.cos(sphereRotationRef.current.x);
       const horizontalDirection = cosX >= 0 ? 1 : -1;
     
@@ -316,11 +322,16 @@ const About = memo(() => {
     const handleMouseMove = throttle(handleMouseMoveRaw, 16);
 
     const handleMouseUp = () => {
+      if (!isDraggingRef.current) return;
       isDraggingRef.current = false;
-      container.style.cursor = 'grab';
+      floatingArea.style.cursor = 'grab';
     };
 
     const handleTouchStart = (e) => {
+      if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
+        return;
+      }
+      
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -334,7 +345,7 @@ const About = memo(() => {
         skillNames.forEach(name => name.classList.remove('active'));
 
         e.preventDefault();
-        container.style.cursor = 'grabbing';
+        floatingArea.style.cursor = 'grabbing';
         animatingToFrontRef.current = false;
       }
     };
@@ -346,7 +357,6 @@ const About = memo(() => {
       const deltaY = e.touches[0].clientY - lastMousePosRef.current.y;
 
       const rotationMultiplier = 0.005;
-
       const cosX = Math.cos(sphereRotationRef.current.x);
       const horizontalDirection = cosX >= 0 ? 1 : -1;
       
@@ -367,15 +377,16 @@ const About = memo(() => {
     };
 
     const handleTouchEnd = () => {
+      if (!isDraggingRef.current) return;
       isDraggingRef.current = false;
-      container.style.cursor = 'grab';
+      floatingArea.style.cursor = 'grab';
     };
 
-    container.addEventListener('mousedown', handleMouseDown);
+    floatingArea.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
 
-    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    floatingArea.addEventListener('touchstart', handleTouchStart, { passive: false });
     window.addEventListener('touchmove', handleTouchMove, { passive: false });
     window.addEventListener('touchend', handleTouchEnd);
 
@@ -401,11 +412,11 @@ const About = memo(() => {
         cancelAnimationFrame(animationRef.current);
       }
 
-      container.removeEventListener('mousedown', handleMouseDown);
+      floatingArea.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
 
-      container.removeEventListener('touchstart', handleTouchStart);
+      floatingArea.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
 
@@ -434,10 +445,10 @@ const About = memo(() => {
           </div>
           <div className="about__text">
             <p>
-              As a Junior Software Engineer, my passion is delivering scalable, secure, and efficient solutions by applying strong engineering principles. My expertise lies in backend and cloud development, but I take a full-stack approach when needed, ensuring that the best tools and strategies are used to solve any challenge.
+              As a Junior Software Engineer, my passion is delivering scalable, secure, and efficient solutions by applying strong engineering principles. My expertise lies in backend and cloud development, but I take a full-stack approach when needed.
             </p>
             <p>
-              Currently an Applications Development student at CPUT, I thrive in both independent and collaborative environments. My skills span data analysis, pattern recognition, and system optimization, with a keen interest in cloud security and infrastructure design. With a focus on mastering problem-solving and scalable architecture, I adapt quickly to new technologies and challenges, always approaching each project with a solution-driven mindset.
+              Currently an Applications Development student at CPUT, I thrive in both independent and collaborative environments. My skills span data analysis, pattern recognition, and system optimization, with a keen interest in cloud security and infrastructure design.
             </p>
             <p>
               I'm always eager to connect with like-minded professionals and explore new opportunities. If you have a project or challenge, feel free to reach out—let's create something impactful!
@@ -451,7 +462,11 @@ const About = memo(() => {
         <div className="skills__container" ref={skillsContainerRef}>
           <h2>Skills</h2>
           <p>Empowered by knowledge, driven by skills—here's what I bring to the table.</p>
-          <div className="skills__floating-area">
+          <div 
+            className="skills__floating-area" 
+            ref={floatingAreaRef}
+            style={{ cursor: 'grab' }}
+          >
             {skillsData.map((skill) => (
               <div key={skill.id} className="skill__icon-wrapper" draggable="false">
                 <div className="skill__icon">

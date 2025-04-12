@@ -125,10 +125,10 @@ const About = memo(() => {
 
   const clearAllActiveStates = React.useCallback(() => {
     if (!skillsContainerRef.current) return;
-    
+
     const iconElements = skillsContainerRef.current.querySelectorAll('.skill__icon');
     const skillNames = skillsContainerRef.current.querySelectorAll('.skill__name');
-    
+
     iconElements.forEach(icon => {
       icon.classList.remove('active');
       if (isMobile) {
@@ -136,7 +136,7 @@ const About = memo(() => {
         setTimeout(() => icon.classList.remove('hover-clear'), 3000);
       }
     });
-    
+
     skillNames.forEach(name => {
       name.classList.remove('active');
       if (isMobile) {
@@ -148,12 +148,12 @@ const About = memo(() => {
 
   const activateSkillPair = React.useCallback((index) => {
     if (!skillsContainerRef.current) return;
-    
+
     clearAllActiveStates();
-    
+
     const icons = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper');
     const names = skillsContainerRef.current.querySelectorAll('.skill__name');
-    
+
     if (icons[index]) {
       const icon = icons[index].querySelector('.skill__icon');
       if (icon) {
@@ -161,7 +161,7 @@ const About = memo(() => {
         if (isMobile) icon.classList.remove('hover-clear');
       }
     }
-    
+
     if (names[index]) {
       names[index].classList.add('active');
       if (isMobile) names[index].classList.remove('hover-clear');
@@ -173,32 +173,53 @@ const About = memo(() => {
     }
   }, [clearAllActiveStates, isMobile]);
 
-  const centerSkillIcon = React.useCallback((icon, container) => {
+  const centerSkillIcon = React.useCallback((iconOrEvent, container) => {
+    // Early return if there was significant touch movement (for swipe vs tap detection)
     if (touchMovedRef.current) return;
 
-    if (icon instanceof Event) {
-      icon = icon.target.closest('.skill__icon-wrapper, .skill__name');
-      if (!icon) return;
-    }
-
-    let index;
-    if (icon.classList.contains('skill__name')) {
-      index = Array.from(container.querySelectorAll('.skill__name')).indexOf(icon);
+    let icon;
+    let index = -1;
+    
+    // Handle if passed an event
+    if (iconOrEvent instanceof Event || (iconOrEvent.nativeEvent && iconOrEvent.currentTarget)) {
+      const target = iconOrEvent.currentTarget || iconOrEvent.target;
+      
+      // Handle if the clicked element is a skill name
+      if (target.classList.contains('skill__name')) {
+        index = Array.from(container.querySelectorAll('.skill__name')).indexOf(target);
+        // Get the corresponding icon element
+        if (index !== -1) {
+          icon = container.querySelectorAll('.skill__icon-wrapper')[index];
+        }
+      } else {
+        // Handle if the clicked element is an icon or icon wrapper
+        icon = target.closest('.skill__icon-wrapper');
+        if (icon) {
+          index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
+        }
+      }
     } else {
+      // Handle if directly passed an element
+      icon = iconOrEvent;
       index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
     }
+    
+    // If we couldn't find a valid icon or index, exit early
+    if (!icon || index === -1) return;
 
-    if (index === -1) return;
-
+    // Activate the skill (highlight both icon and name)
     activateSkillPair(index);
 
+    // Get the 3D coordinates from the dataset
     const x = parseFloat(icon.dataset.baseX || 0);
     const y = parseFloat(icon.dataset.baseY || 0);
     const z = parseFloat(icon.dataset.baseZ || 0);
 
+    // Calculate target rotation to bring this point to the front
     const targetRotationY = -Math.atan2(x, z);
     const targetRotationX = -Math.atan2(y, Math.sqrt(x * x + z * z));
 
+    // Store initial and target rotations
     initialRotationRef.current = { 
       x: sphereRotationRef.current.x, 
       y: sphereRotationRef.current.y 
@@ -209,6 +230,7 @@ const About = memo(() => {
       y: targetRotationY 
     };
 
+    // Start animation to front
     animatingToFrontRef.current = true;
     useDefaultRotationRef.current = false;
     rotationSpeedRef.current = { x: 0, y: 0 };
@@ -245,6 +267,25 @@ const About = memo(() => {
       centerSkillIcon(e.currentTarget, skillsContainerRef.current);
     }
     e.preventDefault();
+  };
+
+  const handleSkillNameClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    // Find the index of the clicked skill name
+    const index = Array.from(skillsContainerRef.current.querySelectorAll('.skill__name')).indexOf(e.currentTarget);
+    if (index === -1) return;
+    
+    // Get the corresponding icon element
+    const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
+    if (!icon) return;
+    
+    // Reset touchMoved flag to ensure centerSkillIcon will work
+    touchMovedRef.current = false;
+    
+    // Call centerSkillIcon directly with the icon
+    centerSkillIcon(icon, skillsContainerRef.current);
   };
 
   useEffect(() => {
@@ -358,7 +399,7 @@ const About = memo(() => {
 
       isDraggingRef.current = true;
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
-      
+
       clearAllActiveStates();
 
       e.preventDefault();
@@ -407,7 +448,7 @@ const About = memo(() => {
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        
+
         clearAllActiveStates();
 
         e.preventDefault();
@@ -554,15 +595,12 @@ const About = memo(() => {
               <span 
                 key={skill.id} 
                 className="skill__name"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
-                  centerSkillIcon(icon, skillsContainerRef.current);
-                }}
+                onClick={handleSkillNameClick}
                 onTouchStart={handleIconTouchStart}
                 onTouchMove={handleIconTouchMove}
                 onTouchEnd={(e) => {
-                  handleIconTouchEnd(e);
+                  e.preventDefault();
+                  handleSkillNameClick(e);
                   if (isMobile) e.currentTarget.classList.add('hover-clear');
                 }}
               >

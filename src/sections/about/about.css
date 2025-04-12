@@ -278,16 +278,29 @@ h2 {
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .skill__name.hover-clear:hover,
-  .skill__icon.hover-clear:hover {
-    background-color: var(--color-light) !important;
-    color: var(--color-black) !important;
-    transform: none !important;
+  /* Disable hover effects completely for touch devices */
+  .skill__name:hover {
+    background-color: var(--color-light);
+    color: var(--color-black);
   }
-
-  .skill__name.active:hover,
-  .skill__icon.active:hover {
-    background-color: var(--color-primary) !important;
-    color: var(--color-white) !important;
+  
+  /* But keep active states working */
+  .skill__name.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+  
+  /* Same for skill icons */
+  .skill__icon:hover {
+    background-color: var(--color-light);
+    color: var(--color-primary);
+    transform: none;
+  }
+  
+  .skill__icon.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: scale(1.2);
+    z-index: 1000 !important;
   }
 }

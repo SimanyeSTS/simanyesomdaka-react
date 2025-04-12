@@ -286,3 +286,18 @@ h2 {
     font-size: 1rem;
   }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .skill__name.hover-clear:hover,
+  .skill__icon.hover-clear:hover {
+    background-color: var(--color-light) !important;
+    color: var(--color-black) !important;
+    transform: none !important;
+  }
+  
+  .skill__name.active:hover,
+  .skill__icon.active:hover {
+    background-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
+  }
+}

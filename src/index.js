@@ -3,29 +3,52 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ModalProvider } from "./context/modal-context";
 import { ThemeProvider } from "./context/theme-context";
+import LoadingScreen from './components/LoadingScreen';
+import './index.css';
 
-// 1. Render loading screen IMMEDIATELY
-const loadingRoot = ReactDOM.createRoot(document.getElementById('loading-root'));
-loadingRoot.render(
+// Create loading container that will be rendered first
+const loadingRoot = document.createElement('div');
+loadingRoot.id = 'loading-root';
+loadingRoot.style.position = 'fixed';
+loadingRoot.style.top = '0';
+loadingRoot.style.left = '0';
+loadingRoot.style.width = '100%';
+loadingRoot.style.height = '100%';
+loadingRoot.style.zIndex = '9999';
+document.body.prepend(loadingRoot);
+
+// Apply initial styles to prevent FOUC (Flash of Unstyled Content)
+const initialStyles = document.createElement('style');
+initialStyles.textContent = `
+  body { overflow: hidden; margin: 0; padding: 0; }
+  #root { opacity: 0; transition: opacity 0.5s ease-in; }
+`;
+document.head.appendChild(initialStyles);
+
+// Render the loading screen first, before any other content
+const loadingRender = ReactDOM.createRoot(loadingRoot);
+loadingRender.render(
   <ThemeProvider>
-    <ModalProvider>
-      <App loadingMode />
-    </ModalProvider>
+    <LoadingScreen 
+      onLoadingComplete={() => {
+        // When loading is complete, show the main app and remove loading screen
+        document.getElementById('root').style.opacity = '1';
+        setTimeout(() => {
+          // Remove loading root after transition completes
+          loadingRoot.remove();
+          initialStyles.remove();
+        }, 1000);
+      }} 
+    />
   </ThemeProvider>
 );
 
-// 2. Render main app (will hydrate behind loading screen)
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Render the main application
+const root = ReactDOM.createRoot(document.querySelector("#root"));
 root.render(
   <ThemeProvider>
     <ModalProvider>
-      <App onLoaded={() => {
-        // Remove loading screen when EVERYTHING is ready
-        setTimeout(() => {
-          document.body.classList.remove('loading');
-          document.getElementById('loading-root').remove();
-        }, 300);
-      }} />
+      <App />
     </ModalProvider>
   </ThemeProvider>
 );

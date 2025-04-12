@@ -159,7 +159,7 @@ const About = memo(() => {
       if (icon) {
         icon.classList.add('active');
         if (isMobile) icon.classList.remove('hover-clear');
- }
+      }
     }
 
     if (names[index]) {
@@ -257,7 +257,17 @@ const About = memo(() => {
     e.preventDefault();
   };
 
-  const handleSkillNameScrollCheck = (e) => {
+  const handleSkillNameTouchStart = (e) => {
+    touchStartPosRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY
+    };
+    touchStartTimeRef.current = Date.now();
+    touchMovedRef.current = false;
+    isTapRef.current = true;
+  };
+
+  const handleSkillNameTouchMove = (e) => {
     const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
     const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
 
@@ -267,14 +277,22 @@ const About = memo(() => {
     }
   };
 
+  const handleSkillNameTouchEnd = (e) => {
+    if (touchMovedRef.current) {
+      e.preventDefault();
+      return;
+    }
+
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    if (elapsed < 300) {
+      handleSkillNameClick(e);
+    }
+    e.preventDefault();
+  };
+
   const handleSkillNameClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
-
-    if (touchMovedRef.current) {
-      touchMovedRef.current = false;
-      return;
-    }
 
     const index = Array.from(skillsContainerRef.current.querySelectorAll('.skill__name')).indexOf(e.currentTarget);
     if (index === -1) return;
@@ -295,7 +313,7 @@ const About = memo(() => {
     const total = iconElements.length;
 
     if (animationRef.current) {
-      cancelAnimationFrame(animationRef .current);
+      cancelAnimationFrame(animationRef.current);
     }
 
     const containerRect = container.getBoundingClientRect();
@@ -409,7 +427,7 @@ const About = memo(() => {
       if (!isDraggingRef.current) return;
 
       const deltaX = e.clientX - lastMousePosRef.current.x;
-      const deltaY = e.clientY - last MousePosRef.current.y;
+      const deltaY = e.clientY - lastMousePosRef.current.y;
 
       const rotationMultiplier = 0.005;
       const cosX = Math.cos(sphereRotationRef.current.x);
@@ -529,7 +547,7 @@ const About = memo(() => {
           <p>Every journey has a story—here's mine.</p>
           <div className="about__cards">
             {data.map((item) => (
- <Card key={item.id} className="about__card">
+              <Card key={item.id} className="about__card">
                 <span className="about__card-icon">{item.icon}</span>
                 <h5>{item.title}</h5>
                 <small>{item.desc}</small>
@@ -594,11 +612,10 @@ const About = memo(() => {
                 key={skill.id} 
                 className="skill__name"
                 onClick={handleSkillNameClick}
-                onTouchStart={handleIconTouchStart}
-                onTouchMove={handleSkillNameScrollCheck}
+                onTouchStart={handleSkillNameTouchStart}
+                onTouchMove={handleSkillNameTouchMove}
                 onTouchEnd={(e) => {
-                  e.preventDefault();
-                  handleSkillNameClick(e);
+                  handleSkillNameTouchEnd(e);
                   if (isMobile) e.currentTarget.classList.add('hover-clear');
                 }}
               >

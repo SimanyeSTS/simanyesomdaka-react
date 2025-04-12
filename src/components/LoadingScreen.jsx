@@ -5,6 +5,16 @@ import { useThemeContext } from "../context/theme-context";
 import profile from '../assets/profile.png';
 import './loading.css';
 
+// Force browser repaint - this helps with mobile rendering issues
+const forceRepaint = (element) => {
+  if (!element) return;
+  // Force layout recalculation
+  void element.offsetHeight;
+  // Apply and remove a class to force repaint
+  element.classList.add('force-repaint');
+  setTimeout(() => element.classList.remove('force-repaint'), 0);
+};
+
 const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -32,65 +42,108 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   }, [isVisible]);
 
   // Track actual loading progress
+  // Aggressively force progress bar rendering
   useEffect(() => {
-    // Initialize progress
-    setLoadingProgress(0);
+    // Set initial progress immediately
+    setLoadingProgress(5);
     
-    // Create an array of resources to track
-    const resourceTypes = [
-      'css', 'script', 'img', 'font', 'fetch'
-    ];
-    
-    let resourcesLoaded = 0;
-    let totalResources = 1; // Start with 1 to avoid division by zero
-    
-    // Function to update loading progress
-    const updateProgress = () => {
-      const progress = Math.min(Math.floor((resourcesLoaded / totalResources) * 100), 100);
-      setLoadingProgress(progress);
-    };
-
-    // Track loading of all resources
-    const resourceObserver = new PerformanceObserver((entries) => {
-      entries.getEntries().forEach(entry => {
-        if (resourceTypes.includes(entry.initiatorType)) {
-          totalResources++;
-          if (entry.responseEnd > 0) {
-            resourcesLoaded++;
-            updateProgress();
-          }
-        }
-      });
-    });
-    
-    // Start observing resource timing
-    resourceObserver.observe({ entryTypes: ['resource'] });
-    
-    // Add event listeners for document load states
-    window.addEventListener('DOMContentLoaded', () => {
-      resourcesLoaded++;
-      updateProgress();
-    });
-    
-    // Fallback mechanism to ensure progress reaches 100%
-    const fallbackTimer = setTimeout(() => {
-      if (loadingProgress < 100) {
-        setLoadingProgress(100);
+    // Force immediate repaints
+    setTimeout(() => {
+      if (progressBarRef.current) {
+        forceRepaint(progressBarRef.current);
       }
-    }, 5000); // Maximum loading time of 5 seconds
+    }, 10);
+    
+    // Simulate loading with forced repaints to ensure visibility
+    const simulateLoading = () => {
+      const increment = () => {
+        setLoadingProgress(prev => {
+          if (prev >= 100) return 100;
+          return prev + Math.random() * 5 + 2; // Random increment for natural feel
+        });
+        
+        // Force repaint on each update
+        if (progressBarRef.current) {
+          forceRepaint(progressBarRef.current);
+        }
+      };
+      
+      // Start with quick progress to show movement immediately
+      const immediateTimer = setInterval(() => {
+        increment();
+      }, 100);
+      
+      // After initial fast progress, slow down for the rest
+      setTimeout(() => {
+        clearInterval(immediateTimer);
+        const slowTimer = setInterval(() => {
+          increment();
+          if (loadingProgress >= 90) {
+            clearInterval(slowTimer);
+            
+            // Final push to 100%
+            setTimeout(() => {
+              setLoadingProgress(100);
+              forceRepaint(progressBarRef.current);
+            }, 500);
+          }
+        }, 200);
+      }, 1000);
+    };
+    
+    // Start simulated loading immediately
+    simulateLoading();
+    
+    // Hard fallback to ensure completion
+    const fallbackTimer = setTimeout(() => {
+      setLoadingProgress(100);
+      if (progressBarRef.current) {
+        forceRepaint(progressBarRef.current);
+      }
+    }, 5000);
     
     return () => {
-      resourceObserver.disconnect();
       clearTimeout(fallbackTimer);
     };
   }, []);
 
   // Handle completion sequence when loading reaches 100%
+  // Preload ALL app content
+  useEffect(() => {
+    // Preload all images in the document
+    const preloadAllImages = () => {
+      const imgElements = document.querySelectorAll('img[src]');
+      imgElements.forEach(img => {
+        const src = img.getAttribute('src');
+        if (src) {
+          const preloadLink = document.createElement('link');
+          preloadLink.rel = 'preload';
+          preloadLink.as = 'image';
+          preloadLink.href = src;
+          document.head.appendChild(preloadLink);
+        }
+      });
+    };
+    
+    // Execute preloading
+    preloadAllImages();
+  }, []);
+
+  // Handle completion with no white flash
   useEffect(() => {
     if (loadingProgress === 100) {
+      // Make sure app content is rendered BEFORE removing loading screen
+      // Render the main app behind the scenes
+      if (onLoadingComplete) {
+        // Signal to render main app while loading screen is still visible
+        onLoadingComplete(false); // false = don't remove loading screen yet
+      }
+      
+      // Wait a bit to ensure main app content is ready
       setTimeout(() => {
         if (progressBarRef.current) {
           progressBarRef.current.classList.add('fade-out');
+          forceRepaint(progressBarRef.current);
         }
         
         setTimeout(() => {
@@ -99,6 +152,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
           setTimeout(() => {
             if (profileRef.current) {
               profileRef.current.classList.add('fade-out');
+              forceRepaint(profileRef.current);
             }
             
             setTimeout(() => {
@@ -107,19 +161,23 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               
               if (loadingScreenRef.current) {
                 loadingScreenRef.current.classList.add('dim-screen');
+                forceRepaint(loadingScreenRef.current);
                 
+                // Only after transition to transparent is complete, trigger loading screen removal
                 setTimeout(() => {
                   loadingScreenRef.current.classList.add('brighten-screen');
+                  forceRepaint(loadingScreenRef.current);
                   
+                  // Now that the screen is transparent, we can safely hide it
                   setTimeout(() => {
                     setIsVisible(false);
-                    onLoadingComplete();
+                    if (onLoadingComplete) onLoadingComplete(true); // true = now we can fully remove it
                   }, 700);
-                }, 1000);
+                }, 500); // Reduced from 1000ms to 500ms
               }
-            }, 600);
-          }, 1500);
-        }, 600);
+            }, 300); // Reduced from 600ms to 300ms
+          }, 800); // Reduced from 1500ms to 800ms
+        }, 400); // Reduced from 600ms to 400ms
       }, 300);
     }
   }, [loadingProgress, onLoadingComplete]);

@@ -125,7 +125,8 @@
   touch-action: none;
 }
 
-.skill__icon:hover, .skill__icon.active {
+.skill__icon:hover, 
+.skill__icon.active {
   background-color: var(--color-primary);
   color: var(--color-white);
   transform: scale(1.2);
@@ -164,9 +165,17 @@
   touch-action: manipulation;
 }
 
-.skill__name:hover, .skill__name.active {
+.skill__name.active {
   background-color: var(--color-primary);
   color: var(--color-white);
+}
+
+/* Only apply hover effects for non-touch devices - SKILLS NAMES ONLY */
+@media (hover: hover) and (pointer: fine) {
+  .skill__name:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
 }
 
 h2 {
@@ -274,33 +283,5 @@ h2 {
 
   .skill__icon {
     font-size: 1rem;
-  }
-}
-
-@media (hover: none) and (pointer: coarse) {
-  /* Disable hover effects completely for touch devices */
-  .skill__name:hover {
-    background-color: var(--color-light);
-    color: var(--color-black);
-  }
-  
-  /* But keep active states working */
-  .skill__name.active {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-  }
-  
-  /* Same for skill icons */
-  .skill__icon:hover {
-    background-color: var(--color-light);
-    color: var(--color-primary);
-    transform: none;
-  }
-  
-  .skill__icon.active {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    transform: scale(1.2);
-    z-index: 1000 !important;
   }
 }

@@ -6,42 +6,36 @@ import { ThemeProvider } from "./context/theme-context";
 import LoadingScreen from './components/LoadingScreen';
 import './index.css';
 
-// Create loading container that will be rendered first
-const loadingRoot = document.createElement('div');
-loadingRoot.id = 'loading-root';
-loadingRoot.style.position = 'fixed';
-loadingRoot.style.top = '0';
-loadingRoot.style.left = '0';
-loadingRoot.style.width = '100%';
-loadingRoot.style.height = '100%';
-loadingRoot.style.zIndex = '9999';
-document.body.prepend(loadingRoot);
+// Find the existing loading-root element
+const loadingRoot = document.getElementById('loading-root');
 
-// Apply initial styles to prevent FOUC (Flash of Unstyled Content)
-const initialStyles = document.createElement('style');
-initialStyles.textContent = `
-  body { overflow: hidden; margin: 0; padding: 0; }
-  #root { opacity: 0; transition: opacity 0.5s ease-in; }
-`;
-document.head.appendChild(initialStyles);
-
-// Render the loading screen first, before any other content
+// Render the loading screen into the existing loading-root element
 const loadingRender = ReactDOM.createRoot(loadingRoot);
 loadingRender.render(
   <ThemeProvider>
     <LoadingScreen 
       onLoadingComplete={() => {
-        // When loading is complete, show the main app and remove loading screen
+        // When loading is complete, show the main app and remove loading class
         document.getElementById('root').style.opacity = '1';
+        document.body.classList.remove('loading');
+        
         setTimeout(() => {
           // Remove loading root after transition completes
-          loadingRoot.remove();
-          initialStyles.remove();
+          if (loadingRoot.parentNode) {
+            loadingRoot.parentNode.removeChild(loadingRoot);
+          }
         }, 1000);
       }} 
     />
   </ThemeProvider>
 );
+
+// Apply initial styles to prevent FOUC (Flash of Unstyled Content)
+const initialStyles = document.createElement('style');
+initialStyles.textContent = `
+  #root { opacity: 0; transition: opacity 0.5s ease-in; }
+`;
+document.head.appendChild(initialStyles);
 
 // Render the main application
 const root = ReactDOM.createRoot(document.querySelector("#root"));

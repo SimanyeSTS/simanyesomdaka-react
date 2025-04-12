@@ -13,18 +13,25 @@ import CustomAnimatedCursor from "./components/CustomAnimatedCursor";
 import { useThemeContext } from "./context/theme-context";
 import { useRef, useState, useEffect } from "react";
 
-const App = () => {
+const App = ({ onLoaded }) => {
   const { themeState } = useThemeContext();
   
   useEffect(() => {
+    // Force scroll to top on load and clear any hash
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
     if (window.location.hash) {
       window.location.hash = '';
     }
-  }, []);
+    
+    // Signal that app is loaded
+    if (onLoaded) {
+      onLoaded();
+    }
+  }, [onLoaded]);
 
   useEffect(() => {
+    // Update theme color meta tag
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
       themeColorMeta.setAttribute('content', `hsl(${themeState.primaryHue}, 89%, 41%)`);
@@ -32,6 +39,7 @@ const App = () => {
   }, [themeState.primaryHue]);
 
   useEffect(() => {
+    // Update scrollbar colors based on theme
     const root = document.documentElement;
     root.style.setProperty("--scrollbar-thumb-color", `hsl(${themeState.primaryHue}, 89%, 41%)`);
     if (themeState.background === "bg-1") {

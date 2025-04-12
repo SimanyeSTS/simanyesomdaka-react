@@ -5,7 +5,7 @@ import { useThemeContext } from "../context/theme-context";
 import profile from '../assets/profile.png';
 import './loading.css';
 
-// Universal force repaint function
+// Nuclear force repaint function for all browsers
 const forceRepaint = (element) => {
   if (!element) return;
   // Multiple techniques to force repaint
@@ -40,17 +40,19 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const textColor = isLightTheme ? '#100F0F' : 'white';
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
 
-  // Prevent scrolling while loading screen is visible
+  // Lock scrolling during loading
   useEffect(() => {
-    document.body.style.overflow = isVisible ? 'hidden' : 'auto';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
-  }, [isVisible]);
+  }, []);
 
-  // Universal loading simulation with forced rendering
+  // Nuclear loading simulation with forced rendering
   useEffect(() => {
-    // Initial immediate progress to show activity
+    // Initial immediate jump to show activity
     setLoadingProgress(5);
     forceRepaint(progressBarRef.current);
     
@@ -64,8 +66,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       const increment = () => {
         setLoadingProgress(prev => {
           if (prev >= 100) return 100;
-          const newProgress = prev + Math.random() * 5 + 2;
-          return Math.min(newProgress, 100);
+          return prev + Math.random() * 5 + 2;
         });
         forceRepaint(progressBarRef.current);
       };
@@ -79,7 +80,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         const slowTimer = setInterval(() => {
           if (loadingProgress >= 90) {
             clearInterval(slowTimer);
-            // Final smooth transition to 100%
+            // Final smooth transition to exactly 100%
             const finalTimer = setInterval(() => {
               setLoadingProgress(prev => {
                 const newProgress = prev + (100 - prev) * 0.3;
@@ -111,7 +112,68 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     simulateLoading();
   }, []);
 
-  // [Keep all your existing useEffect hooks for preloading and completion sequence]
+  // Preload all content
+  useEffect(() => {
+    const preloadAllImages = () => {
+      const imgElements = document.querySelectorAll('img[src]');
+      imgElements.forEach(img => {
+        const src = img.getAttribute('src');
+        if (src) {
+          const preloadLink = document.createElement('link');
+          preloadLink.rel = 'preload';
+          preloadLink.as = 'image';
+          preloadLink.href = src;
+          document.head.appendChild(preloadLink);
+        }
+      });
+    };
+    preloadAllImages();
+  }, []);
+
+  // Handle completion sequence
+  useEffect(() => {
+    if (loadingProgress === 100) {
+      if (onLoadingComplete) onLoadingComplete(false);
+      
+      setTimeout(() => {
+        if (progressBarRef.current) {
+          progressBarRef.current.classList.add('fade-out');
+          forceRepaint(progressBarRef.current);
+        }
+        
+        setTimeout(() => {
+          setProgressBarVisible(false);
+          
+          setTimeout(() => {
+            if (profileRef.current) {
+              profileRef.current.classList.add('fade-out');
+              forceRepaint(profileRef.current);
+            }
+            
+            setTimeout(() => {
+              setProfileVisible(false);
+              setPortfolioReady(true);
+              
+              if (loadingScreenRef.current) {
+                loadingScreenRef.current.classList.add('dim-screen');
+                forceRepaint(loadingScreenRef.current);
+                
+                setTimeout(() => {
+                  loadingScreenRef.current.classList.add('brighten-screen');
+                  forceRepaint(loadingScreenRef.current);
+                  
+                  setTimeout(() => {
+                    setIsVisible(false);
+                    if (onLoadingComplete) onLoadingComplete(true);
+                  }, 700);
+                }, 500);
+              }
+            }, 300);
+          }, 800);
+        }, 400);
+      }, 300);
+    }
+  }, [loadingProgress, onLoadingComplete]);
 
   if (!isVisible) return null;
 
@@ -119,7 +181,12 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     <div 
       ref={loadingScreenRef} 
       className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
-      style={{ backgroundColor: backgroundColor, color: textColor }}
+      style={{ 
+        backgroundColor: backgroundColor, 
+        color: textColor,
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden'
+      }}
     >
       <div className="content-container">
         {profileVisible && (
@@ -127,7 +194,39 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             ref={profileRef} 
             className="profile__area loading-profile"
           >
-            {/* [Keep your existing profile area JSX] */}
+            <div 
+              ref={outerCircleRef} 
+              className="outer__circle keep-bright" 
+              style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+            >
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdDesignServices />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <HiServer />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdCode />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdVideoLibrary />
+              </span>
+            </div>
+            <div className="inner__circle">
+              <img src={profile} alt="Header Portrait" />
+            </div>
           </div>
         )}
         

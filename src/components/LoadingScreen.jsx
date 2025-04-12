@@ -233,18 +233,27 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         )}
         
         {progressBarVisible && (
-          <div ref={progressBarRef} className="progress-container">
+          <div 
+            ref={progressBarRef} 
+            className="progress-container"
+            onTouchStart={() => {}} // Chrome mobile fix
+            onClick={() => {}} // Chrome mobile fix
+            style={{
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
+          >
             <div className="progress-bar">
               <div 
                 className="progress-bar-fill" 
                 style={{ 
-                  width: `${loadingProgress}%`, 
+                  width: `${Math.min(loadingProgress, 100)}%`, // Ensure never exceeds 100%
                   backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)` 
                 }} 
               />
             </div>
             <div className="progress-text">
-              Loading {loadingProgress}%
+              Loading {Math.min(loadingProgress, 100)}% {/* Keep original decimal precision */}
             </div>
           </div>
         )}

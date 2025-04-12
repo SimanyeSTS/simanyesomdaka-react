@@ -159,7 +159,7 @@ const About = memo(() => {
       if (icon) {
         icon.classList.add('active');
         if (isMobile) icon.classList.remove('hover-clear');
-      }
+ }
     }
 
     if (names[index]) {
@@ -174,52 +174,41 @@ const About = memo(() => {
   }, [clearAllActiveStates, isMobile]);
 
   const centerSkillIcon = React.useCallback((iconOrEvent, container) => {
-    // Early return if there was significant touch movement (for swipe vs tap detection)
     if (touchMovedRef.current) return;
 
     let icon;
     let index = -1;
-    
-    // Handle if passed an event
+
     if (iconOrEvent instanceof Event || (iconOrEvent.nativeEvent && iconOrEvent.currentTarget)) {
       const target = iconOrEvent.currentTarget || iconOrEvent.target;
-      
-      // Handle if the clicked element is a skill name
+
       if (target.classList.contains('skill__name')) {
         index = Array.from(container.querySelectorAll('.skill__name')).indexOf(target);
-        // Get the corresponding icon element
         if (index !== -1) {
           icon = container.querySelectorAll('.skill__icon-wrapper')[index];
         }
       } else {
-        // Handle if the clicked element is an icon or icon wrapper
         icon = target.closest('.skill__icon-wrapper');
         if (icon) {
           index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
         }
       }
     } else {
-      // Handle if directly passed an element
       icon = iconOrEvent;
       index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
     }
-    
-    // If we couldn't find a valid icon or index, exit early
+
     if (!icon || index === -1) return;
 
-    // Activate the skill (highlight both icon and name)
     activateSkillPair(index);
 
-    // Get the 3D coordinates from the dataset
     const x = parseFloat(icon.dataset.baseX || 0);
     const y = parseFloat(icon.dataset.baseY || 0);
     const z = parseFloat(icon.dataset.baseZ || 0);
 
-    // Calculate target rotation to bring this point to the front
     const targetRotationY = -Math.atan2(x, z);
     const targetRotationX = -Math.atan2(y, Math.sqrt(x * x + z * z));
 
-    // Store initial and target rotations
     initialRotationRef.current = { 
       x: sphereRotationRef.current.x, 
       y: sphereRotationRef.current.y 
@@ -230,7 +219,6 @@ const About = memo(() => {
       y: targetRotationY 
     };
 
-    // Start animation to front
     animatingToFrontRef.current = true;
     useDefaultRotationRef.current = false;
     rotationSpeedRef.current = { x: 0, y: 0 };
@@ -269,22 +257,32 @@ const About = memo(() => {
     e.preventDefault();
   };
 
+  const handleSkillNameScrollCheck = (e) => {
+    const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+    const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+
+    if (moveX > 5 || moveY > 5) {
+      touchMovedRef.current = true;
+      isTapRef.current = false;
+    }
+  };
+
   const handleSkillNameClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    
-    // Find the index of the clicked skill name
+
+    if (touchMovedRef.current) {
+      touchMovedRef.current = false;
+      return;
+    }
+
     const index = Array.from(skillsContainerRef.current.querySelectorAll('.skill__name')).indexOf(e.currentTarget);
     if (index === -1) return;
-    
-    // Get the corresponding icon element
+
     const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
     if (!icon) return;
-    
-    // Reset touchMoved flag to ensure centerSkillIcon will work
+
     touchMovedRef.current = false;
-    
-    // Call centerSkillIcon directly with the icon
     centerSkillIcon(icon, skillsContainerRef.current);
   };
 
@@ -297,7 +295,7 @@ const About = memo(() => {
     const total = iconElements.length;
 
     if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+      cancelAnimationFrame(animationRef .current);
     }
 
     const containerRect = container.getBoundingClientRect();
@@ -411,7 +409,7 @@ const About = memo(() => {
       if (!isDraggingRef.current) return;
 
       const deltaX = e.clientX - lastMousePosRef.current.x;
-      const deltaY = e.clientY - lastMousePosRef.current.y;
+      const deltaY = e.clientY - last MousePosRef.current.y;
 
       const rotationMultiplier = 0.005;
       const cosX = Math.cos(sphereRotationRef.current.x);
@@ -531,7 +529,7 @@ const About = memo(() => {
           <p>Every journey has a story—here's mine.</p>
           <div className="about__cards">
             {data.map((item) => (
-              <Card key={item.id} className="about__card">
+ <Card key={item.id} className="about__card">
                 <span className="about__card-icon">{item.icon}</span>
                 <h5>{item.title}</h5>
                 <small>{item.desc}</small>
@@ -597,7 +595,7 @@ const About = memo(() => {
                 className="skill__name"
                 onClick={handleSkillNameClick}
                 onTouchStart={handleIconTouchStart}
-                onTouchMove={handleIconTouchMove}
+                onTouchMove={handleSkillNameScrollCheck}
                 onTouchEnd={(e) => {
                   e.preventDefault();
                   handleSkillNameClick(e);

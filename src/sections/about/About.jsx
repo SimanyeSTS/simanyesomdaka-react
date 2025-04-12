@@ -34,6 +34,10 @@ const About = memo(() => {
   const animatingToFrontRef = useRef(false);
   const targetRotationRef = useRef({ x: 0, y: 0 });
   const initialRotationRef = useRef({ x: 0.3, y: 0.3 });
+  const touchStartPosRef = useRef({ x: 0, y: 0 });
+  const touchStartTimeRef = useRef(0);
+  const isTapRef = useRef(false);
+  const touchMovedRef = useRef(false);
 
   const skillsData = useMemo(() => [
     // Core Programming Languages
@@ -44,7 +48,7 @@ const About = memo(() => {
     { id: 5, name: "C#", icon: <SiCsharp />, category: "language" },
     { id: 6, name: "Dart", icon: <SiDart />, category: "language" },
     { id: 7, name: "TypeScript", icon: <SiTypescript />, category: "language" },
-  
+
     // Frontend
     { id: 8, name: "HTML5", icon: <FaHtml5 />, category: "frontend" },
     { id: 9, name: "CSS3", icon: <FaCss3Alt />, category: "frontend" },
@@ -54,18 +58,18 @@ const About = memo(() => {
     { id: 13, name: "Bootstrap", icon: <FaBootstrap />, category: "frontend" },
     { id: 14, name: "Tailwind CSS", icon: <SiTailwindcss />, category: "frontend" },
     { id: 15, name: "Vite", icon: <SiVite />, category: "frontend" },
-  
+
     // Backend
     { id: 16, name: "Node.js", icon: <FaNode />, category: "backend" },
     { id: 17, name: "Express.js", icon: <SiExpress />, category: "backend" },
     { id: 18, name: "Flask", icon: <SiFlask />, category: "backend" },
     { id: 19, name: ".NET & ASP.NET Core", icon: <SiDotnet />, category: "backend" },
-  
+
     // Database
     { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
     { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
     { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },    
-  
+
     // Cloud & Hosting
     { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
     { id: 24, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
@@ -74,19 +78,19 @@ const About = memo(() => {
     { id: 27, name: "Netlify", icon: <SiNetlify />, category: "cloud" },
     { id: 28, name: "Render", icon: <SiRender />, category: "cloud" },
     { id: 29, name: "Clever Cloud", icon: <FaCloud />, category: "cloud" },
-  
+
     // Mobile Development
     { id: 30, name: "Flutter", icon: <SiFlutter />, category: "mobile" },
     { id: 31, name: "Android Studio", icon: <FaAndroid />, category: "mobile" },
-  
+
     // Game Development
     { id: 32, name: "Unity", icon: <SiUnity />, category: "game" },
-  
+
     // DevOps & Tools
     { id: 33, name: "Git", icon: <FaGitAlt />, category: "devops" },
     { id: 34, name: "GitHub", icon: <FaGithub />, category: "devops" },
     { id: 35, name: "NPM", icon: <FaNpm />, category: "devops" },
-  
+
     // IDE & Design
     { id: 36, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
     { id: 37, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
@@ -104,7 +108,7 @@ const About = memo(() => {
           const loadedIcon = await Promise.resolve(icon);
           setLoadedIcon(() => () => loadedIcon);
         } catch (error) {
-          alert('Icon loading failed', error);
+          console.error('Icon loading failed', error);
         }
       };
 
@@ -115,15 +119,17 @@ const About = memo(() => {
   };
 
   const centerSkillIcon = React.useCallback((icon, container) => {
-    // Handle both direct element and event inputs
+    if (touchMovedRef.current) return;
+    
     if (icon instanceof Event) {
-      icon = icon.target.closest('.skill__icon-wrapper');
+      icon = icon.target.closest('.skill__icon-wrapper, .skill__name');
       if (!icon) return;
-      
-      // Prevent default for touch events
-      if (icon.type === 'touchend') {
-        icon.preventDefault();
-      }
+    }
+
+    if (icon.classList.contains('skill__name')) {
+      const index = Array.from(container.querySelectorAll('.skill__name')).indexOf(icon);
+      icon = container.querySelectorAll('.skill__icon-wrapper')[index];
+      if (!icon) return;
     }
 
     const iconElements = container.querySelectorAll('.skill__icon-wrapper');
@@ -171,6 +177,39 @@ const About = memo(() => {
       });
     }
   }, []);
+
+  const handleIconTouchStart = (e) => {
+    touchStartPosRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY
+    };
+    touchStartTimeRef.current = Date.now();
+    touchMovedRef.current = false;
+    isTapRef.current = true;
+  };
+
+  const handleIconTouchMove = (e) => {
+    const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+    const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+    
+    if (moveX > 5 || moveY > 5) {
+      touchMovedRef.current = true;
+      isTapRef.current = false;
+    }
+  };
+
+  const handleIconTouchEnd = (e) => {
+    if (touchMovedRef.current) {
+      e.preventDefault();
+      return;
+    }
+
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    if (elapsed < 300) {
+      centerSkillIcon(e.currentTarget, skillsContainerRef.current);
+    }
+    e.preventDefault();
+  };
 
   useEffect(() => {
     if (!skillsContainerRef.current || !floatingAreaRef.current) return;
@@ -221,14 +260,6 @@ const About = memo(() => {
       icon.dataset.y = point.y;
       icon.dataset.z = point.z;
       icon.dataset.speedFactor = "1.0";
-
-      const handleIconClick = (e) => {
-        e.stopPropagation();
-        centerSkillIcon(e.currentTarget, container);
-      };
-
-      icon.addEventListener('click', handleIconClick);
-      icon.addEventListener('touchend', handleIconClick);
     });
 
     const animate = () => {
@@ -288,7 +319,7 @@ const About = memo(() => {
       if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
         return;
       }
-      
+
       isDraggingRef.current = true;
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
 
@@ -307,17 +338,17 @@ const About = memo(() => {
 
     const handleMouseMoveRaw = (e) => {
       if (!isDraggingRef.current) return;
-    
+
       const deltaX = e.clientX - lastMousePosRef.current.x;
       const deltaY = e.clientY - lastMousePosRef.current.y;
-    
+
       const rotationMultiplier = 0.005;
       const cosX = Math.cos(sphereRotationRef.current.x);
       const horizontalDirection = cosX >= 0 ? 1 : -1;
-    
+
       sphereRotationRef.current.y += deltaX * rotationMultiplier * horizontalDirection;
       sphereRotationRef.current.x += deltaY * rotationMultiplier;
-    
+
       if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
         const speedMultiplier = 0.001;
         rotationSpeedRef.current = {
@@ -326,10 +357,10 @@ const About = memo(() => {
         };
         useDefaultRotationRef.current = false;
       }
-    
+
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
     };
-    
+
     const handleMouseMove = throttle(handleMouseMoveRaw, 16);
 
     const handleMouseUp = () => {
@@ -342,7 +373,7 @@ const About = memo(() => {
       if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
         return;
       }
-      
+
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -370,7 +401,7 @@ const About = memo(() => {
       const rotationMultiplier = 0.005;
       const cosX = Math.cos(sphereRotationRef.current.x);
       const horizontalDirection = cosX >= 0 ? 1 : -1;
-      
+
       sphereRotationRef.current.y += deltaX * rotationMultiplier * horizontalDirection;
       sphereRotationRef.current.x += deltaY * rotationMultiplier;
 
@@ -410,17 +441,6 @@ const About = memo(() => {
 
     window.addEventListener('resize', handleResize);
 
-    const skillNames = container.querySelectorAll('.skill__name');
-    skillNames.forEach((skillName, index) => {
-      const handleSkillNameClick = (e) => {
-        const icon = iconElements[index];
-        centerSkillIcon(icon, container);
-      };
-
-      skillName.addEventListener('click', handleSkillNameClick);
-      skillName.addEventListener('touchend', handleSkillNameClick);
-    });
-
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
@@ -435,11 +455,6 @@ const About = memo(() => {
       window.removeEventListener('touchend', handleTouchEnd);
 
       window.removeEventListener('resize', handleResize);
-
-      skillNames.forEach((skillName) => {
-        skillName.removeEventListener('click', () => {});
-        skillName.removeEventListener('touchend', () => {});
-      });
     };
   }, [centerSkillIcon, skillsData]);
 
@@ -483,15 +498,17 @@ const About = memo(() => {
             style={{ cursor: 'grab' }}
           >
             {skillsData.map((skill) => (
-              <div key={skill.id} className="skill__icon-wrapper" draggable="false">
+              <div 
+                key={skill.id} 
+                className="skill__icon-wrapper" 
+                draggable="false"
+                onTouchStart={handleIconTouchStart}
+                onTouchMove={handleIconTouchMove}
+                onTouchEnd={handleIconTouchEnd}
+              >
                 <div 
                   className="skill__icon"
                   onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    centerSkillIcon(e.currentTarget.parentElement, skillsContainerRef.current);
-                  }}
-                  onTouchEnd={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     centerSkillIcon(e.currentTarget.parentElement, skillsContainerRef.current);
@@ -513,12 +530,9 @@ const About = memo(() => {
                   const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
                   centerSkillIcon(icon, skillsContainerRef.current);
                 }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  const index = skillsData.findIndex(s => s.id === skill.id);
-                  const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
-                  centerSkillIcon(icon, skillsContainerRef.current);
-                }}
+                onTouchStart={handleIconTouchStart}
+                onTouchMove={handleIconTouchMove}
+                onTouchEnd={handleIconTouchEnd}
               >
                 {skill.name}
               </span>

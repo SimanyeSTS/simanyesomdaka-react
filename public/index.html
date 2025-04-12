@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -5,27 +6,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta id="theme-color-meta" name="theme-color" content="">
     
-    <!-- Preload critical assets -->
+    <!-- Critical Preloads -->
     <link rel="preload" href="%PUBLIC_URL%/profile.png" as="image">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" as="style">
-    <link rel="preload" href="https://fonts.gstatic.com" as="font" crossorigin>
+    <link rel="preload" href="%PUBLIC_URL%/logo.jpg" as="image">
     
-    <!-- Preload any other critical images you use in loading screen -->
-    <!-- <link rel="preload" href="%PUBLIC_URL%/other-critical-image.jpg" as="image"> -->
+    <!-- Font Preloading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </noscript>
     
     <link rel="icon" href="%PUBLIC_URL%/profile.png" type="image/png">
     <title>Simanye Somdaka | Portfolio</title>
     
-    <!-- GOOGLE FONT (montserrat) - with preconnect hints -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Inline Critical CSS -->
+    <style>
+      #loading-root {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: white;
+      }
+      body.loading {
+        overflow: hidden;
+        height: 100vh;
+      }
+    </style>
   </head>
-  <body>
-    <div id="overlays"></div>
+  <body class="loading">
+    <div id="loading-root"></div>
     <div id="root" class="app"></div>
+    <div id="overlays"></div>
+    
+    <!-- Load non-critical CSS async -->
+    <script>
+      /*! Load CSS without blocking render */
+      function loadCSS(href) {
+        var link = document.createElement('link');
+        link.href = href;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      setTimeout(function() {
+        loadCSS('%PUBLIC_URL%/index.css');
+      }, 0);
+    </script>
   </body>
 </html>

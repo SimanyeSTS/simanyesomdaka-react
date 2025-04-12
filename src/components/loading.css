@@ -217,6 +217,33 @@ html, body {
   will-change: transform, opacity;
 }
 
+/* Chrome-specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .progress-container {
+    -webkit-transform: translate3d(-50%, 0, 0) !important;
+    transform: translate3d(-50%, 0, 0) !important;
+    backface-visibility: visible !important;
+    will-change: transform, opacity !important;
+  }
+  
+  .progress-bar {
+    -webkit-animation: none !important;
+    animation: none !important;
+  }
+  
+  .progress-bar-fill {
+    -webkit-transform: translateZ(0) scale(1.0001) !important;
+    transform: translateZ(0) scale(1.0001) !important;
+  }
+}
+
+/* More aggressive Chrome mobile rendering */
+@supports (-webkit-touch-callout: none) {
+  .progress-container {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 1023px) {
   .loading-screen .outer__circle {

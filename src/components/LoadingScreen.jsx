@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
 import { useThemeContext } from "../context/theme-context";
@@ -8,135 +8,76 @@ import './loading.css';
 const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-  const profileRef = useRef(null);
-  const outerCircleRef = useRef(null);
-  const loadingScreenRef = useRef(null);
-  const progressBarRef = useRef(null);
   
-  const isLightTheme = themeState.background === 'bg-1';
-  const backgroundColor = isLightTheme ? 'white' : '#100F0F';
-  const textColor = isLightTheme ? '#100F0F' : 'white';
-  const iconBgColor = isLightTheme ? 'white' : '#100F0F';
-
-  // Ensure body overflow is controlled
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, []);
-
-  // Progress animation - simplified and more reliable
-  useEffect(() => {
-    let animationFrame;
-    let startTime = null;
-    const duration = 2000; // 2 seconds for full progress
-
-    const animateProgress = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const progress = Math.min(elapsed / duration * 100, 100);
+    // Track ALL resources
+    const trackProgress = () => {
+      const resources = window.performance.getEntriesByType('resource');
+      const total = resources.length;
+      const loaded = resources.filter(r => 
+        r.duration > 0 || 
+        r.initiatorType === 'img' && r.name.includes('.png')
+      ).length;
       
+      const progress = Math.min(Math.round((loaded / total) * 100), 100);
       setLoadingProgress(progress);
-
-      if (progress < 100) {
-        animationFrame = requestAnimationFrame(animateProgress);
-      } else {
-        // Start the fade-out sequence when progress completes
-        setTimeout(() => {
-          if (progressBarRef.current) {
-            progressBarRef.current.classList.add('fade-out');
-          }
-          if (profileRef.current) {
-            profileRef.current.classList.add('fade-out');
-          }
-          
-          setTimeout(() => {
-            if (loadingScreenRef.current) {
-              loadingScreenRef.current.classList.add('dim-screen');
-              setTimeout(() => {
-                loadingScreenRef.current.classList.add('brighten-screen');
-                setTimeout(() => {
-                  setIsVisible(false);
-                  onLoadingComplete();
-                }, 700);
-              }, 1000);
-            }
-          }, 600);
-        }, 300);
+      
+      // Fallback check for React hydration
+      if (progress >= 90 && document.querySelector('#root')?.children.length > 0) {
+        setLoadingProgress(100);
+      }
+      
+      if (progress === 100) {
+        setTimeout(onLoadingComplete, 300);
       }
     };
 
-    // Start the animation immediately
-    animationFrame = requestAnimationFrame(animateProgress);
+    // Initial check
+    trackProgress();
+    
+    // Poll every 100ms
+    const interval = setInterval(trackProgress, 100);
+    
+    // Final check when window loads
+    window.addEventListener('load', () => {
+      setTimeout(() => setLoadingProgress(100), 200);
+    });
 
     return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
+      clearInterval(interval);
+      window.removeEventListener('load', trackProgress);
     };
   }, [onLoadingComplete]);
 
-  if (!isVisible) return null;
-
   return (
-    <div 
-      ref={loadingScreenRef} 
-      className="loading-screen" 
-      style={{ backgroundColor, color: textColor }}
-    >
+    <div className="loading-screen" 
+         style={{ 
+           backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+           color: themeState.background === 'bg-1' ? '#100F0F' : 'white'
+         }}>
       <div className="content-container">
-        {/* Profile Area */}
-        <div ref={profileRef} className="profile__area loading-profile">
-          <div 
-            ref={outerCircleRef} 
-            className="outer__circle keep-bright" 
-            style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
-          >
-            <span 
-              className="tech-icon" 
-              style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
-            >
-              <MdDesignServices />
-            </span>
-            <span 
-              className="tech-icon" 
-              style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
-            >
-              <HiServer />
-            </span>
-            <span 
-              className="tech-icon" 
-              style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
-            >
-              <MdCode />
-            </span>
-            <span 
-              className="tech-icon" 
-              style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
-            >
-              <MdVideoLibrary />
-            </span>
+        {/* Your loading animation */}
+        <div className="profile__area loading-profile">
+          <div className="outer__circle keep-bright" 
+               style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
+            {/* Icons */}
           </div>
           <div className="inner__circle">
-            <img src={profile} alt="Header Portrait" />
+            <img src={profile} alt="Header Portrait" loading="eager" />
           </div>
         </div>
 
-        {/* Progress Bar - Always visible by default */}
-        <div ref={progressBarRef} className="progress-container">
+        {/* ALWAYS VISIBLE PROGRESS BAR */}
+        <div className="progress-container" style={{ opacity: 1 }}>
           <div className="progress-bar">
-            <div 
-              className="progress-bar-fill" 
-              style={{ 
-                width: `${loadingProgress}%`, 
-                backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)` 
-              }} 
-            />
+            <div className="progress-bar-fill" 
+                 style={{ 
+                   width: `${loadingProgress}%`,
+                   backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)`
+                 }} />
           </div>
           <div className="progress-text">
-            Loading {Math.round(loadingProgress)}%
+            Loading {loadingProgress}%
           </div>
         </div>
       </div>

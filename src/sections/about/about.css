@@ -125,7 +125,8 @@
   touch-action: none;
 }
 
-.skill__icon:hover, .skill__icon.active {
+.skill__icon:hover,
+.skill__icon.active {
   background-color: var(--color-primary);
   color: var(--color-white);
   transform: scale(1.2);
@@ -160,7 +161,8 @@
   user-select: none;
 }
 
-.skill__name:hover, .skill__name.active {
+.skill__name:hover,
+.skill__name.active {
   background-color: var(--color-primary);
   color: var(--color-white);
 }
@@ -200,6 +202,7 @@ h2 {
   user-select: none;
 }
 
+/* Responsive Breakpoints */
 @media screen and (max-width: 1024px) {
   .about__container {
     grid-template-columns: 1fr;
@@ -287,17 +290,46 @@ h2 {
   }
 }
 
+/* Mobile-specific fixes */
 @media (hover: none) and (pointer: coarse) {
-  .skill__name.hover-clear:hover,
-  .skill__icon.hover-clear:hover {
+  .skill__name.hover-clear,
+  .skill__icon.hover-clear {
     background-color: var(--color-light) !important;
     color: var(--color-black) !important;
     transform: none !important;
+    transition: none !important;
   }
-  
-  .skill__name.active:hover,
-  .skill__icon.active:hover {
+
+  .skill__name.active,
+  .skill__icon.active {
     background-color: var(--color-primary) !important;
     color: var(--color-white) !important;
+    transform: scale(1.1) !important;
+  }
+
+  .skills__names {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    padding-bottom: 12px;
+  }
+
+  .skill__name {
+    padding: 0.3rem 0.8rem;
+    margin: 2px 0;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .skill__icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 }

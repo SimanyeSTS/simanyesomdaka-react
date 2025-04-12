@@ -135,17 +135,16 @@
 .skills__names {
   cursor: pointer !important;
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 1rem;
   border-top: 1px solid var(--color-light);
   position: relative;
   z-index: 10;
-  height: 80px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  max-height: 80px;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary) var(--color-white);
   touch-action: pan-y;
@@ -163,7 +162,6 @@
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  flex: 0 0 auto;
 }
 
 .skill__name:hover, .skill__name.active {
@@ -250,7 +248,7 @@ h2 {
 
   .skills__names {
     padding-top: 0.5rem;
-    height: 70px;
+    max-height: 70px;
   }
 
   .skill__name {

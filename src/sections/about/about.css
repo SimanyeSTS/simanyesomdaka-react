@@ -186,6 +186,20 @@ h2 {
   border-radius: 10px;
 }
 
+.skill__icon-wrapper {
+  touch-action: manipulation;
+}
+
+.skills__names {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.skill__name {
+  touch-action: manipulation;
+  user-select: none;
+}
+
 @media screen and (max-width: 1024px) {
   .about__container {
     grid-template-columns: 1fr;

@@ -4,9 +4,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta id="theme-color-meta" name="theme-color" content="">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="%PUBLIC_URL%/profile.png" as="image">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://fonts.gstatic.com" as="font" crossorigin>
+    
+    <!-- Preload any other critical images you use in loading screen -->
+    <!-- <link rel="preload" href="%PUBLIC_URL%/other-critical-image.jpg" as="image"> -->
+    
     <link rel="icon" href="%PUBLIC_URL%/profile.png" type="image/png">
     <title>Simanye Somdaka | Portfolio</title>
-    <!-- GOOGLE FONT (montserrat) -->
+    
+    <!-- GOOGLE FONT (montserrat) - with preconnect hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"

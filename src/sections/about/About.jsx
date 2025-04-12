@@ -23,7 +23,7 @@ import {
 } from "react-icons/si";
 
 const About = memo(() => {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const skillsContainerRef = useRef(null);
   const floatingAreaRef = useRef(null);
   const animationRef = useRef(null);
@@ -41,7 +41,12 @@ const About = memo(() => {
   const touchMovedRef = useRef(false);
 
   useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    const checkTouchDevice = () => {
+      return (('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        (navigator.msMaxTouchPoints > 0));
+    };
+    setIsTouchDevice(checkTouchDevice());
   }, []);
 
   const skillsData = useMemo(() => [
@@ -131,20 +136,12 @@ const About = memo(() => {
 
     iconElements.forEach(icon => {
       icon.classList.remove('active');
-      if (isMobile) {
-        icon.classList.add('hover-clear');
-        setTimeout(() => icon.classList.remove('hover-clear'), 3000);
-      }
     });
 
     skillNames.forEach(name => {
       name.classList.remove('active');
-      if (isMobile) {
-        name.classList.add('hover-clear');
-        setTimeout(() => name.classList.remove('hover-clear'), 3000);
-      }
     });
-  }, [isMobile]);
+  }, []);
 
   const activateSkillPair = React.useCallback((index) => {
     if (!skillsContainerRef.current) return;
@@ -158,20 +155,18 @@ const About = memo(() => {
       const icon = icons[index].querySelector('.skill__icon');
       if (icon) {
         icon.classList.add('active');
-        if (isMobile) icon.classList.remove('hover-clear');
       }
     }
 
     if (names[index]) {
       names[index].classList.add('active');
-      if (isMobile) names[index].classList.remove('hover-clear');
       names[index].scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
         inline: 'center'
       });
     }
-  }, [clearAllActiveStates, isMobile]);
+  }, [clearAllActiveStates]);
 
   const centerSkillIcon = React.useCallback((iconOrEvent, container) => {
     if (touchMovedRef.current) return;
@@ -585,13 +580,7 @@ const About = memo(() => {
                 draggable="false"
                 onTouchStart={handleIconTouchStart}
                 onTouchMove={handleIconTouchMove}
-                onTouchEnd={(e) => {
-                  handleIconTouchEnd(e);
-                  if (isMobile) {
-                    const icon = e.currentTarget.querySelector('.skill__icon');
-                    if (icon) icon.classList.add('hover-clear');
-                  }
-                }}
+                onTouchEnd={handleIconTouchEnd}
               >
                 <div 
                   className="skill__icon"
@@ -614,10 +603,7 @@ const About = memo(() => {
                 onClick={handleSkillNameClick}
                 onTouchStart={handleSkillNameTouchStart}
                 onTouchMove={handleSkillNameTouchMove}
-                onTouchEnd={(e) => {
-                  handleSkillNameTouchEnd(e);
-                  if (isMobile) e.currentTarget.classList.add('hover-clear');
-                }}
+                onTouchEnd={handleSkillNameTouchEnd}
               >
                 {skill.name}
               </span>

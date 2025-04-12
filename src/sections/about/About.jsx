@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, memo } from "react";
+import React, { useEffect, useRef, useMemo, memo, useState } from "react";
 import { throttle } from 'lodash';
 import CV from "../../assets/Simanye Somdaka's Resume (OA).PDF";
 import { HiDownload } from "react-icons/hi";
@@ -23,6 +23,7 @@ import {
 } from "react-icons/si";
 
 const About = memo(() => {
+  const [isMobile, setIsMobile] = useState(false);
   const skillsContainerRef = useRef(null);
   const floatingAreaRef = useRef(null);
   const animationRef = useRef(null);
@@ -38,6 +39,10 @@ const About = memo(() => {
   const touchStartTimeRef = useRef(0);
   const isTapRef = useRef(false);
   const touchMovedRef = useRef(false);
+
+  useEffect(() => {
+    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+  }, []);
 
   const skillsData = useMemo(() => [
     // Core Programming Languages
@@ -68,7 +73,7 @@ const About = memo(() => {
     // Database
     { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
     { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
-    { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },    
+    { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },
 
     // Cloud & Hosting
     { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
@@ -118,6 +123,56 @@ const About = memo(() => {
     return <LoadedIcon />;
   };
 
+  const clearAllActiveStates = React.useCallback(() => {
+    if (!skillsContainerRef.current) return;
+    
+    const iconElements = skillsContainerRef.current.querySelectorAll('.skill__icon');
+    const skillNames = skillsContainerRef.current.querySelectorAll('.skill__name');
+    
+    iconElements.forEach(icon => {
+      icon.classList.remove('active');
+      if (isMobile) {
+        icon.classList.add('hover-clear');
+        setTimeout(() => icon.classList.remove('hover-clear'), 3000);
+      }
+    });
+    
+    skillNames.forEach(name => {
+      name.classList.remove('active');
+      if (isMobile) {
+        name.classList.add('hover-clear');
+        setTimeout(() => name.classList.remove('hover-clear'), 3000);
+      }
+    });
+  }, [isMobile]);
+
+  const activateSkillPair = React.useCallback((index) => {
+    if (!skillsContainerRef.current) return;
+    
+    clearAllActiveStates();
+    
+    const icons = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper');
+    const names = skillsContainerRef.current.querySelectorAll('.skill__name');
+    
+    if (icons[index]) {
+      const icon = icons[index].querySelector('.skill__icon');
+      if (icon) {
+        icon.classList.add('active');
+        if (isMobile) icon.classList.remove('hover-clear');
+      }
+    }
+    
+    if (names[index]) {
+      names[index].classList.add('active');
+      if (isMobile) names[index].classList.remove('hover-clear');
+      names[index].scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    }
+  }, [clearAllActiveStates, isMobile]);
+
   const centerSkillIcon = React.useCallback((icon, container) => {
     if (touchMovedRef.current) return;
 
@@ -126,24 +181,20 @@ const About = memo(() => {
       if (!icon) return;
     }
 
-    const iconElements = container.querySelectorAll('.skill__icon-wrapper');
-    const skillNames = container.querySelectorAll('.skill__name');
-    
-    iconElements.forEach(el => {
-      const iconEl = el.querySelector('.skill__icon');
-      if (iconEl) iconEl.classList.remove('active');
-    });
-    skillNames.forEach(name => name.classList.remove('active'));
-
+    let index;
     if (icon.classList.contains('skill__name')) {
-      const index = Array.from(skillNames).indexOf(icon);
-      icon = iconElements[index];
-      if (!icon) return;
+      index = Array.from(container.querySelectorAll('.skill__name')).indexOf(icon);
+    } else {
+      index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
     }
 
-    const x = parseFloat(icon.dataset.baseX);
-    const y = parseFloat(icon.dataset.baseY);
-    const z = parseFloat(icon.dataset.baseZ);
+    if (index === -1) return;
+
+    activateSkillPair(index);
+
+    const x = parseFloat(icon.dataset.baseX || 0);
+    const y = parseFloat(icon.dataset.baseY || 0);
+    const z = parseFloat(icon.dataset.baseZ || 0);
 
     const targetRotationY = -Math.atan2(x, z);
     const targetRotationX = -Math.atan2(y, Math.sqrt(x * x + z * z));
@@ -161,22 +212,7 @@ const About = memo(() => {
     animatingToFrontRef.current = true;
     useDefaultRotationRef.current = false;
     rotationSpeedRef.current = { x: 0, y: 0 };
-
-    const iconElement = icon.querySelector('.skill__icon');
-    if (iconElement) {
-      iconElement.classList.add('active');
-    }
-
-    const index = Array.from(iconElements).indexOf(icon);
-    if (skillNames[index]) {
-      skillNames[index].classList.add('active');
-      skillNames[index].scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
-      });
-    }
-  }, []);
+  }, [activateSkillPair]);
 
   const handleIconTouchStart = (e) => {
     touchStartPosRef.current = {
@@ -322,15 +358,8 @@ const About = memo(() => {
 
       isDraggingRef.current = true;
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
-
-      const iconElements = container.querySelectorAll('.skill__icon-wrapper');
-      const skillNames = container.querySelectorAll('.skill__name');
       
-      iconElements.forEach(icon => {
-        const iconEl = icon.querySelector('.skill__icon');
-        if (iconEl) iconEl.classList.remove('active');
-      });
-      skillNames.forEach(name => name.classList.remove('active'));
+      clearAllActiveStates();
 
       e.preventDefault();
       floatingArea.style.cursor = 'grabbing';
@@ -378,15 +407,8 @@ const About = memo(() => {
       if (e.touches.length === 1) {
         isDraggingRef.current = true;
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-
-        const iconElements = container.querySelectorAll('.skill__icon-wrapper');
-        const skillNames = container.querySelectorAll('.skill__name');
         
-        iconElements.forEach(icon => {
-          const iconEl = icon.querySelector('.skill__icon');
-          if (iconEl) iconEl.classList.remove('active');
-        });
-        skillNames.forEach(name => name.classList.remove('active'));
+        clearAllActiveStates();
 
         e.preventDefault();
         floatingArea.style.cursor = 'grabbing';
@@ -458,7 +480,7 @@ const About = memo(() => {
 
       window.removeEventListener('resize', handleResize);
     };
-  }, [centerSkillIcon, skillsData]);
+  }, [centerSkillIcon, skillsData, clearAllActiveStates]);
 
   return (
     <section id="about">
@@ -499,14 +521,20 @@ const About = memo(() => {
             ref={floatingAreaRef}
             style={{ cursor: 'grab' }}
           >
-            {skillsData.map((skill) => (
+            {skillsData.map((skill, index) => (
               <div 
                 key={skill.id} 
                 className="skill__icon-wrapper" 
                 draggable="false"
                 onTouchStart={handleIconTouchStart}
                 onTouchMove={handleIconTouchMove}
-                onTouchEnd={handleIconTouchEnd}
+                onTouchEnd={(e) => {
+                  handleIconTouchEnd(e);
+                  if (isMobile) {
+                    const icon = e.currentTarget.querySelector('.skill__icon');
+                    if (icon) icon.classList.add('hover-clear');
+                  }
+                }}
               >
                 <div 
                   className="skill__icon"
@@ -522,19 +550,21 @@ const About = memo(() => {
             ))}
           </div>
           <div className="skills__names">
-            {skillsData.map((skill) => (
+            {skillsData.map((skill, index) => (
               <span 
                 key={skill.id} 
                 className="skill__name"
                 onClick={(e) => {
                   e.stopPropagation();
-                  const index = skillsData.findIndex(s => s.id === skill.id);
                   const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
                   centerSkillIcon(icon, skillsContainerRef.current);
                 }}
                 onTouchStart={handleIconTouchStart}
                 onTouchMove={handleIconTouchMove}
-                onTouchEnd={handleIconTouchEnd}
+                onTouchEnd={(e) => {
+                  handleIconTouchEnd(e);
+                  if (isMobile) e.currentTarget.classList.add('hover-clear');
+                }}
               >
                 {skill.name}
               </span>

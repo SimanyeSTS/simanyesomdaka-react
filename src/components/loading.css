@@ -1,4 +1,4 @@
-/* Enhanced styling for the loading screen */
+/* Updated styling for the loading screen to ensure progress bar is always visible */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -11,8 +11,6 @@
   align-items: center;
   z-index: 9999;
   transition: background-color 0.8s ease-out;
-  pointer-events: auto; /* Ensure the loading screen captures all clicks */
-  will-change: opacity, background-color; /* Optimize for animations */
 }
 
 .content-container {
@@ -35,12 +33,11 @@
   opacity: 1;
   transition: opacity 0.6s ease-out;
   z-index: 2;
-  will-change: opacity;
 }
 
 .loading-screen .loading-profile {
   position: relative;
-  margin-bottom: 4rem; /* Add space between profile and progress bar */
+  margin-bottom: 6rem; /* Ensure space for progress bar */
 }
 
 .loading-screen .profile__area.fade-out {
@@ -55,7 +52,6 @@
   position: relative;
   animation: move 30s linear infinite;
   animation-play-state: running !important;
-  will-change: transform;
 }
 
 .loading-screen.dim-screen .keep-bright {
@@ -102,10 +98,9 @@
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
-  will-change: transform, opacity;
 }
 
-/* Improved progress container styling */
+/* Improved progress container positioning to ensure visibility */
 .loading-screen .progress-container {
   position: absolute;
   bottom: 15%;
@@ -116,34 +111,33 @@
   align-items: center;
   opacity: 1;
   transition: opacity 0.6s ease-out;
-  z-index: 10;
+  z-index: 10; /* Always on top */
   width: 80%;
   max-width: 400px;
-  will-change: opacity;
+  pointer-events: none; /* Prevent interaction issues */
 }
 
 .loading-screen .progress-bar {
   width: 100%;
-  height: 8px; /* Increased height for better visibility */
-  background-color: rgba(128, 128, 128, 0.15); /* More neutral background */
+  height: 8px; /* Slightly taller for better visibility */
+  background-color: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for better visibility */
 }
 
 .loading-screen .progress-bar-fill {
   height: 100%;
   background-color: var(--color-primary);
   transition: width 0.3s ease;
-  border-radius: 4px;
-  will-change: width;
+  min-width: 5px; /* Always show at least a bit of the progress bar */
 }
 
 .loading-screen .progress-text {
   margin-top: 1rem;
-  font-size: 1rem;
-  font-weight: 500; /* Semi-bold for better readability */
-  letter-spacing: 0.5px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2); /* Text shadow for better visibility */
 }
 
 .loading-screen .progress-container.fade-out {
@@ -178,13 +172,25 @@
   }
 }
 
-/* Media queries for responsive design */
+/* Performance optimizations */
+.loading-screen .outer__circle {
+  will-change: transform;
+}
+
+.loading-screen .inner__circle {
+  will-change: transform, opacity;
+}
+
+/* Responsive adjustments */
 @media screen and (max-width: 1023px) {
   .loading-screen .outer__circle {
     width: 20rem;
   }
   .loading-screen .inner__circle {
     width: 15rem;
+  }
+  .loading-screen .loading-profile {
+    margin-bottom: 5rem;
   }
 }
 
@@ -214,10 +220,12 @@
     bottom: -1.5rem;
     left: calc(50% - 1.5rem);
   }
-  /* Adjust progress bar for small screens */
+  .loading-screen .loading-profile {
+    margin-bottom: 4rem;
+  }
+  /* Ensure progress bar stays visible on small screens */
   .loading-screen .progress-container {
-    bottom: 10%;
-    width: 90%;
+    bottom: 12%;
   }
 }
 
@@ -225,8 +233,20 @@
 @media screen and (max-height: 600px) {
   .loading-screen .loading-profile {
     transform: scale(0.8);
+    margin-bottom: 3rem;
   }
   .loading-screen .progress-container {
-    bottom: 20px;
+    bottom: 6%;
+  }
+}
+
+/* Fix for very small screens */
+@media screen and (max-height: 400px) {
+  .loading-screen .loading-profile {
+    transform: scale(0.6);
+    margin-bottom: 2rem;
+  }
+  .loading-screen .progress-container {
+    bottom: 4%;
   }
 }

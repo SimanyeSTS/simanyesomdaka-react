@@ -1,4 +1,4 @@
-/* Updated styling for the loading screen to keep progress bar visible */
+/* Enhanced styling for the loading screen */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -11,6 +11,8 @@
   align-items: center;
   z-index: 9999;
   transition: background-color 0.8s ease-out;
+  pointer-events: auto; /* Ensure the loading screen captures all clicks */
+  will-change: opacity, background-color; /* Optimize for animations */
 }
 
 .content-container {
@@ -33,11 +35,12 @@
   opacity: 1;
   transition: opacity 0.6s ease-out;
   z-index: 2;
+  will-change: opacity;
 }
 
 .loading-screen .loading-profile {
   position: relative;
-  margin-bottom: 0; /* Remove fixed margin */
+  margin-bottom: 4rem; /* Add space between profile and progress bar */
 }
 
 .loading-screen .profile__area.fade-out {
@@ -52,6 +55,7 @@
   position: relative;
   animation: move 30s linear infinite;
   animation-play-state: running !important;
+  will-change: transform;
 }
 
 .loading-screen.dim-screen .keep-bright {
@@ -98,12 +102,13 @@
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
+  will-change: transform, opacity;
 }
 
-/* Fixed progress container positioning */
+/* Improved progress container styling */
 .loading-screen .progress-container {
-  position: fixed; /* Changed from absolute to fixed */
-  bottom: 10%; /* Percentage-based position from bottom */
+  position: absolute;
+  bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -111,28 +116,34 @@
   align-items: center;
   opacity: 1;
   transition: opacity 0.6s ease-out;
-  z-index: 10; /* Increased z-index */
-  width: 80%; /* Responsive width */
+  z-index: 10;
+  width: 80%;
   max-width: 400px;
+  will-change: opacity;
 }
 
 .loading-screen .progress-bar {
-  width: 100%; /* Full width of container */
-  height: 6px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
+  width: 100%;
+  height: 8px; /* Increased height for better visibility */
+  background-color: rgba(128, 128, 128, 0.15); /* More neutral background */
+  border-radius: 4px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 .loading-screen .progress-bar-fill {
   height: 100%;
   background-color: var(--color-primary);
   transition: width 0.3s ease;
+  border-radius: 4px;
+  will-change: width;
 }
 
 .loading-screen .progress-text {
   margin-top: 1rem;
   font-size: 1rem;
+  font-weight: 500; /* Semi-bold for better readability */
+  letter-spacing: 0.5px;
 }
 
 .loading-screen .progress-container.fade-out {
@@ -159,22 +170,19 @@
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
-.loading-screen .outer__circle {
-  will-change: transform;
-}
-.loading-screen .inner__circle {
-  will-change: transform, opacity;
-}
-
+/* Media queries for responsive design */
 @media screen and (max-width: 1023px) {
   .loading-screen .outer__circle {
     width: 20rem;
   }
-
   .loading-screen .inner__circle {
     width: 15rem;
   }
@@ -184,38 +192,32 @@
   .loading-screen .outer__circle {
     width: 16rem;
   }
-
   .loading-screen .inner__circle {
     width: 10rem;
   }
-
   .loading-screen .tech-icon {
     width: 3rem;
   }
-
   .loading-screen .tech-icon:nth-child(1) {
     left: calc(50% - 1.5rem);
     top: -1.5rem;
   }
-
   .loading-screen .tech-icon:nth-child(2) {
     right: -1.5rem;
     top: calc(50% - 1.5rem);
   }
-
   .loading-screen .tech-icon:nth-child(3) {
     left: -1.5rem;
     top: calc(50% - 1.5rem);
   }
-
   .loading-screen .tech-icon:nth-child(4) {
     bottom: -1.5rem;
     left: calc(50% - 1.5rem);
   }
-  
-  /* Ensure progress bar stays visible on very small screens */
+  /* Adjust progress bar for small screens */
   .loading-screen .progress-container {
-    bottom: 5%;
+    bottom: 10%;
+    width: 90%;
   }
 }
 
@@ -224,8 +226,7 @@
   .loading-screen .loading-profile {
     transform: scale(0.8);
   }
-  
   .loading-screen .progress-container {
-    bottom: 10px; /* Fixed pixel distance from bottom */
+    bottom: 20px;
   }
 }

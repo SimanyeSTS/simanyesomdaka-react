@@ -108,7 +108,7 @@ const About = memo(() => {
           const loadedIcon = await Promise.resolve(icon);
           setLoadedIcon(() => () => loadedIcon);
         } catch (error) {
-          console.error('Icon loading failed', error);
+          alert('Icon loading failed', error);
         }
       };
 
@@ -120,26 +120,26 @@ const About = memo(() => {
 
   const centerSkillIcon = React.useCallback((icon, container) => {
     if (touchMovedRef.current) return;
-    
+
     if (icon instanceof Event) {
       icon = icon.target.closest('.skill__icon-wrapper, .skill__name');
       if (!icon) return;
     }
 
-    if (icon.classList.contains('skill__name')) {
-      const index = Array.from(container.querySelectorAll('.skill__name')).indexOf(icon);
-      icon = container.querySelectorAll('.skill__icon-wrapper')[index];
-      if (!icon) return;
-    }
-
     const iconElements = container.querySelectorAll('.skill__icon-wrapper');
     const skillNames = container.querySelectorAll('.skill__name');
-
+    
     iconElements.forEach(el => {
       const iconEl = el.querySelector('.skill__icon');
       if (iconEl) iconEl.classList.remove('active');
     });
     skillNames.forEach(name => name.classList.remove('active'));
+
+    if (icon.classList.contains('skill__name')) {
+      const index = Array.from(skillNames).indexOf(icon);
+      icon = iconElements[index];
+      if (!icon) return;
+    }
 
     const x = parseFloat(icon.dataset.baseX);
     const y = parseFloat(icon.dataset.baseY);
@@ -191,7 +191,7 @@ const About = memo(() => {
   const handleIconTouchMove = (e) => {
     const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
     const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
-    
+
     if (moveX > 5 || moveY > 5) {
       touchMovedRef.current = true;
       isTapRef.current = false;
@@ -323,12 +323,13 @@ const About = memo(() => {
       isDraggingRef.current = true;
       lastMousePosRef.current = { x: e.clientX, y: e.clientY };
 
+      const iconElements = container.querySelectorAll('.skill__icon-wrapper');
+      const skillNames = container.querySelectorAll('.skill__name');
+      
       iconElements.forEach(icon => {
         const iconEl = icon.querySelector('.skill__icon');
         if (iconEl) iconEl.classList.remove('active');
       });
-
-      const skillNames = container.querySelectorAll('.skill__name');
       skillNames.forEach(name => name.classList.remove('active'));
 
       e.preventDefault();
@@ -378,12 +379,13 @@ const About = memo(() => {
         isDraggingRef.current = true;
         lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 
+        const iconElements = container.querySelectorAll('.skill__icon-wrapper');
+        const skillNames = container.querySelectorAll('.skill__name');
+        
         iconElements.forEach(icon => {
           const iconEl = icon.querySelector('.skill__icon');
           if (iconEl) iconEl.classList.remove('active');
         });
-
-        const skillNames = container.querySelectorAll('.skill__name');
         skillNames.forEach(name => name.classList.remove('active'));
 
         e.preventDefault();

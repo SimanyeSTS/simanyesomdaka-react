@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ModalProvider } from "./context/modal-context";
 import { ThemeProvider } from "./context/theme-context";
-import LoadingScreen from './components/LoadingScreen';
 import './index.css';
+import LoadingScreen from './components/LoadingScreen';
 
-// Create loading container that will be rendered first
+// Create a separate root for loading screen
 const loadingRoot = document.createElement('div');
 loadingRoot.id = 'loading-root';
 loadingRoot.style.position = 'fixed';
@@ -15,40 +15,39 @@ loadingRoot.style.left = '0';
 loadingRoot.style.width = '100%';
 loadingRoot.style.height = '100%';
 loadingRoot.style.zIndex = '9999';
+
+// Add it to the body immediately, before anything else
 document.body.prepend(loadingRoot);
 
-// Apply initial styles to prevent FOUC (Flash of Unstyled Content)
-const initialStyles = document.createElement('style');
-initialStyles.textContent = `
-  body { overflow: hidden; margin: 0; padding: 0; }
-  #root { opacity: 0; transition: opacity 0.5s ease-in; }
-`;
-document.head.appendChild(initialStyles);
-
-// Render the loading screen first, before any other content
+// Ensure the loading screen is the first thing that renders
 const loadingRender = ReactDOM.createRoot(loadingRoot);
-loadingRender.render(
-  <ThemeProvider>
-    <LoadingScreen 
-      onLoadingComplete={() => {
-        // When loading is complete, show the main app and remove loading screen
-        document.getElementById('root').style.opacity = '1';
-        setTimeout(() => {
-          // Remove loading root after transition completes
-          loadingRoot.remove();
-          initialStyles.remove();
-        }, 1000);
-      }} 
-    />
-  </ThemeProvider>
-);
 
-// Render the main application
-const root = ReactDOM.createRoot(document.querySelector("#root"));
-root.render(
-  <ThemeProvider>
-    <ModalProvider>
-      <App />
-    </ModalProvider>
-  </ThemeProvider>
+// First render only the ThemeProvider and LoadingScreen
+loadingRender.render(
+  <React.StrictMode>
+    <ThemeProvider>
+      <LoadingScreen 
+        onLoadingComplete={() => {
+          // When loading is complete, render the main app
+          const root = ReactDOM.createRoot(document.getElementById('root'));
+          root.render(
+            <React.StrictMode>
+              <ThemeProvider>
+                <ModalProvider>
+                  <App onLoaded={() => {
+                    // Remove the loading screen after main app is loaded
+                    setTimeout(() => {
+                      if (document.body.contains(loadingRoot)) {
+                        loadingRoot.remove();
+                      }
+                    }, 1000);
+                  }} />
+                </ModalProvider>
+              </ThemeProvider>
+            </React.StrictMode>
+          );
+        }} 
+      />
+    </ThemeProvider>
+  </React.StrictMode>
 );

@@ -10,18 +10,15 @@ import Footer from "./sections/footer/Footer";
 import FloatingNav from "./sections/floating-nav/FloatingNav";
 import Theme from "./theme/Theme";
 import CustomAnimatedCursor from "./components/CustomAnimatedCursor";
-import LoadingScreen from "./components/LoadingScreen";
 import { useThemeContext } from "./context/theme-context";
 import { useRef, useState, useEffect } from "react";
 
-const App = ({ onLoaded }) => {
-  const [isLoading, setIsLoading] = useState(true);
+const App = () => {
   const { themeState } = useThemeContext();
-
+  
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
-    
     if (window.location.hash) {
       window.location.hash = '';
     }
@@ -36,9 +33,7 @@ const App = ({ onLoaded }) => {
 
   useEffect(() => {
     const root = document.documentElement;
-
     root.style.setProperty("--scrollbar-thumb-color", `hsl(${themeState.primaryHue}, 89%, 41%)`);
-
     if (themeState.background === "bg-1") {
       root.style.setProperty("--scrollbar-track-color", "white");
     } else if (themeState.background === "bg-2") {
@@ -67,32 +62,18 @@ const App = ({ onLoaded }) => {
     } else {
       hideFloatingNavHandler();
     }
-
     setSiteYPosition(mainRef?.current?.getBoundingClientRect().y);
   };
 
   useEffect(() => {
     const checkYPosition = setInterval(floatingNavToggleHandler, 2000);
-
     return () => clearInterval(checkYPosition);
   }, [siteYPostion]);
 
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-    if (onLoaded) onLoaded();
-  };
-
   return (
     <>
-      {}
       <CustomAnimatedCursor />
-      
-      {isLoading && <LoadingScreen onLoadingComplete={handleLoadingComplete} />}
-      
-      <main
-        className={`${themeState.primary} ${themeState.background}`}
-        ref={mainRef}
-      >
+      <main className={`${themeState.primary} ${themeState.background}`} ref={mainRef}>
         <Navbar />
         <Header />
         <About id="about" />

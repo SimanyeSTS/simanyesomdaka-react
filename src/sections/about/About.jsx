@@ -39,6 +39,9 @@ const About = memo(() => {
   const touchStartTimeRef = useRef(0);
   const isTapRef = useRef(false);
   const touchMovedRef = useRef(false);
+  const scrollStartPosRef = useRef(0);
+  const scrollingRef = useRef(false);
+  const activeSkillNameRef = useRef(null);
 
   useEffect(() => {
     setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
@@ -144,6 +147,9 @@ const About = memo(() => {
         setTimeout(() => name.classList.remove('hover-clear'), 3000);
       }
     });
+    
+    // Clear the active skill name reference
+    activeSkillNameRef.current = null;
   }, [isMobile]);
 
   const activateSkillPair = React.useCallback((index) => {
@@ -165,6 +171,10 @@ const About = memo(() => {
     if (names[index]) {
       names[index].classList.add('active');
       if (isMobile) names[index].classList.remove('hover-clear');
+      
+      // Store the active skill name element
+      activeSkillNameRef.current = names[index];
+      
       names[index].scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
@@ -175,15 +185,15 @@ const About = memo(() => {
 
   const centerSkillIcon = React.useCallback((iconOrEvent, container) => {
     // Early return if there was significant touch movement (for swipe vs tap detection)
-    if (touchMovedRef.current) return;
+    if (touchMovedRef.current || scrollingRef.current) return;
 
     let icon;
     let index = -1;
-    
+
     // Handle if passed an event
     if (iconOrEvent instanceof Event || (iconOrEvent.nativeEvent && iconOrEvent.currentTarget)) {
       const target = iconOrEvent.currentTarget || iconOrEvent.target;
-      
+
       // Handle if the clicked element is a skill name
       if (target.classList.contains('skill__name')) {
         index = Array.from(container.querySelectorAll('.skill__name')).indexOf(target);
@@ -203,7 +213,7 @@ const About = memo(() => {
       icon = iconOrEvent;
       index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
     }
-    
+
     // If we couldn't find a valid icon or index, exit early
     if (!icon || index === -1) return;
 
@@ -269,21 +279,80 @@ const About = memo(() => {
     e.preventDefault();
   };
 
+  // New handler for skill names area touch start
+  const handleSkillNamesAreaTouchStart = (e) => {
+    if (e.target.classList.contains('skill__name')) {
+      // This is for individual skill name
+      touchStartPosRef.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY
+      };
+      touchStartTimeRef.current = Date.now();
+      touchMovedRef.current = false;
+      
+      // Store the initial scroll position
+      scrollStartPosRef.current = e.currentTarget.scrollLeft;
+      scrollingRef.current = false;
+    }
+  };
+
+  // New handler for skill names area touch move
+  const handleSkillNamesAreaTouchMove = (e) => {
+    if (e.target.classList.contains('skill__name')) {
+      const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+      const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+      
+      // Check if user is scrolling (mainly check horizontal movement)
+      if (moveX > 5) {
+        scrollingRef.current = true;
+        e.stopPropagation();
+      }
+    }
+  };
+
+  // New handler for skill names area touch end
+  const handleSkillNamesAreaTouchEnd = (e) => {
+    if (e.target.classList.contains('skill__name')) {
+      // If we detect significant scrolling, don't trigger a click
+      if (scrollingRef.current) {
+        scrollingRef.current = false;
+        return;
+      }
+      
+      // Clear any existing active skill name hover state
+      if (activeSkillNameRef.current && activeSkillNameRef.current !== e.target) {
+        activeSkillNameRef.current.classList.remove('active');
+        if (isMobile) {
+          activeSkillNameRef.current.classList.add('hover-clear');
+        }
+      }
+      
+      const elapsed = Date.now() - touchStartTimeRef.current;
+      if (elapsed < 300 && !scrollingRef.current) {
+        handleSkillNameClick(e);
+      }
+    }
+  };
+
   const handleSkillNameClick = (e) => {
     e.stopPropagation();
-    e.preventDefault();
     
+    // If we're in scrolling mode, don't proceed with the click
+    if (scrollingRef.current) {
+      return;
+    }
+
     // Find the index of the clicked skill name
     const index = Array.from(skillsContainerRef.current.querySelectorAll('.skill__name')).indexOf(e.currentTarget);
     if (index === -1) return;
-    
+
     // Get the corresponding icon element
     const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
     if (!icon) return;
-    
+
     // Reset touchMoved flag to ensure centerSkillIcon will work
     touchMovedRef.current = false;
-    
+
     // Call centerSkillIcon directly with the icon
     centerSkillIcon(icon, skillsContainerRef.current);
   };
@@ -590,19 +659,17 @@ const About = memo(() => {
               </div>
             ))}
           </div>
-          <div className="skills__names">
+          <div 
+            className="skills__names"
+            onTouchStart={handleSkillNamesAreaTouchStart}
+            onTouchMove={handleSkillNamesAreaTouchMove}
+            onTouchEnd={handleSkillNamesAreaTouchEnd}
+          >
             {skillsData.map((skill, index) => (
               <span 
                 key={skill.id} 
                 className="skill__name"
-                onClick={handleSkillNameClick}
-                onTouchStart={handleIconTouchStart}
-                onTouchMove={handleIconTouchMove}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  handleSkillNameClick(e);
-                  if (isMobile) e.currentTarget.classList.add('hover-clear');
-                }}
+                // Remove direct click/touch handlers as they're now managed at the container level
               >
                 {skill.name}
               </span>

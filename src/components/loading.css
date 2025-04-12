@@ -1,21 +1,24 @@
-/* Reset and Base Styles */
+/* Base reset for consistent rendering */
 html, body {
-  overscroll-behavior: none;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
   height: 100%;
 }
 
+/* Loading screen container */
 .loading-screen {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  overflow: hidden;
+  background-color: var(--loading-bg);
+  color: var(--loading-text);
 }
 
 .content-container {
@@ -24,20 +27,18 @@ html, body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
-  padding: 2rem;
-  box-sizing: border-box;
+  max-width: 100%;
 }
 
-/* Profile Area Styles */
+/* Profile section */
 .profile__area {
   position: relative;
-  margin-bottom: 6rem;
+  margin-bottom: 4rem;
 }
 
 .outer__circle {
-  width: 26rem;
-  height: 26rem;
+  width: 20rem;
+  height: 20rem;
   border: 1px solid;
   border-radius: 50%;
   position: relative;
@@ -46,8 +47,8 @@ html, body {
 
 .inner__circle {
   position: absolute;
-  width: 18rem;
-  height: 18rem;
+  width: 14rem;
+  height: 14rem;
   border-radius: 50%;
   overflow: hidden;
   top: 50%;
@@ -57,61 +58,53 @@ html, body {
 
 .tech-icon {
   position: absolute;
-  width: 4rem;
-  height: 4rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
-.tech-icon:nth-child(1) { top: -2rem; left: calc(50% - 2rem); }
-.tech-icon:nth-child(2) { top: calc(50% - 2rem); right: -2rem; }
-.tech-icon:nth-child(3) { top: calc(50% - 2rem); left: -2rem; }
-.tech-icon:nth-child(4) { bottom: -2rem; left: calc(50% - 2rem); }
-
-/* Progress Bar - Fixed Positioning */
+/* Progress bar - Chrome visibility fix */
 .progress-container {
-  position: fixed;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   width: 80%;
   max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 100;
-  /* Chrome-specific fixes */
+  margin: 0 auto;
+  /* Chrome fix */
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
+  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  -webkit-transform-style: preserve-3d;
-  -webkit-perspective: 1000;
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 5px;
+  height: 8px;
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 4px;
   overflow: hidden;
-  /* Prevent jumping */
-  backface-visibility: hidden;
-  transform: translateZ(0);
+  /* Force GPU rendering */
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .progress-bar-fill {
   height: 100%;
+  /* Smooth transition */
   transition: width 0.1s linear;
-  /* Force Chrome rendering */
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
+  /* Chrome fix */
+  transform: translate3d(0,0,0);
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .progress-text {
-  margin-top: 1rem;
-  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  font-size: 1rem;
   font-weight: 500;
+  text-align: center;
 }
 
 /* Animations */
@@ -120,31 +113,34 @@ html, body {
   to { transform: rotate(360deg); }
 }
 
-/* Responsive Adjustments */
-@media (max-width: 1023px) {
-  .outer__circle { width: 20rem; height: 20rem; }
-  .inner__circle { width: 15rem; height: 15rem; }
-}
-
-@media (max-width: 600px) {
-  .outer__circle { width: 16rem; height: 16rem; }
-  .inner__circle { width: 10rem; height: 10rem; }
-  .tech-icon { width: 3rem; height: 3rem; font-size: 1rem; }
-  .tech-icon:nth-child(1) { top: -1.5rem; left: calc(50% - 1.5rem); }
-  .tech-icon:nth-child(2) { right: -1.5rem; top: calc(50% - 1.5rem); }
-  .tech-icon:nth-child(3) { left: -1.5rem; top: calc(50% - 1.5rem); }
-  .tech-icon:nth-child(4) { bottom: -1.5rem; left: calc(50% - 1.5rem); }
-  .progress-container { bottom: 12%; }
-}
-
-/* Chrome Mobile Nuclear Fix */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .progress-container {
-    -webkit-transform: translateX(-50%) translateZ(0) !important;
-    transform: translateX(-50%) translateZ(0) !important;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .outer__circle {
+    width: 16rem;
+    height: 16rem;
   }
+  .inner__circle {
+    width: 10rem;
+    height: 10rem;
+  }
+  .tech-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Chrome-specific nuclear fix */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .progress-container,
+  .progress-bar,
+  .progress-bar-fill {
+    -webkit-transform: translateZ(0) scale(1.001);
+    transform: translateZ(0) scale(1.001);
+  }
+  
   .progress-bar {
-    -webkit-transform: translateZ(0) !important;
-    transform: translateZ(0) !important;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
   }
 }

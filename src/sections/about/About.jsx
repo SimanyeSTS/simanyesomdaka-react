@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo, memo, useState } from "react";
-import { throttle } from 'lodash';
+import { throttle } from "lodash";
 import CV from "../../assets/Simanye Somdaka's Resume (OA).PDF";
 import { HiDownload } from "react-icons/hi";
 import data from "./data";
@@ -14,8 +14,8 @@ import {
   SiJavascript, SiTailwindcss, SiMongodb,
   SiExpress, SiNextdotjs, SiMysql,
   SiTestinglibrary, SiFigma,
-  SiVite, SiFlutter, SiDart, SiCplusplus, 
-  SiCsharp, SiFirebase, SiVercel, 
+  SiVite, SiFlutter, SiDart, SiCplusplus,
+  SiCsharp, SiFirebase, SiVercel,
   SiNetlify, SiPostman, SiVisualstudio,
   SiFlask, SiUnity, SiApache,
   SiRender, SiMicrosoftazure, SiGooglecloud,
@@ -26,6 +26,7 @@ const About = memo(() => {
   const [isMobile, setIsMobile] = useState(false);
   const skillsContainerRef = useRef(null);
   const floatingAreaRef = useRef(null);
+  const skillNamesContainerRef = useRef(null);
   const animationRef = useRef(null);
   const isDraggingRef = useRef(false);
   const lastMousePosRef = useRef({ x: 0, y: 0 });
@@ -40,14 +41,18 @@ const About = memo(() => {
   const isTapRef = useRef(false);
   const touchMovedRef = useRef(false);
   const scrollStartPosRef = useRef(0);
-  const scrollingRef = useRef(false);
-  const activeSkillNameRef = useRef(null);
+  const isScrollingRef = useRef(false);
+  const lastTouchedSkillNameRef = useRef(null);
 
   useEffect(() => {
-    setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    setIsMobile(
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
+    );
   }, []);
 
-  const skillsData = useMemo(() => [
+    const skillsData = useMemo(() => [
     // Core Programming Languages
     { id: 1, name: "JavaScript", icon: <SiJavascript />, category: "language" },
     { id: 2, name: "Python", icon: <FaPython />, category: "language" },
@@ -108,489 +113,157 @@ const About = memo(() => {
   ], []);
 
   const LazySkillIcon = ({ icon }) => {
-    const [LoadedIcon, setLoadedIcon] = React.useState(() => () => null);
-
-    React.useEffect(() => {
+    const [LoadedIcon, setLoadedIcon] = useState(() => () => null);
+    useEffect(() => {
       const loadIcon = async () => {
         try {
           const loadedIcon = await Promise.resolve(icon);
           setLoadedIcon(() => () => loadedIcon);
         } catch (error) {
-          alert('Icon loading failed', error);
+          alert("Icon loading failed", error);
         }
       };
-
       loadIcon();
     }, [icon]);
-
     return <LoadedIcon />;
   };
 
-  const clearAllActiveStates = React.useCallback(() => {
+  const clearAllActiveStates = () => {
     if (!skillsContainerRef.current) return;
+    const icons = skillsContainerRef.current.querySelectorAll(".skill__icon");
+    const names = skillsContainerRef.current.querySelectorAll(".skill__name");
 
-    const iconElements = skillsContainerRef.current.querySelectorAll('.skill__icon');
-    const skillNames = skillsContainerRef.current.querySelectorAll('.skill__name');
-
-    iconElements.forEach(icon => {
-      icon.classList.remove('active');
+    icons.forEach((icon) => {
+      icon.classList.remove("active");
       if (isMobile) {
-        icon.classList.add('hover-clear');
-        setTimeout(() => icon.classList.remove('hover-clear'), 3000);
+        icon.classList.add("hover-clear");
+        setTimeout(() => icon.classList.remove("hover-clear"), 3000);
       }
     });
 
-    skillNames.forEach(name => {
-      name.classList.remove('active');
+    names.forEach((name) => {
+      name.classList.remove("active");
       if (isMobile) {
-        name.classList.add('hover-clear');
-        setTimeout(() => name.classList.remove('hover-clear'), 3000);
+        name.classList.add("hover-clear");
+        setTimeout(() => name.classList.remove("hover-clear"), 3000);
       }
     });
-    
-    // Clear the active skill name reference
-    activeSkillNameRef.current = null;
-  }, [isMobile]);
 
-  const activateSkillPair = React.useCallback((index) => {
-    if (!skillsContainerRef.current) return;
+    lastTouchedSkillNameRef.current = null;
+  };
+
+  const centerSkillIcon = (icon, container) => {
+    if (touchMovedRef.current) return;
+    if (!icon || !container) return;
+
+    const index = Array.from(
+      container.querySelectorAll(".skill__icon-wrapper")
+    ).indexOf(icon);
+    if (index === -1) return;
 
     clearAllActiveStates();
 
-    const icons = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper');
-    const names = skillsContainerRef.current.querySelectorAll('.skill__name');
+    const iconEl = icon.querySelector(".skill__icon");
+    const nameEl = container.querySelectorAll(".skill__name")[index];
 
-    if (icons[index]) {
-      const icon = icons[index].querySelector('.skill__icon');
-      if (icon) {
-        icon.classList.add('active');
-        if (isMobile) icon.classList.remove('hover-clear');
-      }
-    }
+    if (iconEl) iconEl.classList.add("active");
+    if (nameEl) nameEl.classList.add("active");
 
-    if (names[index]) {
-      names[index].classList.add('active');
-      if (isMobile) names[index].classList.remove('hover-clear');
-      
-      // Store the active skill name element
-      activeSkillNameRef.current = names[index];
-      
-      names[index].scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center'
-      });
-    }
-  }, [clearAllActiveStates, isMobile]);
-
-  const centerSkillIcon = React.useCallback((iconOrEvent, container) => {
-    // Early return if there was significant touch movement (for swipe vs tap detection)
-    if (touchMovedRef.current || scrollingRef.current) return;
-
-    let icon;
-    let index = -1;
-
-    // Handle if passed an event
-    if (iconOrEvent instanceof Event || (iconOrEvent.nativeEvent && iconOrEvent.currentTarget)) {
-      const target = iconOrEvent.currentTarget || iconOrEvent.target;
-
-      // Handle if the clicked element is a skill name
-      if (target.classList.contains('skill__name')) {
-        index = Array.from(container.querySelectorAll('.skill__name')).indexOf(target);
-        // Get the corresponding icon element
-        if (index !== -1) {
-          icon = container.querySelectorAll('.skill__icon-wrapper')[index];
-        }
-      } else {
-        // Handle if the clicked element is an icon or icon wrapper
-        icon = target.closest('.skill__icon-wrapper');
-        if (icon) {
-          index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
-        }
-      }
-    } else {
-      // Handle if directly passed an element
-      icon = iconOrEvent;
-      index = Array.from(container.querySelectorAll('.skill__icon-wrapper')).indexOf(icon);
-    }
-
-    // If we couldn't find a valid icon or index, exit early
-    if (!icon || index === -1) return;
-
-    // Activate the skill (highlight both icon and name)
-    activateSkillPair(index);
-
-    // Get the 3D coordinates from the dataset
-    const x = parseFloat(icon.dataset.baseX || 0);
-    const y = parseFloat(icon.dataset.baseY || 0);
-    const z = parseFloat(icon.dataset.baseZ || 0);
-
-    // Calculate target rotation to bring this point to the front
-    const targetRotationY = -Math.atan2(x, z);
-    const targetRotationX = -Math.atan2(y, Math.sqrt(x * x + z * z));
-
-    // Store initial and target rotations
-    initialRotationRef.current = { 
-      x: sphereRotationRef.current.x, 
-      y: sphereRotationRef.current.y 
-    };
-
-    targetRotationRef.current = { 
-      x: targetRotationX, 
-      y: targetRotationY 
-    };
-
-    // Start animation to front
-    animatingToFrontRef.current = true;
-    useDefaultRotationRef.current = false;
-    rotationSpeedRef.current = { x: 0, y: 0 };
-  }, [activateSkillPair]);
-
-  const handleIconTouchStart = (e) => {
-    touchStartPosRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY
-    };
-    touchStartTimeRef.current = Date.now();
-    touchMovedRef.current = false;
-    isTapRef.current = true;
-  };
-
-  const handleIconTouchMove = (e) => {
-    const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
-    const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
-
-    if (moveX > 5 || moveY > 5) {
-      touchMovedRef.current = true;
-      isTapRef.current = false;
-    }
-  };
-
-  const handleIconTouchEnd = (e) => {
-    if (touchMovedRef.current) {
-      e.preventDefault();
-      return;
-    }
-
-    const elapsed = Date.now() - touchStartTimeRef.current;
-    if (elapsed < 300) {
-      centerSkillIcon(e.currentTarget, skillsContainerRef.current);
-    }
-    e.preventDefault();
-  };
-
-  // New handler for skill names area touch start
-  const handleSkillNamesAreaTouchStart = (e) => {
-    if (e.target.classList.contains('skill__name')) {
-      // This is for individual skill name
-      touchStartPosRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY
-      };
-      touchStartTimeRef.current = Date.now();
-      touchMovedRef.current = false;
-      
-      // Store the initial scroll position
-      scrollStartPosRef.current = e.currentTarget.scrollLeft;
-      scrollingRef.current = false;
-    }
-  };
-
-  // New handler for skill names area touch move
-  const handleSkillNamesAreaTouchMove = (e) => {
-    if (e.target.classList.contains('skill__name')) {
-      const moveX = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
-      const moveY = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
-      
-      // Check if user is scrolling (mainly check horizontal movement)
-      if (moveX > 5) {
-        scrollingRef.current = true;
-        e.stopPropagation();
-      }
-    }
-  };
-
-  // New handler for skill names area touch end
-  const handleSkillNamesAreaTouchEnd = (e) => {
-    if (e.target.classList.contains('skill__name')) {
-      // If we detect significant scrolling, don't trigger a click
-      if (scrollingRef.current) {
-        scrollingRef.current = false;
-        return;
-      }
-      
-      // Clear any existing active skill name hover state
-      if (activeSkillNameRef.current && activeSkillNameRef.current !== e.target) {
-        activeSkillNameRef.current.classList.remove('active');
-        if (isMobile) {
-          activeSkillNameRef.current.classList.add('hover-clear');
-        }
-      }
-      
-      const elapsed = Date.now() - touchStartTimeRef.current;
-      if (elapsed < 300 && !scrollingRef.current) {
-        handleSkillNameClick(e);
-      }
+    if (nameEl && isMobile) {
+      nameEl.scrollIntoView({ behavior: "smooth", inline: "center" });
     }
   };
 
   const handleSkillNameClick = (e) => {
     e.stopPropagation();
-    
-    // If we're in scrolling mode, don't proceed with the click
-    if (scrollingRef.current) {
-      return;
-    }
+    e.preventDefault();
+    if (isScrollingRef.current) return;
 
-    // Find the index of the clicked skill name
-    const index = Array.from(skillsContainerRef.current.querySelectorAll('.skill__name')).indexOf(e.currentTarget);
+    const index = Array.from(
+      skillsContainerRef.current.querySelectorAll(".skill__name")
+    ).indexOf(e.currentTarget);
     if (index === -1) return;
 
-    // Get the corresponding icon element
-    const icon = skillsContainerRef.current.querySelectorAll('.skill__icon-wrapper')[index];
+    const icon = skillsContainerRef.current.querySelectorAll(
+      ".skill__icon-wrapper"
+    )[index];
     if (!icon) return;
 
-    // Reset touchMoved flag to ensure centerSkillIcon will work
     touchMovedRef.current = false;
-
-    // Call centerSkillIcon directly with the icon
     centerSkillIcon(icon, skillsContainerRef.current);
   };
 
-  useEffect(() => {
-    if (!skillsContainerRef.current || !floatingAreaRef.current) return;
+  const handleSkillNamesContainerTouchStart = () => {
+    if (!skillNamesContainerRef.current) return;
+    scrollStartPosRef.current = skillNamesContainerRef.current.scrollLeft;
+    isScrollingRef.current = false;
 
-    const container = skillsContainerRef.current;
-    const floatingArea = floatingAreaRef.current;
-    const iconElements = container.querySelectorAll('.skill__icon-wrapper');
-    const total = iconElements.length;
-
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+    if (lastTouchedSkillNameRef.current) {
+      lastTouchedSkillNameRef.current.classList.remove("active");
+      lastTouchedSkillNameRef.current = null;
     }
+  };
 
-    const containerRect = container.getBoundingClientRect();
-    const containerHeight = containerRect.height - 100;
-    const radius = Math.min(containerRect.width, containerHeight) * 0.45;
-
-    const center = {
-      x: containerRect.width / 2,
-      y: (containerHeight / 2) - 40,
-    };
-
-    const createSpherePoints = (n) => {
-      const points = [];
-      const goldenRatio = (1 + Math.sqrt(5)) / 2;
-      const alpha = 2 * Math.PI / (goldenRatio * goldenRatio);
-
-      for (let i = 0; i < n; i++) {
-        const z = 1 - (2 * i + 1) / n;
-        const radius = Math.sqrt(1 - z * z);
-        const theta = alpha * i;
-        const x = Math.cos(theta) * radius;
-        const y = Math.sin(theta) * radius;
-        points.push({ x, y, z });
-      }
-
-      return points;
-    };
-
-    const spherePoints = createSpherePoints(total);
-
-    iconElements.forEach((icon, index) => {
-      const point = spherePoints[index];
-      icon.dataset.baseX = point.x;
-      icon.dataset.baseY = point.y;
-      icon.dataset.baseZ = point.z;
-      icon.dataset.x = point.x;
-      icon.dataset.y = point.y;
-      icon.dataset.z = point.z;
-      icon.dataset.speedFactor = "1.0";
-    });
-
-    const animate = () => {
-      if (!isDraggingRef.current) {
-        if (animatingToFrontRef.current) {
-          const easeAmount = 0.1;
-          sphereRotationRef.current.x += (targetRotationRef.current.x - sphereRotationRef.current.x) * easeAmount;
-          sphereRotationRef.current.y += (targetRotationRef.current.y - sphereRotationRef.current.y) * easeAmount;
-
-          const distX = Math.abs(targetRotationRef.current.x - sphereRotationRef.current.x);
-          const distY = Math.abs(targetRotationRef.current.y - sphereRotationRef.current.y);
-
-          if (distX < 0.01 && distY < 0.01) {
-            animatingToFrontRef.current = false;
-          }
+  const handleSkillNamesContainerTouchMove = () => {
+    if (!skillNamesContainerRef.current) return;
+    const currentScroll = skillNamesContainerRef.current.scrollLeft;
+    if (Math.abs(currentScroll - scrollStartPosRef.current) > 5) {
+      isScrollingRef.current = true;
+      const names = skillsContainerRef.current.querySelectorAll(".skill__name");
+      names.forEach((name) => {
+        name.classList.remove("active");
+        if (isMobile) {
+          name.classList.add("hover-clear");
         }
-        else if (useDefaultRotationRef.current) {
-          sphereRotationRef.current.x += 0.001;
-          sphereRotationRef.current.y += 0.001;
-        } else {
-          sphereRotationRef.current.x += rotationSpeedRef.current.x;
-          sphereRotationRef.current.y += rotationSpeedRef.current.y;
-        }
-      }
-
-      iconElements.forEach((icon) => {
-        let x = parseFloat(icon.dataset.baseX);
-        let y = parseFloat(icon.dataset.baseY);
-        let z = parseFloat(icon.dataset.baseZ);
-        const speedFactor = parseFloat(icon.dataset.speedFactor);
-
-        const cosY = Math.cos(sphereRotationRef.current.y * speedFactor);
-        const sinY = Math.sin(sphereRotationRef.current.y * speedFactor);
-        const tempX = x * cosY + z * sinY;
-        const tempZ = z * cosY - x * sinY;
-
-        const cosX = Math.cos(sphereRotationRef.current.x * speedFactor);
-        const sinX = Math.sin(sphereRotationRef.current.x * speedFactor);
-        const tempY = y * cosX + tempZ * sinX;
-        const finalZ = tempZ * cosX - y * sinX;
-
-        const scale = (finalZ + 2) / 3;
-        const translateX = tempX * radius * scale + center.x;
-        const translateY = tempY * radius * scale + center.y;
-
-        icon.style.transform = `translate(${translateX - 25}px, ${translateY - 25}px) scale(${0.8 + scale * 0.5})`;
-        icon.style.opacity = Math.max(0.2, (finalZ + 1) / 2).toFixed(2);
-        icon.style.zIndex = Math.floor((finalZ + 1) * 100);
       });
+    }
+  };
 
-      animationRef.current = requestAnimationFrame(animate);
+  const handleSkillNameTouchStart = (e) => {
+    touchStartPosRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
     };
+    touchStartTimeRef.current = Date.now();
+    touchMovedRef.current = false;
+    isTapRef.current = true;
+    lastTouchedSkillNameRef.current = e.currentTarget;
+  };
 
-    animate();
+  const handleSkillNameTouchMove = (e) => {
+    const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x);
+    const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y);
+    if (dx > 5 || dy > 5) {
+      touchMovedRef.current = true;
+      isTapRef.current = false;
+      isScrollingRef.current = true;
+      e.currentTarget.classList.remove("active");
+    }
+  };
 
-    const handleMouseDown = (e) => {
-      if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
-        return;
-      }
-
-      isDraggingRef.current = true;
-      lastMousePosRef.current = { x: e.clientX, y: e.clientY };
-
-      clearAllActiveStates();
-
+  const handleSkillNameTouchEnd = (e) => {
+    if (isScrollingRef.current || touchMovedRef.current) {
       e.preventDefault();
-      floatingArea.style.cursor = 'grabbing';
-      animatingToFrontRef.current = false;
-    };
+      return;
+    }
+    const elapsed = Date.now() - touchStartTimeRef.current;
+    if (elapsed < 300) {
+      handleSkillNameClick(e);
+    }
+    e.preventDefault();
+  };
 
-    const handleMouseMoveRaw = (e) => {
-      if (!isDraggingRef.current) return;
-
-      const deltaX = e.clientX - lastMousePosRef.current.x;
-      const deltaY = e.clientY - lastMousePosRef.current.y;
-
-      const rotationMultiplier = 0.005;
-      const cosX = Math.cos(sphereRotationRef.current.x);
-      const horizontalDirection = cosX >= 0 ? 1 : -1;
-
-      sphereRotationRef.current.y += deltaX * rotationMultiplier * horizontalDirection;
-      sphereRotationRef.current.x += deltaY * rotationMultiplier;
-
-      if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
-        const speedMultiplier = 0.001;
-        rotationSpeedRef.current = {
-          x: Math.sign(deltaY) * speedMultiplier,
-          y: Math.sign(deltaX) * speedMultiplier * horizontalDirection
-        };
-        useDefaultRotationRef.current = false;
-      }
-
-      lastMousePosRef.current = { x: e.clientX, y: e.clientY };
-    };
-
-    const handleMouseMove = throttle(handleMouseMoveRaw, 16);
-
-    const handleMouseUp = () => {
-      if (!isDraggingRef.current) return;
-      isDraggingRef.current = false;
-      floatingArea.style.cursor = 'grab';
-    };
-
-    const handleTouchStart = (e) => {
-      if (!e.target.closest('.skills__floating-area, .skill__icon-wrapper, .skill__icon')) {
-        return;
-      }
-
-      if (e.touches.length === 1) {
-        isDraggingRef.current = true;
-        lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-
-        clearAllActiveStates();
-
-        e.preventDefault();
-        floatingArea.style.cursor = 'grabbing';
-        animatingToFrontRef.current = false;
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isDraggingRef.current || e.touches.length !== 1) return;
-
-      const deltaX = e.touches[0].clientX - lastMousePosRef.current.x;
-      const deltaY = e.touches[0].clientY - lastMousePosRef.current.y;
-
-      const rotationMultiplier = 0.005;
-      const cosX = Math.cos(sphereRotationRef.current.x);
-      const horizontalDirection = cosX >= 0 ? 1 : -1;
-
-      sphereRotationRef.current.y += deltaX * rotationMultiplier * horizontalDirection;
-      sphereRotationRef.current.x += deltaY * rotationMultiplier;
-
-      if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
-        const speedMultiplier = 0.001;
-        rotationSpeedRef.current = {
-          x: Math.sign(deltaY) * speedMultiplier,
-          y: Math.sign(deltaX) * speedMultiplier * horizontalDirection
-        };
-        useDefaultRotationRef.current = false;
-      }
-
-      lastMousePosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      e.preventDefault();
-    };
-
-    const handleTouchEnd = () => {
-      if (!isDraggingRef.current) return;
-      isDraggingRef.current = false;
-      floatingArea.style.cursor = 'grab';
-    };
-
-    floatingArea.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    floatingArea.addEventListener('touchstart', handleTouchStart, { passive: false });
-    window.addEventListener('touchmove', handleTouchMove, { passive: false });
-    window.addEventListener('touchend', handleTouchEnd);
-
-    const handleResize = () => {
-      const newContainerRect = container.getBoundingClientRect();
-      const newContainerHeight = newContainerRect.height - 100;
-      center.x = newContainerRect.width / 2;
-      center.y = (newContainerHeight / 2) - 40;
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-
-      floatingArea.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-
-      floatingArea.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [centerSkillIcon, skillsData, clearAllActiveStates]);
+  useEffect(() => {
+    const container = skillNamesContainerRef.current;
+    if (container) {
+      container.addEventListener("touchstart", handleSkillNamesContainerTouchStart, { passive: true });
+      container.addEventListener("touchmove", handleSkillNamesContainerTouchMove, { passive: true });
+      return () => {
+        container.removeEventListener("touchstart", handleSkillNamesContainerTouchStart);
+        container.removeEventListener("touchmove", handleSkillNamesContainerTouchMove);
+      };
+    }
+  }, []);
 
   return (
     <section id="about">
@@ -609,13 +282,21 @@ const About = memo(() => {
           </div>
           <div className="about__text">
             <p>
-              As a Junior Software Engineer, my passion is delivering scalable, secure, and efficient solutions by applying strong engineering principles. My expertise lies in backend and cloud development, but I take a full-stack approach when needed.
+              As a Junior Software Engineer, my passion is delivering scalable,
+              secure, and efficient solutions by applying strong engineering
+              principles. My expertise lies in backend and cloud development,
+              but I take a full-stack approach when needed.
             </p>
             <p>
-              Currently an Applications Development student at CPUT, I thrive in both independent and collaborative environments. My skills span data analysis, pattern recognition, and system optimization, with a keen interest in cloud security and infrastructure design.
+              Currently an Applications Development student at CPUT, I thrive
+              in both independent and collaborative environments. My skills
+              span data analysis, pattern recognition, and system optimization,
+              with a keen interest in cloud security and infrastructure design.
             </p>
             <p>
-              I'm always eager to connect with like-minded professionals and explore new opportunities. If you have a project or challenge, feel free to reach out—let's create something impactful!
+              I'm always eager to connect with like-minded professionals and
+              explore new opportunities. If you have a project or challenge,
+              feel free to reach out—let's create something impactful!
             </p>
           </div>
           <a href={CV} download className="btn primary">
@@ -625,33 +306,26 @@ const About = memo(() => {
 
         <div className="skills__container" ref={skillsContainerRef}>
           <h2>Skills</h2>
-          <p>Empowered by knowledge, driven by skills—here's what I bring to the table.</p>
-          <div 
-            className="skills__floating-area" 
-            ref={floatingAreaRef}
-            style={{ cursor: 'grab' }}
-          >
-            {skillsData.map((skill, index) => (
-              <div 
-                key={skill.id} 
-                className="skill__icon-wrapper" 
+          <p>
+            Empowered by knowledge, driven by skills—here's what I bring to the
+            table.
+          </p>
+          <div className="skills__floating-area" ref={floatingAreaRef}>
+            {skillsData.map((skill) => (
+              <div
+                key={skill.id}
+                className="skill__icon-wrapper"
                 draggable="false"
-                onTouchStart={handleIconTouchStart}
-                onTouchMove={handleIconTouchMove}
-                onTouchEnd={(e) => {
-                  handleIconTouchEnd(e);
-                  if (isMobile) {
-                    const icon = e.currentTarget.querySelector('.skill__icon');
-                    if (icon) icon.classList.add('hover-clear');
-                  }
-                }}
               >
-                <div 
+                <div
                   className="skill__icon"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    centerSkillIcon(e.currentTarget.parentElement, skillsContainerRef.current);
+                    centerSkillIcon(
+                      e.currentTarget.parentElement,
+                      skillsContainerRef.current
+                    );
                   }}
                 >
                   <LazySkillIcon icon={skill.icon} />
@@ -659,17 +333,15 @@ const About = memo(() => {
               </div>
             ))}
           </div>
-          <div 
-            className="skills__names"
-            onTouchStart={handleSkillNamesAreaTouchStart}
-            onTouchMove={handleSkillNamesAreaTouchMove}
-            onTouchEnd={handleSkillNamesAreaTouchEnd}
-          >
-            {skillsData.map((skill, index) => (
-              <span 
-                key={skill.id} 
+          <div className="skills__names" ref={skillNamesContainerRef}>
+            {skillsData.map((skill) => (
+              <span
+                key={skill.id}
                 className="skill__name"
-                // Remove direct click/touch handlers as they're now managed at the container level
+                onClick={handleSkillNameClick}
+                onTouchStart={handleSkillNameTouchStart}
+                onTouchMove={handleSkillNameTouchMove}
+                onTouchEnd={handleSkillNameTouchEnd}
               >
                 {skill.name}
               </span>
@@ -681,4 +353,4 @@ const About = memo(() => {
   );
 });
 
-export default React.memo(About);
+export default About;

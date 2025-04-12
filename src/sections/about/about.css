@@ -135,8 +135,8 @@
 .skills__names {
   cursor: pointer !important;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
   gap: 0.5rem;
   margin-top: auto;
   padding-top: 1rem;
@@ -144,9 +144,13 @@
   position: relative;
   z-index: 10;
   height: 80px;
-  overflow-y: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--color-primary) var(--color-white);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .skill__name {
@@ -158,6 +162,8 @@
   transition: all 0.3s ease;
   cursor: pointer;
   user-select: none;
+  touch-action: manipulation;
+  flex: 0 0 auto;
 }
 
 .skill__name:hover, .skill__name.active {
@@ -184,20 +190,6 @@ h2 {
 .skills__names::-webkit-scrollbar-thumb {
   background-color: var(--color-primary);
   border-radius: 10px;
-}
-
-.skill__icon-wrapper {
-  touch-action: manipulation;
-}
-
-.skills__names {
-  touch-action: pan-y;
-  overscroll-behavior: contain;
-}
-
-.skill__name {
-  touch-action: manipulation;
-  user-select: none;
 }
 
 @media screen and (max-width: 1024px) {
@@ -294,7 +286,7 @@ h2 {
     color: var(--color-black) !important;
     transform: none !important;
   }
-  
+
   .skill__name.active:hover,
   .skill__icon.active:hover {
     background-color: var(--color-primary) !important;

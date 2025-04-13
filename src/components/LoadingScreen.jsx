@@ -5,128 +5,258 @@ import { useThemeContext } from "../context/theme-context";
 import profile from '../assets/profile.png';
 import './loading.css';
 
+// Force browser repaint - this helps with mobile rendering issues
+const forceRepaint = (element) => {
+  if (!element) return;
+  // Force layout recalculation
+  void element.offsetHeight;
+  // Apply and remove a class to force repaint
+  element.classList.add('force-repaint');
+  setTimeout(() => element.classList.remove('force-repaint'), 0);
+};
+
 const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const intervalRef = useRef(null);
-  const timeoutRef = useRef(null);
+  const [progressBarVisible, setProgressBarVisible] = useState(true);
+  const [profileVisible, setProfileVisible] = useState(true);
+  const [portfolioReady, setPortfolioReady] = useState(false);
+  
+  const profileRef = useRef(null);
+  const outerCircleRef = useRef(null);
+  const loadingScreenRef = useRef(null);
+  const progressBarRef = useRef(null);
+  
+  const isLightTheme = themeState.background === 'bg-1';
+  const backgroundColor = isLightTheme ? 'white' : '#100F0F';
+  const textColor = isLightTheme ? '#100F0F' : 'white';
+  const iconBgColor = isLightTheme ? 'white' : '#100F0F';
 
-  // Nuclear option for Chrome visibility
+  // Prevent scrolling while loading screen is visible
   useEffect(() => {
-    const forceChromeRender = () => {
-      const elements = document.querySelectorAll('.progress-container, .progress-bar, .progress-bar-fill');
-      elements.forEach(el => {
-        el.style.transform = 'translateZ(0)';
-        el.style.willChange = 'transform';
-        el.style.backfaceVisibility = 'hidden';
+    document.body.style.overflow = isVisible ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isVisible]);
+
+  // Track actual loading progress
+  // Aggressively force progress bar rendering
+  useEffect(() => {
+    // Set initial progress immediately
+    setLoadingProgress(5);
+    
+    // Force immediate repaints
+    setTimeout(() => {
+      if (progressBarRef.current) {
+        forceRepaint(progressBarRef.current);
+      }
+    }, 10);
+    
+    // Simulate loading with forced repaints to ensure visibility
+    const simulateLoading = () => {
+      const increment = () => {
+        setLoadingProgress(prev => {
+          if (prev >= 100) return 100;
+          return prev + Math.random() * 5 + 2; // Random increment for natural feel
+        });
+        
+        // Force repaint on each update
+        if (progressBarRef.current) {
+          forceRepaint(progressBarRef.current);
+        }
+      };
+      
+      // Start with quick progress to show movement immediately
+      const immediateTimer = setInterval(() => {
+        increment();
+      }, 100);
+      
+      // After initial fast progress, slow down for the rest
+      setTimeout(() => {
+        clearInterval(immediateTimer);
+        const slowTimer = setInterval(() => {
+          increment();
+          if (loadingProgress >= 90) {
+            clearInterval(slowTimer);
+            
+            // Final push to 100%
+            setTimeout(() => {
+              setLoadingProgress(100);
+              forceRepaint(progressBarRef.current);
+            }, 500);
+          }
+        }, 200);
+      }, 1000);
+    };
+    
+    // Start simulated loading immediately
+    simulateLoading();
+    
+    // Hard fallback to ensure completion
+    const fallbackTimer = setTimeout(() => {
+      setLoadingProgress(100);
+      if (progressBarRef.current) {
+        forceRepaint(progressBarRef.current);
+      }
+    }, 5000);
+    
+    return () => {
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
+
+  // Handle completion sequence when loading reaches 100%
+  // Preload ALL app content
+  useEffect(() => {
+    // Preload all images in the document
+    const preloadAllImages = () => {
+      const imgElements = document.querySelectorAll('img[src]');
+      imgElements.forEach(img => {
+        const src = img.getAttribute('src');
+        if (src) {
+          const preloadLink = document.createElement('link');
+          preloadLink.rel = 'preload';
+          preloadLink.as = 'image';
+          preloadLink.href = src;
+          document.head.appendChild(preloadLink);
+        }
       });
     };
     
-    // Run immediately and again after a short delay
-    forceChromeRender();
-    const forceRenderTimeout = setTimeout(forceChromeRender, 300);
-    
-    return () => clearTimeout(forceRenderTimeout);
+    // Execute preloading
+    preloadAllImages();
   }, []);
 
-  // Cleanup all intervals and timeouts
+  // Handle completion with no white flash
   useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    const simulateLoading = () => {
-      let progress = 0;
-      intervalRef.current = setInterval(() => {
-        progress += Math.random() * 5 + 2;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(intervalRef.current);
-          timeoutRef.current = setTimeout(() => {
-            setIsVisible(false);
-            onLoadingComplete();
-            // Ensure scrolling is re-enabled
-            document.documentElement.style.overflow = 'auto';
-            document.body.style.overflow = 'auto';
-          }, 300);
+    if (loadingProgress === 100) {
+      // Make sure app content is rendered BEFORE removing loading screen
+      // Render the main app behind the scenes
+      if (onLoadingComplete) {
+        // Signal to render main app while loading screen is still visible
+        onLoadingComplete(false); // false = don't remove loading screen yet
+      }
+      
+      // Wait a bit to ensure main app content is ready
+      setTimeout(() => {
+        if (progressBarRef.current) {
+          progressBarRef.current.classList.add('fade-out');
+          forceRepaint(progressBarRef.current);
         }
-        setLoadingProgress(progress);
-      }, 100);
-    };
-
-    // Temporarily disable scrolling during loading
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    
-    simulateLoading();
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      // Cleanup scroll lock if component unmounts early
-      document.documentElement.style.overflow = 'auto';
-      document.body.style.overflow = 'auto';
-    };
-  }, [onLoadingComplete]);
+        
+        setTimeout(() => {
+          setProgressBarVisible(false);
+          
+          setTimeout(() => {
+            if (profileRef.current) {
+              profileRef.current.classList.add('fade-out');
+              forceRepaint(profileRef.current);
+            }
+            
+            setTimeout(() => {
+              setProfileVisible(false);
+              setPortfolioReady(true);
+              
+              if (loadingScreenRef.current) {
+                loadingScreenRef.current.classList.add('dim-screen');
+                forceRepaint(loadingScreenRef.current);
+                
+                // Only after transition to transparent is complete, trigger loading screen removal
+                setTimeout(() => {
+                  loadingScreenRef.current.classList.add('brighten-screen');
+                  forceRepaint(loadingScreenRef.current);
+                  
+                  // Now that the screen is transparent, we can safely hide it
+                  setTimeout(() => {
+                    setIsVisible(false);
+                    if (onLoadingComplete) onLoadingComplete(true); // true = now we can fully remove it
+                  }, 700);
+                }, 500); // Reduced from 1000ms to 500ms
+              }
+            }, 300); // Reduced from 600ms to 300ms
+          }, 800); // Reduced from 1500ms to 800ms
+        }, 400); // Reduced from 600ms to 400ms
+      }, 300);
+    }
+  }, [loadingProgress, onLoadingComplete]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="loading-screen" style={{
-      backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
-      color: themeState.background === 'bg-1' ? '#100F0F' : 'white'
-    }}>
+    <div 
+      ref={loadingScreenRef} 
+      className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
+      style={{ backgroundColor: backgroundColor, color: textColor }}
+    >
       <div className="content-container">
-        <div className="profile__area">
-          <div className="outer__circle" style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
-            <span className="tech-icon" style={{ 
-              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
-              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
-            }}>
-              <MdDesignServices />
-            </span>
-            <span className="tech-icon" style={{ 
-              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
-              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
-            }}>
-              <HiServer />
-            </span>
-            <span className="tech-icon" style={{ 
-              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
-              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
-            }}>
-              <MdCode />
-            </span>
-            <span className="tech-icon" style={{ 
-              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
-              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
-            }}>
-              <MdVideoLibrary />
-            </span>
-          </div>
-          <div className="inner__circle">
-            <img src={profile} alt="Header Portrait" />
-          </div>
-        </div>
-
-        <div className="progress-container chrome-fix">
-          <div className="progress-bar">
+        {profileVisible && (
+          <div 
+            ref={profileRef} 
+            className="profile__area loading-profile"
+          >
             <div 
-              className="progress-bar-fill" 
-              style={{ 
-                width: `${loadingProgress}%`,
-                backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)`
-              }} 
-            />
+              ref={outerCircleRef} 
+              className="outer__circle keep-bright" 
+              style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+            >
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdDesignServices />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <HiServer />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdCode />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              >
+                <MdVideoLibrary />
+              </span>
+            </div>
+            <div className="inner__circle">
+              <img src={profile} alt="Header Portrait" />
+            </div>
           </div>
-          <div className="progress-text">
-            Loading {loadingProgress.toFixed(2)}%
+        )}
+        
+        {progressBarVisible && (
+          <div 
+            ref={progressBarRef} 
+            className="progress-container"
+            onTouchStart={() => {}} // Chrome mobile fix
+            onClick={() => {}} // Chrome mobile fix
+            style={{
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent'
+            }}
+          >
+            <div className="progress-bar">
+              <div 
+                className="progress-bar-fill" 
+                style={{ 
+                  width: `${Math.min(loadingProgress, 100)}%`, // Ensure never exceeds 100%
+                  backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)` 
+                }} 
+              />
+            </div>
+            <div className="progress-text">
+              Loading {Math.min(loadingProgress, 100)}% {/* Keep original decimal precision */}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

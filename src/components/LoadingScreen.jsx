@@ -12,12 +12,10 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const [progressBarVisible, setProgressBarVisible] = useState(true);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
-  const [forceRender, setForceRender] = useState(0); // New state for forcing renders
   
   const profileRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
-  const animationFrameRef = useRef(null); // Reference for animation frame
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -25,47 +23,10 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
   const progressColor = `hsl(${themeState.primaryHue}, 89%, 41%)`;
 
-  // Check if Chrome Mobile
+  // Enhanced Chrome Mobile detection
   const isChromeMobile = () => {
-    return /Android.*Chrome\//.test(navigator.userAgent);
+    return /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
   };
-
-  // Chrome-specific rendering fixes
-  useEffect(() => {
-    if (!isChromeMobile()) return;
-    
-    // Force rendering by using requestAnimationFrame
-    const forceRendering = () => {
-      // Update state to trigger re-renders
-      setForceRender(prev => (prev + 0.01) % 1000);
-      
-      // Force reflow on the progress bar element
-      if (progressBarRef.current) {
-        progressBarRef.current.style.transform = `translateZ(0) scale(1.${Math.floor(Math.random() * 9) + 1})`;
-        void progressBarRef.current.offsetHeight; // Force reflow
-        progressBarRef.current.style.transform = `translateZ(0) scale(1)`;
-      }
-      
-      animationFrameRef.current = requestAnimationFrame(forceRendering);
-    };
-    
-    // Start the animation loop
-    animationFrameRef.current = requestAnimationFrame(forceRendering);
-    
-    // Add touch event listeners to document to keep the browser "awake"
-    const keepActive = () => {};
-    document.addEventListener('touchstart', keepActive, { passive: true });
-    document.addEventListener('touchmove', keepActive, { passive: true });
-    
-    // Clean up
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      document.removeEventListener('touchstart', keepActive);
-      document.removeEventListener('touchmove', keepActive);
-    };
-  }, []);
 
   // Prevent scrolling while loading screen is visible
   useEffect(() => {
@@ -75,67 +36,51 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Chrome Mobile-specific additional fixes
+  // Chrome Mobile-specific rendering solution
   useEffect(() => {
     if (!isChromeMobile()) return;
 
-    // Create a hidden iframe to force Chrome to render
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    // Instead of simple timeout, keep creating iframes periodically
-    const iframeInterval = setInterval(() => {
-      const tempIframe = document.createElement('iframe');
-      tempIframe.style.display = 'none';
-      document.body.appendChild(tempIframe);
-      
-      setTimeout(() => {
-        if (document.body.contains(tempIframe)) {
-          document.body.removeChild(tempIframe);
-        }
-      }, 500);
-    }, 1000);
-
-    // Force focus and add a tabindex
-    if (progressBarRef.current) {
-      progressBarRef.current.focus();
-      progressBarRef.current.setAttribute('tabindex', '0');
-      
-      // Add a subtle animation to keep the element active
-      progressBarRef.current.classList.add('always-visible');
-    }
-    
-    // Touch listeners specific to the progress bar
-    const handleTouch = (e) => {
-      e.preventDefault(); // Prevent default only for this element
-      
-      // Force visibility by manipulating style
+    // Force layout and paint before showing content
+    const forceRender = () => {
       if (progressBarRef.current) {
-        progressBarRef.current.style.opacity = "1";
-        progressBarRef.current.style.visibility = "visible";
+        // Trigger reflow
+        progressBarRef.current.style.display = 'none';
+        progressBarRef.current.offsetHeight; // This forces a reflow
+        progressBarRef.current.style.display = 'flex';
+        
+        // Add Chrome-specific class
+        progressBarRef.current.classList.add('chrome-mobile');
+        
+        // Force focus and make it focusable
+        progressBarRef.current.setAttribute('tabindex', '-1');
+        progressBarRef.current.focus({ preventScroll: true });
+        
+        // Add slight delay to ensure rendering
+        setTimeout(() => {
+          if (progressBarRef.current) {
+            progressBarRef.current.style.willChange = 'transform, opacity';
+            progressBarRef.current.style.backfaceVisibility = 'hidden';
+          }
+        }, 50);
       }
     };
-    
-    if (progressBarRef.current) {
-      progressBarRef.current.addEventListener('touchstart', handleTouch);
-      progressBarRef.current.addEventListener('touchmove', handleTouch);
-    }
 
-    return () => {
-      clearInterval(iframeInterval);
+    // Execute after a small delay to ensure DOM is ready
+    setTimeout(forceRender, 100);
+    
+    // Additional fallback for stubborn cases
+    const renderFallback = setTimeout(() => {
       if (progressBarRef.current) {
-        progressBarRef.current.removeEventListener('touchstart', handleTouch);
-        progressBarRef.current.removeEventListener('touchmove', handleTouch);
+        progressBarRef.current.style.transform = 'translate3d(-50%, 0, 0) scale(1.0001)';
+        setTimeout(() => {
+          if (progressBarRef.current) {
+            progressBarRef.current.style.transform = 'translate3d(-50%, 0, 0) scale(1)';
+          }
+        }, 50);
       }
-      
-      // Clean up any remaining iframes
-      document.querySelectorAll('iframe').forEach(frame => {
-        if (document.body.contains(frame)) {
-          document.body.removeChild(frame);
-        }
-      });
-    };
+    }, 200);
+
+    return () => clearTimeout(renderFallback);
   }, []);
 
   // Track loading progress
@@ -143,17 +88,17 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     // Initial jump to show something immediately
     setLoadingProgress(5);
 
-    // Simulate loading with more frequent updates
+    // Simulate loading
     const simulateLoading = () => {
       const increment = () => {
         setLoadingProgress(prev => {
-          const newProgress = prev + Math.random() * 3 + 1; // More granular updates
+          const newProgress = prev + Math.random() * 5 + 2;
           return newProgress >= 100 ? 100 : newProgress;
         });
       };
       
-      // More frequent updates to keep element active
-      const immediateTimer = setInterval(increment, 50); // More frequent
+      // Fast initial progress
+      const immediateTimer = setInterval(increment, 100);
       
       // Slow down after initial progress
       setTimeout(() => {
@@ -164,10 +109,10 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             clearInterval(slowTimer);
             setTimeout(() => {
               setLoadingProgress(100);
-            }, 300);
+            }, 500);
           }
-        }, 100); // Still more frequent than original
-      }, 800);
+        }, 200);
+      }, 1000);
     };
     
     simulateLoading();
@@ -183,11 +128,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   // Handle completion
   useEffect(() => {
     if (loadingProgress === 100) {
-      // Cancel animation frame on completion
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      
       if (onLoadingComplete) onLoadingComplete(false);
       
       setTimeout(() => {
@@ -218,10 +158,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   const formattedPercentage = loadingProgress >= 100 
     ? '100.00%' 
-    : `${Math.min(loadingProgress, 99.99).toFixed(2)}%`;
-    
-  // Add random key to force re-render in Chrome
-  const chromeKey = isChromeMobile() ? `progress-${forceRender}` : 'progress';
+    : `${Math.min(loadingProgress, 100)}%`;
 
   return (
     <div 
@@ -269,18 +206,22 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         
         {progressBarVisible && (
           <div 
-            key={chromeKey}
             ref={progressBarRef}
-            className={`progress-container ${isChromeMobile() ? 'chrome-mobile always-visible' : ''}`}
-            tabIndex="0"
-            style={{ touchAction: "none", pointerEvents: "auto" }}
+            className={`progress-container ${isChromeMobile() ? 'chrome-mobile' : ''}`}
+            tabIndex="-1"
+            style={{
+              transform: 'translate3d(-50%, 0, 0)',
+              backfaceVisibility: 'hidden',
+              perspective: '1000px'
+            }}
           >
             <div className="progress-bar">
               <div 
                 className="progress-bar-fill" 
                 style={{ 
                   width: `${Math.min(loadingProgress, 100)}%`,
-                  backgroundColor: progressColor
+                  backgroundColor: progressColor,
+                  transform: 'translateZ(0)'
                 }} 
               />
             </div>

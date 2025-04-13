@@ -9,6 +9,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [progressBarVisible, setProgressBarVisible] = useState(true);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
@@ -16,6 +17,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const profileRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
+  const promptTimeoutRef = useRef(null);
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -36,60 +38,39 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Chrome Mobile-specific rendering solution
+  // Show prompt if progress bar isn't visible after a short delay (Chrome Mobile only)
   useEffect(() => {
     if (!isChromeMobile()) return;
 
-    // Force layout and paint before showing content
-    const forceRender = () => {
-      if (progressBarRef.current) {
-        // Trigger reflow
-        progressBarRef.current.style.display = 'none';
-        // Assign to variable to avoid ESLint warning
-        const height = progressBarRef.current.offsetHeight;
-        progressBarRef.current.style.display = 'flex';
-        
-        // Add Chrome-specific class
-        progressBarRef.current.classList.add('chrome-mobile');
-        
-        // Force focus and make it focusable
-        progressBarRef.current.setAttribute('tabindex', '-1');
-        progressBarRef.current.focus({ preventScroll: true });
-        
-        // Add slight delay to ensure rendering
-        setTimeout(() => {
-          if (progressBarRef.current) {
-            progressBarRef.current.style.willChange = 'transform, opacity';
-            progressBarRef.current.style.backfaceVisibility = 'hidden';
-          }
-        }, 50);
+    promptTimeoutRef.current = setTimeout(() => {
+      // If progress bar ref exists but isn't visible
+      if (progressBarRef.current && progressBarRef.current.offsetHeight === 0) {
+        setShowPrompt(true);
+      }
+    }, 300);
+
+    return () => {
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
       }
     };
-
-    // Execute after a small delay to ensure DOM is ready
-    setTimeout(forceRender, 100);
-    
-    // Additional fallback for stubborn cases
-    const renderFallback = setTimeout(() => {
-      if (progressBarRef.current) {
-        progressBarRef.current.style.transform = 'translate3d(-50%, 0, 0) scale(1.0001)';
-        setTimeout(() => {
-          if (progressBarRef.current) {
-            progressBarRef.current.style.transform = 'translate3d(-50%, 0, 0) scale(1)';
-          }
-        }, 50);
-      }
-    }, 200);
-
-    return () => clearTimeout(renderFallback);
   }, []);
+
+  // Handle prompt click
+  const handlePromptClick = () => {
+    setShowPrompt(false);
+    // Force focus and redraw
+    if (progressBarRef.current) {
+      progressBarRef.current.style.display = 'none';
+      progressBarRef.current.offsetHeight; // Force reflow
+      progressBarRef.current.style.display = 'flex';
+    }
+  };
 
   // Track loading progress
   useEffect(() => {
-    // Initial jump to show something immediately
     setLoadingProgress(5);
 
-    // Simulate loading
     const simulateLoading = () => {
       const increment = () => {
         setLoadingProgress(prev => {
@@ -98,10 +79,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         });
       };
       
-      // Fast initial progress
       const immediateTimer = setInterval(increment, 100);
       
-      // Slow down after initial progress
       setTimeout(() => {
         clearInterval(immediateTimer);
         const slowTimer = setInterval(() => {
@@ -118,7 +97,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     
     simulateLoading();
     
-    // Fallback to ensure completion
     const fallbackTimer = setTimeout(() => {
       setLoadingProgress(100);
     }, 5000);
@@ -133,6 +111,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       
       setTimeout(() => {
         setProgressBarVisible(false);
+        setShowPrompt(false);
         
         setTimeout(() => {
           setProfileVisible(false);
@@ -205,32 +184,47 @@ const LoadingScreen = ({ onLoadingComplete }) => {
           </div>
         )}
         
-        {progressBarVisible && (
-          <div 
-            ref={progressBarRef}
-            className={`progress-container ${isChromeMobile() ? 'chrome-mobile' : ''}`}
-            tabIndex="-1"
-            style={{
-              transform: 'translate3d(-50%, 0, 0)',
-              backfaceVisibility: 'hidden',
-              perspective: '1000px'
-            }}
-          >
-            <div className="progress-bar">
-              <div 
-                className="progress-bar-fill" 
-                style={{ 
-                  width: `${Math.min(loadingProgress, 100)}%`,
-                  backgroundColor: progressColor,
-                  transform: 'translateZ(0)'
-                }} 
-              />
+        <div className="progress-area">
+          {progressBarVisible && (
+            <div 
+              ref={progressBarRef}
+              className={`progress-container ${showPrompt ? 'hidden' : ''}`}
+            >
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(loadingProgress, 100)}%`,
+                    backgroundColor: progressColor
+                  }} 
+                />
+              </div>
+              <div className="progress-text">
+                Loading {formattedPercentage}
+              </div>
             </div>
-            <div className="progress-text">
-              Loading {formattedPercentage}
+          )}
+          
+          {showPrompt && (
+            <div 
+              className="progress-prompt"
+              onClick={handlePromptClick}
+            >
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(loadingProgress, 100)}%`,
+                    backgroundColor: progressColor
+                  }} 
+                />
+              </div>
+              <div className="progress-text">
+                Tap to continue loading
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

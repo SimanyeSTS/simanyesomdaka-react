@@ -1,11 +1,4 @@
-/* Loading Screen Styles - Optimized for Chrome Mobile */
-html, body {
-  overscroll-behavior: none;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
+/* Base Styles */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -25,259 +18,147 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
   height: 100%;
   width: 100%;
   padding: 2rem;
   box-sizing: border-box;
 }
 
-/* Profile Area Styles */
-.loading-screen .profile__area {
+/* Profile Styles */
+.profile__area {
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-  opacity: 1;
-  transition: opacity 0.6s ease-out;
-  z-index: 2;
-}
-
-.loading-screen .loading-profile {
   position: relative;
   margin-bottom: 6rem;
 }
 
-.loading-screen .profile__area.fade-out {
-  opacity: 0;
-}
-
-.loading-screen .outer__circle {
+.outer__circle {
   width: 26rem;
   aspect-ratio: 1/1;
-  border: 1px solid var(--color-primary);
   border-radius: 50%;
   position: relative;
-  animation: move 30s linear infinite;
-  animation-play-state: running !important;
-  will-change: transform;
+  animation: rotate 30s linear infinite;
 }
 
-.loading-screen.dim-screen .keep-bright {
-  filter: brightness(1.5) !important;
-  opacity: 1 !important;
-}
-
-.loading-screen .tech-icon {
-  font-size: 1.2rem;
-  width: 4rem;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  position: absolute;
-  background-color: var(--color-white);
-  color: var(--color-primary);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-screen .tech-icon:nth-child(1) {
-  left: calc(50% - 2rem);
-  top: -2rem;
-}
-
-.loading-screen .tech-icon:nth-child(2) {
-  right: -2rem;
-  top: calc(50% - 2rem);
-}
-
-.loading-screen .tech-icon:nth-child(3) {
-  left: -2rem;
-  top: calc(50% - 2rem);
-}
-
-.loading-screen .tech-icon:nth-child(4) {
-  bottom: -2rem;
-  left: calc(50% - 2rem);
-}
-
-.loading-screen .inner__circle {
+.inner__circle {
   position: absolute;
   width: 18rem;
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
-  will-change: transform, opacity;
 }
 
-/* Progress Bar Styles - Chrome Optimized */
-.loading-screen .progress-container {
+.tech-icon {
+  font-size: 1.2rem;
+  width: 4rem;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tech-icon:nth-child(1) { left: calc(50% - 2rem); top: -2rem; }
+.tech-icon:nth-child(2) { right: -2rem; top: calc(50% - 2rem); }
+.tech-icon:nth-child(3) { left: -2rem; top: calc(50% - 2rem); }
+.tech-icon:nth-child(4) { bottom: -2rem; left: calc(50% - 2rem); }
+
+/* Progress Bar Styles */
+.progress-container {
   position: fixed;
   bottom: 15%;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 80%;
   max-width: 400px;
   z-index: 100;
-  opacity: 1 !important;
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
 }
 
-/* Chrome Mobile Specific Fixes */
-.loading-screen .progress-container.chrome-mobile {
-  -webkit-transform: translate3d(-50%, 0, 0);
-  transform: translate3d(-50%, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  will-change: transform, opacity;
-  animation: chromeForcePaint 0.5s forwards;
-}
-
-.loading-screen .progress-bar {
+.progress-bar {
   width: 100%;
   height: 10px;
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   overflow: hidden;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 }
 
-.loading-screen .progress-bar-fill {
+.progress-bar-fill {
   height: 100%;
   transition: width 0.3s ease;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: width;
-  box-shadow: 0 0 10px var(--color-primary);
+  box-shadow: 0 0 10px currentColor;
 }
 
-.loading-screen .progress-text {
+.progress-text {
   margin-top: 1rem;
   font-size: 1.1rem;
   font-weight: 500;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  text-align: center;
 }
 
-/* Transition Effects */
-.loading-screen .progress-container.fade-out,
-.loading-screen .profile__area.fade-out {
-  opacity: 0;
-  transition: opacity 0.6s ease-out;
+/* Chrome Mobile Fixes */
+@keyframes chromePulse {
+  0%, 100% { opacity: 0.999; transform: translateZ(0); }
+  50% { opacity: 1; transform: translateZ(0) scale(1.0001); }
 }
 
-.loading-screen.dim-screen {
-  background-color: rgba(0, 0, 0, 0.95) !important;
-  color: white !important;
-  transition: background-color 0.7s ease-in-out;
+.progress-container.chrome-mobile {
+  -webkit-transform: translate3d(-50%, 0, 0);
+  transform: translate3d(-50%, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
 }
 
-.loading-screen.brighten-screen {
-  background-color: transparent !important;
-}
-
-/* Animations */
-@keyframes move {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes chromeForcePaint {
-  0% { opacity: 0.999; transform: translate3d(-50%, 0, 0) scale(1); }
-  50% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1.0001); }
-  100% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1); }
-}
-
-/* Chrome-specific media queries */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-  .loading-screen .progress-container.chrome-mobile {
-    -webkit-animation: chromeForcePaint 0.5s infinite;
-    animation: chromeForcePaint 0.5s infinite;
+  .progress-container.chrome-mobile {
+    animation: chromePulse 0.5s infinite;
+    outline: 1px solid transparent;
   }
   
-  .loading-screen .progress-bar {
+  .progress-bar {
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
   }
 }
 
-/* Responsive Adjustments */
-@media screen and (max-width: 1023px) {
-  .loading-screen .outer__circle {
-    width: 20rem;
-  }
-  .loading-screen .inner__circle {
-    width: 15rem;
-  }
-  .loading-screen .loading-profile {
-    margin-bottom: 5rem;
-  }
+/* Animations */
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@media screen and (max-width: 600px) {
-  .loading-screen .outer__circle {
-    width: 16rem;
-  }
-  .loading-screen .inner__circle {
-    width: 10rem;
-  }
-  .loading-screen .tech-icon {
-    width: 3rem;
-  }
-  .loading-screen .tech-icon:nth-child(1) {
-    left: calc(50% - 1.5rem);
-    top: -1.5rem;
-  }
-  .loading-screen .tech-icon:nth-child(2) {
-    right: -1.5rem;
-    top: calc(50% - 1.5rem);
-  }
-  .loading-screen .tech-icon:nth-child(3) {
-    left: -1.5rem;
-    top: calc(50% - 1.5rem);
-  }
-  .loading-screen .tech-icon:nth-child(4) {
-    bottom: -1.5rem;
-    left: calc(50% - 1.5rem);
-  }
-  .loading-screen .loading-profile {
-    margin-bottom: 4rem;
-  }
-  .loading-screen .progress-container {
-    bottom: 12%;
-  }
+/* Transitions */
+.profile__area, .progress-container {
+  transition: opacity 0.6s ease-out;
 }
 
-/* Fix for very short screens */
-@media screen and (max-height: 600px) {
-  .loading-screen .loading-profile {
-    transform: scale(0.8);
-    margin-bottom: 3rem;
-  }
-  .loading-screen .progress-container {
-    bottom: 6%;
-  }
+/* Responsive Styles */
+@media (max-width: 1023px) {
+  .outer__circle { width: 20rem; }
+  .inner__circle { width: 15rem; }
+  .profile__area { margin-bottom: 5rem; }
 }
 
-/* Fix for very small screens */
-@media screen and (max-height: 400px) {
-  .loading-screen .loading-profile {
-    transform: scale(0.6);
-    margin-bottom: 2rem;
-  }
-  .loading-screen .progress-container {
-    bottom: 4%;
-  }
+@media (max-width: 600px) {
+  .outer__circle { width: 16rem; }
+  .inner__circle { width: 10rem; }
+  .tech-icon { width: 3rem; }
+  .tech-icon:nth-child(1) { left: calc(50% - 1.5rem); top: -1.5rem; }
+  .tech-icon:nth-child(2) { right: -1.5rem; top: calc(50% - 1.5rem); }
+  .tech-icon:nth-child(3) { left: -1.5rem; top: calc(50% - 1.5rem); }
+  .tech-icon:nth-child(4) { bottom: -1.5rem; left: calc(50% - 1.5rem); }
+  .profile__area { margin-bottom: 4rem; }
+  .progress-container { bottom: 12%; }
 }
 
-/* Force GPU Acceleration */
-.force-repaint {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
+@media (max-height: 600px) {
+  .profile__area { transform: scale(0.8); margin-bottom: 3rem; }
+  .progress-container { bottom: 6%; }
+}
+
+@media (max-height: 400px) {
+  .profile__area { transform: scale(0.6); margin-bottom: 2rem; }
+  .progress-container { bottom: 4%; }
 }

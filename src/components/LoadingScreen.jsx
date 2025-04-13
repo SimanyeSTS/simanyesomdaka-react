@@ -9,19 +9,16 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const [showProgressPrompt, setShowProgressPrompt] = useState(false);
-  const [showCenterPrompt, setShowCenterPrompt] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [promptFading, setPromptFading] = useState(false);
-  const [progressBarVisible, setProgressBarVisible] = useState(false);
-  const [elementsCentered, setElementsCentered] = useState(false);
+  const [progressBarVisible, setProgressBarVisible] = useState(true);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
 
   const profileRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
-  const progressPromptRef = useRef(null);
-  const centerPromptRef = useRef(null);
+  const promptRef = useRef(null);
   const promptTimeoutRef = useRef(null);
 
   const isLightTheme = themeState.background === 'bg-1';
@@ -43,107 +40,71 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Check for centering and progress bar visibility issues
+  // Show prompt if progress bar isn't visible after a short delay (Chrome Mobile only)
   useEffect(() => {
-    if (!isChromeMobile()) {
-      setProgressBarVisible(true);
-      setElementsCentered(true);
-      return;
-    }
-
-    // Check if elements are centered
-    const checkCentering = () => {
-      if (profileRef.current) {
-        const rect = profileRef.current.getBoundingClientRect();
-        const viewportCenter = window.innerHeight / 2;
-        const elementCenter = rect.top + rect.height / 2;
-        return Math.abs(viewportCenter - elementCenter) < 10;
-      }
-      return false;
-    };
-
-    // Check if progress bar is visible
-    const checkProgressBarVisible = () => {
-      if (progressBarRef.current) {
-        const rect = progressBarRef.current.getBoundingClientRect();
-        return rect.height > 0 && rect.width > 0;
-      }
-      return false;
-    };
+    if (!isChromeMobile()) return;
 
     promptTimeoutRef.current = setTimeout(() => {
-      const isCentered = checkCentering();
-      const isProgressVisible = checkProgressBarVisible();
-
-      if (!isCentered) {
-        setShowCenterPrompt(true);
-      }
-
-      if (!isProgressVisible) {
-        setShowProgressPrompt(true);
+      // Check if progress bar exists but might not be visible
+      const progressBarElement = progressBarRef.current;
+      if (progressBarElement) {
+        const computedStyle = window.getComputedStyle(progressBarElement);
+        if (progressBarElement.offsetHeight === 0 || 
+            computedStyle.visibility === 'hidden' || 
+            computedStyle.display === 'none' || 
+            computedStyle.opacity === '0') {
+          setShowPrompt(true);
+          setProgressBarVisible(false);
+        }
       } else {
-        setProgressBarVisible(true);
-      }
-
-      // If everything is fine after delay, proceed normally
-      if (isCentered && isProgressVisible) {
-        setElementsCentered(true);
-        setProgressBarVisible(true);
+        setShowPrompt(true);
+        setProgressBarVisible(false);
       }
     }, 500);
+
+    // Add click listener to the entire document for Chrome mobile
+    const handleDocumentClick = () => {
+      if (showPrompt && !promptFading) {
+        handlePromptClick();
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
 
     return () => {
       if (promptTimeoutRef.current) {
         clearTimeout(promptTimeoutRef.current);
       }
+      document.removeEventListener('click', handleDocumentClick);
     };
-  }, []);
+  }, [showPrompt, promptFading]);
 
-  // Handle progress prompt click
-  const handleProgressPromptClick = () => {
+  // Handle prompt click
+  const handlePromptClick = () => {
+    if (promptFading) return; // Prevent multiple clicks during animation
+
     setPromptFading(true);
-    if (progressPromptRef.current) {
-      progressPromptRef.current.classList.add('fade-out');
+
+    // Start the fade out animation
+    if (promptRef.current) {
+      promptRef.current.classList.add('fade-out');
     }
-    
+
+    // After fade out completes, show progress bar
     setTimeout(() => {
-      setShowProgressPrompt(false);
+      setShowPrompt(false);
       setProgressBarVisible(true);
       setPromptFading(false);
-      
-      // Force reflow
+
+      // Force focus and redraw of progress bar
       if (progressBarRef.current) {
         progressBarRef.current.style.display = 'none';
-        void progressBarRef.current.offsetHeight;
+        // Trigger reflow
+        const reflowTrigger = progressBarRef.current.offsetHeight;
         progressBarRef.current.style.display = 'flex';
+        progressBarRef.current.classList.add('fade-in');
       }
-    }, 300);
-  };
-
-  // Handle center prompt click
-  const handleCenterPromptClick = () => {
-    setPromptFading(true);
-    if (centerPromptRef.current) {
-      centerPromptRef.current.classList.add('fade-out');
-    }
-    
-    setTimeout(() => {
-      setShowCenterPrompt(false);
-      setElementsCentered(true);
-      setPromptFading(false);
-      
-      // Force reflow
-      if (profileRef.current) {
-        profileRef.current.style.display = 'none';
-        void profileRef.current.offsetHeight;
-        profileRef.current.style.display = 'block';
-      }
-      if (loadingScreenRef.current) {
-        loadingScreenRef.current.style.display = 'none';
-        void loadingScreenRef.current.offsetHeight;
-        loadingScreenRef.current.style.display = 'flex';
-      }
-    }, 300);
+    }, 300); // Match this with the CSS fade-out duration
   };
 
   // Track loading progress
@@ -190,7 +151,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
       setTimeout(() => {
         setProgressBarVisible(false);
-        setShowProgressPrompt(false);
+        setShowPrompt(false);
 
         setTimeout(() => {
           setProfileVisible(false);
@@ -217,7 +178,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   const formattedPercentage = loadingProgress >= 100 
     ? '100.00%' 
-    : `${Math.min(loadingProgress, 100).toFixed(2)}%`;
+    : `${Math.min(loadingProgress, 100)}%`;
 
   return (
     <div 
@@ -225,17 +186,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
       style={{ backgroundColor: backgroundColor, color: textColor }}
     >
-      {showCenterPrompt && (
-        <div 
-          ref={centerPromptRef}
-          className="center-prompt"
-          onClick={handleCenterPromptClick}
-        >
-          Tap to center loading elements
-        </div>
-      )}
-
-      <div className={`center-container ${elementsCentered ? 'centered' : ''}`}>
+      <div className="center-container">
         {profileVisible && (
           <div ref={profileRef} className="profile__area loading-profile">
             <div 
@@ -274,7 +225,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         )}
 
         <div className="progress-area">
-          {progressBarVisible && (
+          {progressBarVisible && !showPrompt && (
             <div 
               ref={progressBarRef}
               className="progress-container"
@@ -294,14 +245,14 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             </div>
           )}
 
-          {showProgressPrompt && (
+          {showPrompt && (
             <div 
-              ref={progressPromptRef}
+              ref={promptRef}
               className="progress-prompt"
-              onClick={handleProgressPromptClick}
+              onClick={handlePromptClick}
             >
               <div className="tap-instruction" style={{ color: progressColor }}>
-                Tap to show progress
+                Tap to show progress bar
               </div>
               <div className="progress-bar">
                 <div 

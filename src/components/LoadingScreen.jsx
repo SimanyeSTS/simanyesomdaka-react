@@ -43,7 +43,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     if (!isChromeMobile()) return;
 
     promptTimeoutRef.current = setTimeout(() => {
-      // If progress bar ref exists but isn't visible
       if (progressBarRef.current && progressBarRef.current.offsetHeight === 0) {
         setShowPrompt(true);
       }
@@ -62,7 +61,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     // Force focus and redraw
     if (progressBarRef.current) {
       progressBarRef.current.style.display = 'none';
-      progressBarRef.current.offsetHeight; // Force reflow
+      // Assign to variable to avoid ESLint error
+      const reflowTrigger = progressBarRef.current.offsetHeight;
       progressBarRef.current.style.display = 'flex';
     }
   };

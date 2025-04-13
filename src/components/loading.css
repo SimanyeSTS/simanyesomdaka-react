@@ -22,6 +22,7 @@ html, body {
   align-items: center;
   z-index: 9999;
   transition: background-color 0.8s ease-out;
+  touch-action: manipulation; /* Improve touch behavior */
 }
 
 .content-container {
@@ -125,12 +126,28 @@ html, body {
   z-index: 100; /* Super high z-index */
   width: 80%;
   max-width: 400px;
-  pointer-events: none; /* Prevent interaction issues */
+  pointer-events: auto !important; /* Allow interaction for Chrome fix */
   -webkit-transform: translateX(-50%) translateZ(0); /* Safari/iOS specific */
   -webkit-backface-visibility: hidden; /* Safari/iOS specific */
   -webkit-perspective: 1000; /* Safari/iOS specific */
   transform-style: preserve-3d; /* Keep in its own layer */
   animation: forceDisplay 0.1s forwards; /* Force display immediately */
+}
+
+/* NEW: Chrome-specific fix class */
+.loading-screen .progress-container.chrome-fix {
+  visibility: visible !important;
+  display: flex !important;
+  opacity: 1 !important;
+  /* Make it take up space to ensure Chrome renders it */
+  min-height: 50px;
+  cursor: pointer;
+  /* Additional Chrome-specific rendering hints */
+  -webkit-transform: translate3d(-50%, 0, 0) !important;
+  transform: translate3d(-50%, 0, 0) !important;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1) !important;
+  contain: layout paint style;
+  content-visibility: visible;
 }
 
 .loading-screen .progress-bar {
@@ -144,6 +161,9 @@ html, body {
   -webkit-transform: translateZ(0); /* Safari/iOS */
   animation: pulseAttention 2s infinite; /* Subtle pulse to force rendering */
   will-change: transform, opacity; /* Hint to browser */
+  /* Additional Chrome fixes */
+  visibility: visible !important;
+  display: block !important;
 }
 
 .loading-screen .progress-bar-fill {
@@ -155,6 +175,9 @@ html, body {
   transform: translateZ(0); /* Force GPU acceleration */
   -webkit-transform: translateZ(0); /* Safari/iOS */
   will-change: width; /* Hint to browser */
+  /* Additional Chrome fixes */
+  visibility: visible !important;
+  display: block !important;
 }
 
 /* Animation to force mobile browsers to render the progress bar */
@@ -217,30 +240,61 @@ html, body {
   will-change: transform, opacity;
 }
 
-/* Chrome-specific fixes */
+/* Chrome-specific fixes - Extended and improved */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
+  /* New aggressive Chrome-specific container style */
+  .chrome-fix {
+    position: fixed !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
   .progress-container {
     -webkit-transform: translate3d(-50%, 0, 0) !important;
     transform: translate3d(-50%, 0, 0) !important;
     backface-visibility: visible !important;
     will-change: transform, opacity !important;
+    /* Force paint in Chrome */
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.01);
+    /* Additional Chrome-specific triggers */
+    content-visibility: visible;
+    contain: layout paint style;
   }
   
   .progress-bar {
-    -webkit-animation: none !important;
-    animation: none !important;
+    /* Override Chrome animation issues */
+    -webkit-animation: chromeVisibility 0.1s infinite !important;
+    animation: chromeVisibility 0.1s infinite !important;
   }
   
   .progress-bar-fill {
+    /* Force Chrome to paint this element */
     -webkit-transform: translateZ(0) scale(1.0001) !important;
     transform: translateZ(0) scale(1.0001) !important;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+  }
+  
+  /* New Chrome-specific animation */
+  @-webkit-keyframes chromeVisibility {
+    0%, 100% { -webkit-transform: translateZ(0) scale(1); }
+    50% { -webkit-transform: translateZ(0) scale(1.0001); }
   }
 }
 
-/* More aggressive Chrome mobile rendering */
+/* Even more aggressive Chrome mobile rendering - specific to Chrome on Android */
 @supports (-webkit-touch-callout: none) {
   .progress-container {
     -webkit-overflow-scrolling: touch !important;
+    /* Create virtual layer for Chrome */
+    position: fixed !important;
+    /* Add a touch of movement to force Chrome to render */
+    animation: chromeMobileHelper 0.5s infinite !important;
+  }
+  
+  @keyframes chromeMobileHelper {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(0.01px); }
   }
 }
 

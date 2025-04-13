@@ -15,6 +15,62 @@ const forceRepaint = (element) => {
   setTimeout(() => element.classList.remove('force-repaint'), 0);
 };
 
+// Chrome-specific auto touch/click simulation
+const simulateTouchInChrome = (element) => {
+  if (!element) return;
+  
+  // Check if we're on Chrome
+  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+  
+  if (isChrome) {
+    // Create a synthetic touch event
+    const simulateTouch = () => {
+      // Create and dispatch a touchstart event
+      try {
+        const touchEvent = new TouchEvent('touchstart', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        element.dispatchEvent(touchEvent);
+        
+        // Also try click as fallback
+        const clickEvent = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        element.dispatchEvent(clickEvent);
+      } catch (e) {
+        // Fallback for older browsers
+        const mouseEvent = document.createEvent('MouseEvents');
+        mouseEvent.initEvent('click', true, true);
+        element.dispatchEvent(mouseEvent);
+      }
+    };
+    
+    // Simulate touches at different intervals to ensure rendering
+    simulateTouch();
+    setTimeout(simulateTouch, 50);
+    setTimeout(simulateTouch, 200);
+    setTimeout(simulateTouch, 500);
+    
+    // Set up a continuous touch simulation for the first 2 seconds
+    let touchCount = 0;
+    const touchInterval = setInterval(() => {
+      simulateTouch();
+      touchCount++;
+      if (touchCount > 10) {
+        clearInterval(touchInterval);
+      }
+    }, 200);
+    
+    return touchInterval;
+  }
+  
+  return null;
+};
+
 const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -27,6 +83,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const outerCircleRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
+  const progressContainerRef = useRef(null);
   
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -40,6 +97,29 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       document.body.style.overflow = 'auto';
     };
   }, [isVisible]);
+
+  // Chrome-specific progress bar rendering fix
+  useEffect(() => {
+    if (!progressContainerRef.current) return;
+    
+    // Force visibility by simulating touches on Chrome
+    const touchInterval = simulateTouchInChrome(progressContainerRef.current);
+    
+    // Force repaints on regular intervals for Chrome
+    const repaintInterval = setInterval(() => {
+      if (progressBarRef.current) {
+        forceRepaint(progressBarRef.current);
+      }
+      if (progressContainerRef.current) {
+        forceRepaint(progressContainerRef.current);
+      }
+    }, 100);
+    
+    return () => {
+      if (touchInterval) clearInterval(touchInterval);
+      clearInterval(repaintInterval);
+    };
+  }, []);
 
   // Track actual loading progress
   // Aggressively force progress bar rendering
@@ -184,6 +264,11 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   if (!isVisible) return null;
 
+  // Format loading percentage with 2 decimal places when it reaches 100%
+  const formattedLoadingProgress = loadingProgress >= 99.99 
+    ? '100.00' 
+    : Math.min(loadingProgress, 99.99).toFixed(0);
+
   return (
     <div 
       ref={loadingScreenRef} 
@@ -234,16 +319,23 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         
         {progressBarVisible && (
           <div 
-            ref={progressBarRef} 
-            className="progress-container"
+            ref={progressContainerRef} 
+            className="progress-container chrome-fix"
             onTouchStart={() => {}} // Chrome mobile fix
             onClick={() => {}} // Chrome mobile fix
+            onFocus={() => {}} // Additional event handlers to force rendering
+            onPointerDown={() => {}}
             style={{
               touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent'
+              WebkitTapHighlightColor: 'transparent',
+              userSelect: 'none',
+              pointerEvents: 'auto' // Important: allow pointer events for Chrome
             }}
           >
-            <div className="progress-bar">
+            <div 
+              ref={progressBarRef} 
+              className="progress-bar"
+            >
               <div 
                 className="progress-bar-fill" 
                 style={{ 
@@ -253,7 +345,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               />
             </div>
             <div className="progress-text">
-              Loading {Math.min(loadingProgress, 100)}% {/* Keep original decimal precision */}
+              Loading {formattedLoadingProgress}%
             </div>
           </div>
         )}

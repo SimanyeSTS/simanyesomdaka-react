@@ -1,10 +1,9 @@
-/* Base reset */
+/* Base reset - critical for scrolling */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: auto !important;
 }
 
 .loading-screen {
@@ -28,7 +27,7 @@ html, body {
   height: 100%;
 }
 
-/* Profile section */
+/* Profile section - exact original styling */
 .profile__area {
   position: relative;
   margin-bottom: 6rem;
@@ -65,7 +64,7 @@ html, body {
   font-size: 1.2rem;
 }
 
-/* Tech icon positions */
+/* Tech icon positions - exact original */
 .tech-icon:nth-child(1) {
   top: -2rem;
   left: calc(50% - 2rem);
@@ -86,7 +85,7 @@ html, body {
   left: calc(50% - 2rem);
 }
 
-/* Progress bar */
+/* Progress bar - guaranteed visibility */
 .progress-container {
   position: absolute;
   bottom: 15%;
@@ -94,6 +93,9 @@ html, body {
   transform: translateX(-50%);
   width: 80%;
   max-width: 400px;
+  /* Force visibility */
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .progress-bar {
@@ -102,11 +104,17 @@ html, body {
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   overflow: hidden;
+  /* Force rendering */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .progress-bar-fill {
   height: 100%;
   transition: width 0.1s linear;
+  /* Force rendering */
+  transform: translateZ(0);
+  will-change: width;
 }
 
 .progress-text {
@@ -116,12 +124,18 @@ html, body {
   text-align: center;
 }
 
-/* Chrome nuclear fix */
-.chrome-fix {
-  transform: translateX(-50%) translateZ(0);
-  -webkit-transform: translateX(-50%) translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+/* Chrome nuclear fix - guaranteed visibility */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .progress-container,
+  .progress-bar,
+  .progress-bar-fill {
+    -webkit-transform: translate3d(0,0,0) !important;
+    transform: translate3d(0,0,0) !important;
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
 }
 
 /* Animations */

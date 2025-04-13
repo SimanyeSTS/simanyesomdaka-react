@@ -1,12 +1,12 @@
-/* Base reset for consistent rendering */
+/* Base reset */
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+  overflow: auto !important;
 }
 
-/* Loading screen container */
 .loading-screen {
   position: fixed;
   top: 0;
@@ -17,8 +17,6 @@ html, body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  background-color: var(--loading-bg);
-  color: var(--loading-text);
 }
 
 .content-container {
@@ -27,18 +25,18 @@ html, body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 100%;
+  height: 100%;
 }
 
 /* Profile section */
 .profile__area {
   position: relative;
-  margin-bottom: 4rem;
+  margin-bottom: 6rem;
 }
 
 .outer__circle {
-  width: 20rem;
-  height: 20rem;
+  width: 26rem;
+  height: 26rem;
   border: 1px solid;
   border-radius: 50%;
   position: relative;
@@ -47,8 +45,8 @@ html, body {
 
 .inner__circle {
   position: absolute;
-  width: 14rem;
-  height: 14rem;
+  width: 18rem;
+  height: 18rem;
   border-radius: 50%;
   overflow: hidden;
   top: 50%;
@@ -58,53 +56,72 @@ html, body {
 
 .tech-icon {
   position: absolute;
-  width: 3rem;
-  height: 3rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
-/* Progress bar - Chrome visibility fix */
+/* Tech icon positions */
+.tech-icon:nth-child(1) {
+  top: -2rem;
+  left: calc(50% - 2rem);
+}
+
+.tech-icon:nth-child(2) {
+  top: calc(50% - 2rem);
+  right: -2rem;
+}
+
+.tech-icon:nth-child(3) {
+  top: calc(50% - 2rem);
+  left: -2rem;
+}
+
+.tech-icon:nth-child(4) {
+  bottom: -2rem;
+  left: calc(50% - 2rem);
+}
+
+/* Progress bar */
 .progress-container {
-  position: relative;
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
   width: 80%;
   max-width: 400px;
-  margin: 0 auto;
-  /* Chrome fix */
-  transform: translate3d(0,0,0);
-  -webkit-transform: translate3d(0,0,0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background-color: rgba(0,0,0,0.1);
-  border-radius: 4px;
+  height: 10px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
   overflow: hidden;
-  /* Force GPU rendering */
-  transform: translate3d(0,0,0);
-  -webkit-transform: translate3d(0,0,0);
 }
 
 .progress-bar-fill {
   height: 100%;
-  /* Smooth transition */
   transition: width 0.1s linear;
-  /* Chrome fix */
-  transform: translate3d(0,0,0);
-  -webkit-transform: translate3d(0,0,0);
 }
 
 .progress-text {
-  margin-top: 0.5rem;
-  font-size: 1rem;
+  margin-top: 1rem;
+  font-size: 1.1rem;
   font-weight: 500;
   text-align: center;
+}
+
+/* Chrome nuclear fix */
+.chrome-fix {
+  transform: translateX(-50%) translateZ(0);
+  -webkit-transform: translateX(-50%) translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Animations */
@@ -115,6 +132,22 @@ html, body {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .outer__circle {
+    width: 20rem;
+    height: 20rem;
+  }
+  .inner__circle {
+    width: 14rem;
+    height: 14rem;
+  }
+  .tech-icon {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
   .outer__circle {
     width: 16rem;
     height: 16rem;
@@ -128,19 +161,7 @@ html, body {
     height: 2.5rem;
     font-size: 0.8rem;
   }
-}
-
-/* Chrome-specific nuclear fix */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .progress-container,
-  .progress-bar,
-  .progress-bar-fill {
-    -webkit-transform: translateZ(0) scale(1.001);
-    transform: translateZ(0) scale(1.001);
-  }
-  
-  .progress-bar {
-    -webkit-backface-visibility: visible !important;
-    backface-visibility: visible !important;
+  .progress-container {
+    bottom: 10%;
   }
 }

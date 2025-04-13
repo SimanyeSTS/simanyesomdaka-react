@@ -15,51 +15,53 @@ const forceRepaint = (element) => {
   setTimeout(() => element.classList.remove('force-repaint'), 0);
 };
 
-// Chrome-specific auto-interact function to force rendering
-const autoInteractWithProgressBar = (ref) => {
-  if (!ref.current) return;
+// Helper to programmatically trigger a fake tap event
+const triggerFakeTap = (element) => {
+  if (!element) return;
   
-  // Create and dispatch synthetic events to force Chrome to paint
-  const triggerEvents = () => {
-    // Only run this on Chrome
-    const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|Edg/.test(navigator.userAgent);
-    if (!isChrome) return;
-    
-    // Create events that force Chrome to paint
-    const touchEvent = new TouchEvent('touchstart', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    
-    const clickEvent = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true,
-      view: window
-    });
-    
-    // Fire these events on a delay to ensure Chrome registers them
-    setTimeout(() => {
-      if (ref.current) {
-        ref.current.dispatchEvent(touchEvent);
-        ref.current.dispatchEvent(clickEvent);
-        
-        // Also trigger multiple RAF cycles to ensure paint
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (ref.current) forceRepaint(ref.current);
-          });
-        });
-      }
-    }, 50);
-  };
+  // Create and dispatch touch events
+  const touchStart = new Touch({
+    identifier: Date.now(),
+    target: element,
+    clientX: 0,
+    clientY: 0,
+    radiusX: 2.5,
+    radiusY: 2.5,
+    rotationAngle: 0,
+    force: 1
+  });
   
-  // Start interacting immediately
-  triggerEvents();
+  const touchEnd = new Touch({
+    identifier: Date.now(),
+    target: element,
+    clientX: 0,
+    clientY: 0,
+    radiusX: 2.5,
+    radiusY: 2.5,
+    rotationAngle: 0,
+    force: 0
+  });
   
-  // And repeat a few times to make sure it sticks
-  const intervalId = setInterval(triggerEvents, 200);
-  setTimeout(() => clearInterval(intervalId), 2000); // Stop after 2 seconds
+  const touchStartEvent = new TouchEvent('touchstart', {
+    touches: [touchStart],
+    targetTouches: [touchStart],
+    changedTouches: [touchStart],
+    bubbles: true,
+    cancelable: true
+  });
+  
+  const touchEndEvent = new TouchEvent('touchend', {
+    touches: [],
+    targetTouches: [],
+    changedTouches: [touchEnd],
+    bubbles: true,
+    cancelable: true
+  });
+  
+  element.dispatchEvent(touchStartEvent);
+  setTimeout(() => {
+    element.dispatchEvent(touchEndEvent);
+  }, 50);
 };
 
 const LoadingScreen = ({ onLoadingComplete }) => {
@@ -80,6 +82,14 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const textColor = isLightTheme ? '#100F0F' : 'white';
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
 
+  // Format progress text with special handling for 100%
+  const formatProgressText = (progress) => {
+    if (progress >= 100) {
+      return '100.00%';
+    }
+    return `${progress}%`;
+  };
+
   // Prevent scrolling while loading screen is visible
   useEffect(() => {
     document.body.style.overflow = isVisible ? 'hidden' : 'auto';
@@ -87,31 +97,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       document.body.style.overflow = 'auto';
     };
   }, [isVisible]);
-
-  // Add Chrome-specific auto-interaction to force progress bar visibility
-  useEffect(() => {
-    if (progressBarRef.current) {
-      // Run the auto-interaction mechanism for Chrome
-      autoInteractWithProgressBar(progressBarRef);
-      
-      // Also apply aggressive initial rendering techniques
-      requestAnimationFrame(() => {
-        forceRepaint(progressBarRef.current);
-        
-        // Force hardware acceleration
-        progressBarRef.current.style.transform = 'translateZ(0)';
-        progressBarRef.current.style.willChange = 'transform, opacity';
-        
-        // Force visibility by briefly toggling a style
-        progressBarRef.current.style.opacity = '0.99';
-        setTimeout(() => {
-          if (progressBarRef.current) {
-            progressBarRef.current.style.opacity = '1';
-          }
-        }, 10);
-      });
-    }
-  }, []);
 
   // Track actual loading progress
   // Aggressively force progress bar rendering
@@ -123,8 +108,17 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     setTimeout(() => {
       if (progressBarRef.current) {
         forceRepaint(progressBarRef.current);
+        // Trigger fake tap for Chrome mobile
+        triggerFakeTap(progressBarRef.current);
       }
     }, 10);
+    
+    // Set up periodic fake taps for Chrome mobile
+    const fakeTapInterval = setInterval(() => {
+      if (progressBarRef.current) {
+        triggerFakeTap(progressBarRef.current);
+      }
+    }, 300);
     
     // Simulate loading with forced repaints to ensure visibility
     const simulateLoading = () => {
@@ -176,6 +170,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     
     return () => {
       clearTimeout(fallbackTimer);
+      clearInterval(fakeTapInterval);
     };
   }, []);
 
@@ -256,11 +251,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   if (!isVisible) return null;
 
-  // Format the loading percentage - show 100.00% only when it reaches 100%
-  const formattedPercentage = loadingProgress >= 100 
-    ? '100.00%' 
-    : `${Math.min(loadingProgress, 100)}%`;
-
   return (
     <div 
       ref={loadingScreenRef} 
@@ -312,7 +302,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         {progressBarVisible && (
           <div 
             ref={progressBarRef} 
-            className="progress-container chrome-fix"
+            className="progress-container"
             onTouchStart={() => {}} // Chrome mobile fix
             onClick={() => {}} // Chrome mobile fix
             style={{
@@ -330,7 +320,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               />
             </div>
             <div className="progress-text">
-              Loading {formattedPercentage} {/* Using the formatted percentage */}
+              Loading {formatProgressText(loadingProgress)}
             </div>
           </div>
         )}

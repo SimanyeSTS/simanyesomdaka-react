@@ -9,52 +9,74 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  
-  // Use requestAnimationFrame for smooth progress
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  // Cleanup all intervals and timeouts
   useEffect(() => {
-    let start = null;
-    const duration = 3000; // 3 seconds total
-    
-    const animate = (timestamp) => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / duration * 100, 100);
-      setLoadingProgress(progress);
-      
-      if (progress < 100) {
-        requestAnimationFrame(animate);
-      } else {
-        // Give a small delay before hiding
-        setTimeout(() => {
-          setIsVisible(false);
-          onLoadingComplete();
-        }, 300);
-      }
-    };
-    
-    requestAnimationFrame(animate);
-    
     return () => {
-      // Cleanup
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const simulateLoading = () => {
+      let progress = 0;
+      intervalRef.current = setInterval(() => {
+        progress += Math.random() * 5 + 2;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(intervalRef.current);
+          timeoutRef.current = setTimeout(() => {
+            setIsVisible(false);
+            onLoadingComplete();
+          }, 300);
+        }
+        setLoadingProgress(progress);
+      }, 100);
+    };
+
+    simulateLoading();
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [onLoadingComplete]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="loading-screen">
+    <div className="loading-screen" style={{
+      backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+      color: themeState.background === 'bg-1' ? '#100F0F' : 'white'
+    }}>
       <div className="content-container">
         <div className="profile__area">
           <div className="outer__circle" style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
-            <span className="tech-icon" style={{ backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F', color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
+            <span className="tech-icon" style={{ 
+              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
+            }}>
               <MdDesignServices />
             </span>
-            <span className="tech-icon" style={{ backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F', color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
+            <span className="tech-icon" style={{ 
+              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
+            }}>
               <HiServer />
             </span>
-            <span className="tech-icon" style={{ backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F', color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
+            <span className="tech-icon" style={{ 
+              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
+            }}>
               <MdCode />
             </span>
-            <span className="tech-icon" style={{ backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F', color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}>
+            <span className="tech-icon" style={{ 
+              backgroundColor: themeState.background === 'bg-1' ? 'white' : '#100F0F',
+              color: `hsl(${themeState.primaryHue}, 89%, 41%)`
+            }}>
               <MdVideoLibrary />
             </span>
           </div>
@@ -62,9 +84,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             <img src={profile} alt="Header Portrait" />
           </div>
         </div>
-        
-        {/* Progress bar with forced visibility */}
-        <div className="progress-container">
+
+        <div className="progress-container chrome-fix">
           <div className="progress-bar">
             <div 
               className="progress-bar-fill" 

@@ -1,3 +1,4 @@
+// LoadingScreen.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
@@ -11,6 +12,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
   const [promptFading, setPromptFading] = useState(false);
+  const [elementsReady, setElementsReady] = useState(false);
   const [progressBarVisible, setProgressBarVisible] = useState(true);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
@@ -19,7 +21,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
   const promptRef = useRef(null);
-  const promptTimeoutRef = useRef(null);
+  const centerContainerRef = useRef(null);
+  const renderTimeoutRef = useRef(null);
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -27,7 +30,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
   const progressColor = `hsl(${themeState.primaryHue}, 89%, 41%)`;
 
-  // Enhanced Chrome Mobile detection
+  // Enhanced browser detection
   const isChromeMobile = () => {
     return /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
   };
@@ -40,71 +43,88 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Show prompt if progress bar isn't visible after a short delay (Chrome Mobile only)
+  // Force initial render for Chrome mobile
   useEffect(() => {
-    if (!isChromeMobile()) return;
-
-    promptTimeoutRef.current = setTimeout(() => {
-      // Check if progress bar exists but might not be visible
-      const progressBarElement = progressBarRef.current;
-      if (progressBarElement) {
-        const computedStyle = window.getComputedStyle(progressBarElement);
-        if (progressBarElement.offsetHeight === 0 || 
-            computedStyle.visibility === 'hidden' || 
-            computedStyle.display === 'none' || 
-            computedStyle.opacity === '0') {
-          setShowPrompt(true);
-          setProgressBarVisible(false);
-        }
-      } else {
-        setShowPrompt(true);
-        setProgressBarVisible(false);
+    if (isChromeMobile()) {
+      // Show everything immediately for a moment
+      setElementsReady(true);
+      
+      // Add a small delay for Chrome to pick up the changes
+      renderTimeoutRef.current = setTimeout(() => {
+        // Check if elements are properly rendered
+        const checkRendering = () => {
+          const centerContainer = centerContainerRef.current;
+          const profileElement = profileRef.current;
+          const progressElement = progressBarRef.current;
+          
+          // If something doesn't look right, show the prompt
+          if (!centerContainer || 
+              !profileElement || 
+              !progressElement ||
+              centerContainer.offsetHeight === 0 || 
+              profileElement.offsetHeight === 0 ||
+              progressElement.offsetHeight === 0) {
+            setShowPrompt(true);
+            setElementsReady(false);
+          }
+        };
+        
+        checkRendering();
+      }, 300);
+    } else {
+      // For other browsers, just show everything
+      setElementsReady(true);
+    }
+    
+    return () => {
+      if (renderTimeoutRef.current) {
+        clearTimeout(renderTimeoutRef.current);
       }
-    }, 500);
+    };
+  }, []);
 
-    // Add click listener to the entire document for Chrome mobile
+  // Add document-wide click handler for Chrome
+  useEffect(() => {
     const handleDocumentClick = () => {
-      if (showPrompt && !promptFading) {
+      if (showPrompt && !promptFading && !elementsReady) {
         handlePromptClick();
       }
     };
 
-    document.addEventListener('click', handleDocumentClick);
+    if (isChromeMobile()) {
+      document.addEventListener('click', handleDocumentClick);
+    }
 
     return () => {
-      if (promptTimeoutRef.current) {
-        clearTimeout(promptTimeoutRef.current);
-      }
       document.removeEventListener('click', handleDocumentClick);
     };
-  }, [showPrompt, promptFading]);
+  }, [showPrompt, promptFading, elementsReady]);
 
   // Handle prompt click
   const handlePromptClick = () => {
     if (promptFading) return; // Prevent multiple clicks during animation
     
     setPromptFading(true);
-    
-    // Start the fade out animation
+
+    // Start fade out animation
     if (promptRef.current) {
       promptRef.current.classList.add('fade-out');
     }
-    
-    // After fade out completes, show progress bar
+
+    // After fade out completes, show all elements
     setTimeout(() => {
       setShowPrompt(false);
-      setProgressBarVisible(true);
+      setElementsReady(true);
       setPromptFading(false);
       
-      // Force focus and redraw of progress bar
-      if (progressBarRef.current) {
-        progressBarRef.current.style.display = 'none';
-        // Trigger reflow
-        const reflowTrigger = progressBarRef.current.offsetHeight;
-        progressBarRef.current.style.display = 'flex';
-        progressBarRef.current.classList.add('fade-in');
+      // Force browser reflow/repaint for Chrome
+      if (centerContainerRef.current) {
+        centerContainerRef.current.style.display = 'none';
+        const reflowTrigger = centerContainerRef.current.offsetHeight;
+        centerContainerRef.current.style.display = 'flex';
+        centerContainerRef.current.classList.add('fade-in');
       }
-    }, 300); // Match this with the CSS fade-out duration
+    }, 300);
   };
 
   // Track loading progress
@@ -186,46 +206,63 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
       style={{ backgroundColor: backgroundColor, color: textColor }}
     >
-      <div className="center-container">
-        {profileVisible && (
-          <div ref={profileRef} className="profile__area loading-profile">
-            <div 
-              className="outer__circle keep-bright" 
-              style={{ borderColor: progressColor }}
-            >
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <MdDesignServices />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <HiServer />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <MdCode />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <MdVideoLibrary />
-              </span>
-            </div>
-            <div className="inner__circle">
-              <img src={profile} alt="Header Portrait" />
-            </div>
+      {/* Tap prompt for Chrome mobile */}
+      {showPrompt && (
+        <div 
+          ref={promptRef}
+          className="chrome-tap-prompt"
+          onClick={handlePromptClick}
+        >
+          <div className="tap-instruction" style={{ color: progressColor }}>
+            Tap to continue
           </div>
-        )}
+        </div>
+      )}
+      
+      {/* Content is only shown when elements are ready */}
+      {elementsReady && (
+        <div 
+          ref={centerContainerRef} 
+          className="center-container"
+        >
+          {profileVisible && (
+            <div ref={profileRef} className="profile__area loading-profile">
+              <div 
+                className="outer__circle keep-bright" 
+                style={{ borderColor: progressColor }}
+              >
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdDesignServices />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <HiServer />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdCode />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdVideoLibrary />
+                </span>
+              </div>
+              <div className="inner__circle">
+                <img src={profile} alt="Header Portrait" />
+              </div>
+            </div>
+          )}
 
-        <div className="progress-area">
-          {progressBarVisible && !showPrompt && (
+          {progressBarVisible && (
             <div 
               ref={progressBarRef}
               className="progress-container"
@@ -244,29 +281,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               </div>
             </div>
           )}
-
-          {showPrompt && (
-            <div 
-              ref={promptRef}
-              className="progress-prompt"
-              onClick={handlePromptClick}
-            >
-              <div className="tap-instruction" style={{ color: progressColor }}>
-                Tap to show progress bar
-              </div>
-              <div className="progress-bar">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ 
-                    width: `${Math.min(loadingProgress, 100)}%`,
-                    backgroundColor: progressColor
-                  }} 
-                />
-              </div>
-            </div>
-          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

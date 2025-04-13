@@ -15,60 +15,51 @@ const forceRepaint = (element) => {
   setTimeout(() => element.classList.remove('force-repaint'), 0);
 };
 
-// Chrome-specific auto touch/click simulation
-const simulateTouchInChrome = (element) => {
-  if (!element) return;
+// Chrome-specific auto-interact function to force rendering
+const autoInteractWithProgressBar = (ref) => {
+  if (!ref.current) return;
   
-  // Check if we're on Chrome
-  const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-  
-  if (isChrome) {
-    // Create a synthetic touch event
-    const simulateTouch = () => {
-      // Create and dispatch a touchstart event
-      try {
-        const touchEvent = new TouchEvent('touchstart', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        });
-        element.dispatchEvent(touchEvent);
+  // Create and dispatch synthetic events to force Chrome to paint
+  const triggerEvents = () => {
+    // Only run this on Chrome
+    const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|Edg/.test(navigator.userAgent);
+    if (!isChrome) return;
+    
+    // Create events that force Chrome to paint
+    const touchEvent = new TouchEvent('touchstart', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    
+    // Fire these events on a delay to ensure Chrome registers them
+    setTimeout(() => {
+      if (ref.current) {
+        ref.current.dispatchEvent(touchEvent);
+        ref.current.dispatchEvent(clickEvent);
         
-        // Also try click as fallback
-        const clickEvent = new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window
+        // Also trigger multiple RAF cycles to ensure paint
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (ref.current) forceRepaint(ref.current);
+          });
         });
-        element.dispatchEvent(clickEvent);
-      } catch (e) {
-        // Fallback for older browsers
-        const mouseEvent = document.createEvent('MouseEvents');
-        mouseEvent.initEvent('click', true, true);
-        element.dispatchEvent(mouseEvent);
       }
-    };
-    
-    // Simulate touches at different intervals to ensure rendering
-    simulateTouch();
-    setTimeout(simulateTouch, 50);
-    setTimeout(simulateTouch, 200);
-    setTimeout(simulateTouch, 500);
-    
-    // Set up a continuous touch simulation for the first 2 seconds
-    let touchCount = 0;
-    const touchInterval = setInterval(() => {
-      simulateTouch();
-      touchCount++;
-      if (touchCount > 10) {
-        clearInterval(touchInterval);
-      }
-    }, 200);
-    
-    return touchInterval;
-  }
+    }, 50);
+  };
   
-  return null;
+  // Start interacting immediately
+  triggerEvents();
+  
+  // And repeat a few times to make sure it sticks
+  const intervalId = setInterval(triggerEvents, 200);
+  setTimeout(() => clearInterval(intervalId), 2000); // Stop after 2 seconds
 };
 
 const LoadingScreen = ({ onLoadingComplete }) => {
@@ -83,7 +74,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const outerCircleRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
-  const progressContainerRef = useRef(null);
   
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -98,27 +88,29 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Chrome-specific progress bar rendering fix
+  // Add Chrome-specific auto-interaction to force progress bar visibility
   useEffect(() => {
-    if (!progressContainerRef.current) return;
-    
-    // Force visibility by simulating touches on Chrome
-    const touchInterval = simulateTouchInChrome(progressContainerRef.current);
-    
-    // Force repaints on regular intervals for Chrome
-    const repaintInterval = setInterval(() => {
-      if (progressBarRef.current) {
+    if (progressBarRef.current) {
+      // Run the auto-interaction mechanism for Chrome
+      autoInteractWithProgressBar(progressBarRef);
+      
+      // Also apply aggressive initial rendering techniques
+      requestAnimationFrame(() => {
         forceRepaint(progressBarRef.current);
-      }
-      if (progressContainerRef.current) {
-        forceRepaint(progressContainerRef.current);
-      }
-    }, 100);
-    
-    return () => {
-      if (touchInterval) clearInterval(touchInterval);
-      clearInterval(repaintInterval);
-    };
+        
+        // Force hardware acceleration
+        progressBarRef.current.style.transform = 'translateZ(0)';
+        progressBarRef.current.style.willChange = 'transform, opacity';
+        
+        // Force visibility by briefly toggling a style
+        progressBarRef.current.style.opacity = '0.99';
+        setTimeout(() => {
+          if (progressBarRef.current) {
+            progressBarRef.current.style.opacity = '1';
+          }
+        }, 10);
+      });
+    }
   }, []);
 
   // Track actual loading progress
@@ -264,10 +256,10 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   if (!isVisible) return null;
 
-  // Format loading percentage with 2 decimal places when it reaches 100%
-  const formattedLoadingProgress = loadingProgress >= 99.99 
-    ? '100.00' 
-    : Math.min(loadingProgress, 99.99).toFixed(0);
+  // Format the loading percentage - show 100.00% only when it reaches 100%
+  const formattedPercentage = loadingProgress >= 100 
+    ? '100.00%' 
+    : `${Math.min(loadingProgress, 100)}%`;
 
   return (
     <div 
@@ -319,23 +311,16 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         
         {progressBarVisible && (
           <div 
-            ref={progressContainerRef} 
+            ref={progressBarRef} 
             className="progress-container chrome-fix"
             onTouchStart={() => {}} // Chrome mobile fix
             onClick={() => {}} // Chrome mobile fix
-            onFocus={() => {}} // Additional event handlers to force rendering
-            onPointerDown={() => {}}
             style={{
               touchAction: 'manipulation',
-              WebkitTapHighlightColor: 'transparent',
-              userSelect: 'none',
-              pointerEvents: 'auto' // Important: allow pointer events for Chrome
+              WebkitTapHighlightColor: 'transparent'
             }}
           >
-            <div 
-              ref={progressBarRef} 
-              className="progress-bar"
-            >
+            <div className="progress-bar">
               <div 
                 className="progress-bar-fill" 
                 style={{ 
@@ -345,7 +330,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               />
             </div>
             <div className="progress-text">
-              Loading {formattedLoadingProgress}%
+              Loading {formattedPercentage} {/* Using the formatted percentage */}
             </div>
           </div>
         )}

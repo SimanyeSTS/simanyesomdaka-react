@@ -45,7 +45,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       if (progressBarRef.current) {
         // Trigger reflow
         progressBarRef.current.style.display = 'none';
-        progressBarRef.current.offsetHeight; // This forces a reflow
+        // Assign to variable to avoid ESLint warning
+        const height = progressBarRef.current.offsetHeight;
         progressBarRef.current.style.display = 'flex';
         
         // Add Chrome-specific class

@@ -1,4 +1,3 @@
-// LoadingScreen.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
@@ -10,19 +9,20 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showProgressPrompt, setShowProgressPrompt] = useState(false);
+  const [showCenterPrompt, setShowCenterPrompt] = useState(false);
   const [promptFading, setPromptFading] = useState(false);
-  const [elementsReady, setElementsReady] = useState(false);
-  const [progressBarVisible, setProgressBarVisible] = useState(true);
+  const [progressBarVisible, setProgressBarVisible] = useState(false);
+  const [elementsCentered, setElementsCentered] = useState(false);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
 
   const profileRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
-  const promptRef = useRef(null);
-  const centerContainerRef = useRef(null);
-  const renderTimeoutRef = useRef(null);
+  const progressPromptRef = useRef(null);
+  const centerPromptRef = useRef(null);
+  const promptTimeoutRef = useRef(null);
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -30,7 +30,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
   const progressColor = `hsl(${themeState.primaryHue}, 89%, 41%)`;
 
-  // Enhanced browser detection
+  // Enhanced Chrome Mobile detection
   const isChromeMobile = () => {
     return /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
   };
@@ -43,86 +43,105 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Force initial render for Chrome mobile
+  // Check for centering and progress bar visibility issues
   useEffect(() => {
-    if (isChromeMobile()) {
-      // Show everything immediately for a moment
-      setElementsReady(true);
-      
-      // Add a small delay for Chrome to pick up the changes
-      renderTimeoutRef.current = setTimeout(() => {
-        // Check if elements are properly rendered
-        const checkRendering = () => {
-          const centerContainer = centerContainerRef.current;
-          const profileElement = profileRef.current;
-          const progressElement = progressBarRef.current;
-          
-          // If something doesn't look right, show the prompt
-          if (!centerContainer || 
-              !profileElement || 
-              !progressElement ||
-              centerContainer.offsetHeight === 0 || 
-              profileElement.offsetHeight === 0 ||
-              progressElement.offsetHeight === 0) {
-            setShowPrompt(true);
-            setElementsReady(false);
-          }
-        };
-        
-        checkRendering();
-      }, 300);
-    } else {
-      // For other browsers, just show everything
-      setElementsReady(true);
+    if (!isChromeMobile()) {
+      setProgressBarVisible(true);
+      setElementsCentered(true);
+      return;
     }
-    
+
+    // Check if elements are centered
+    const checkCentering = () => {
+      if (profileRef.current) {
+        const rect = profileRef.current.getBoundingClientRect();
+        const viewportCenter = window.innerHeight / 2;
+        const elementCenter = rect.top + rect.height / 2;
+        return Math.abs(viewportCenter - elementCenter) < 10;
+      }
+      return false;
+    };
+
+    // Check if progress bar is visible
+    const checkProgressBarVisible = () => {
+      if (progressBarRef.current) {
+        const rect = progressBarRef.current.getBoundingClientRect();
+        return rect.height > 0 && rect.width > 0;
+      }
+      return false;
+    };
+
+    promptTimeoutRef.current = setTimeout(() => {
+      const isCentered = checkCentering();
+      const isProgressVisible = checkProgressBarVisible();
+
+      if (!isCentered) {
+        setShowCenterPrompt(true);
+      }
+
+      if (!isProgressVisible) {
+        setShowProgressPrompt(true);
+      } else {
+        setProgressBarVisible(true);
+      }
+
+      // If everything is fine after delay, proceed normally
+      if (isCentered && isProgressVisible) {
+        setElementsCentered(true);
+        setProgressBarVisible(true);
+      }
+    }, 500);
+
     return () => {
-      if (renderTimeoutRef.current) {
-        clearTimeout(renderTimeoutRef.current);
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
       }
     };
   }, []);
 
-  // Add document-wide click handler for Chrome
-  useEffect(() => {
-    const handleDocumentClick = () => {
-      if (showPrompt && !promptFading && !elementsReady) {
-        handlePromptClick();
-      }
-    };
-
-    if (isChromeMobile()) {
-      document.addEventListener('click', handleDocumentClick);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleDocumentClick);
-    };
-  }, [showPrompt, promptFading, elementsReady]);
-
-  // Handle prompt click
-  const handlePromptClick = () => {
-    if (promptFading) return; // Prevent multiple clicks during animation
-    
+  // Handle progress prompt click
+  const handleProgressPromptClick = () => {
     setPromptFading(true);
-
-    // Start fade out animation
-    if (promptRef.current) {
-      promptRef.current.classList.add('fade-out');
+    if (progressPromptRef.current) {
+      progressPromptRef.current.classList.add('fade-out');
     }
-
-    // After fade out completes, show all elements
+    
     setTimeout(() => {
-      setShowPrompt(false);
-      setElementsReady(true);
+      setShowProgressPrompt(false);
+      setProgressBarVisible(true);
       setPromptFading(false);
       
-      // Force browser reflow/repaint for Chrome
-      if (centerContainerRef.current) {
-        centerContainerRef.current.style.display = 'none';
-        const reflowTrigger = centerContainerRef.current.offsetHeight;
-        centerContainerRef.current.style.display = 'flex';
-        centerContainerRef.current.classList.add('fade-in');
+      // Force reflow
+      if (progressBarRef.current) {
+        progressBarRef.current.style.display = 'none';
+        void progressBarRef.current.offsetHeight;
+        progressBarRef.current.style.display = 'flex';
+      }
+    }, 300);
+  };
+
+  // Handle center prompt click
+  const handleCenterPromptClick = () => {
+    setPromptFading(true);
+    if (centerPromptRef.current) {
+      centerPromptRef.current.classList.add('fade-out');
+    }
+    
+    setTimeout(() => {
+      setShowCenterPrompt(false);
+      setElementsCentered(true);
+      setPromptFading(false);
+      
+      // Force reflow
+      if (profileRef.current) {
+        profileRef.current.style.display = 'none';
+        void profileRef.current.offsetHeight;
+        profileRef.current.style.display = 'block';
+      }
+      if (loadingScreenRef.current) {
+        loadingScreenRef.current.style.display = 'none';
+        void loadingScreenRef.current.offsetHeight;
+        loadingScreenRef.current.style.display = 'flex';
       }
     }, 300);
   };
@@ -171,7 +190,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
       setTimeout(() => {
         setProgressBarVisible(false);
-        setShowPrompt(false);
+        setShowProgressPrompt(false);
 
         setTimeout(() => {
           setProfileVisible(false);
@@ -198,7 +217,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   const formattedPercentage = loadingProgress >= 100 
     ? '100.00%' 
-    : `${Math.min(loadingProgress, 100)}%`;
+    : `${Math.min(loadingProgress, 100).toFixed(2)}%`;
 
   return (
     <div 
@@ -206,62 +225,55 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
       style={{ backgroundColor: backgroundColor, color: textColor }}
     >
-      {/* Tap prompt for Chrome mobile */}
-      {showPrompt && (
+      {showCenterPrompt && (
         <div 
-          ref={promptRef}
-          className="chrome-tap-prompt"
-          onClick={handlePromptClick}
+          ref={centerPromptRef}
+          className="center-prompt"
+          onClick={handleCenterPromptClick}
         >
-          <div className="tap-instruction" style={{ color: progressColor }}>
-            Tap to continue
-          </div>
+          Tap to center loading elements
         </div>
       )}
-      
-      {/* Content is only shown when elements are ready */}
-      {elementsReady && (
-        <div 
-          ref={centerContainerRef} 
-          className="center-container"
-        >
-          {profileVisible && (
-            <div ref={profileRef} className="profile__area loading-profile">
-              <div 
-                className="outer__circle keep-bright" 
-                style={{ borderColor: progressColor }}
-              >
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdDesignServices />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <HiServer />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdCode />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdVideoLibrary />
-                </span>
-              </div>
-              <div className="inner__circle">
-                <img src={profile} alt="Header Portrait" />
-              </div>
-            </div>
-          )}
 
+      <div className={`center-container ${elementsCentered ? 'centered' : ''}`}>
+        {profileVisible && (
+          <div ref={profileRef} className="profile__area loading-profile">
+            <div 
+              className="outer__circle keep-bright" 
+              style={{ borderColor: progressColor }}
+            >
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <MdDesignServices />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <HiServer />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <MdCode />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <MdVideoLibrary />
+              </span>
+            </div>
+            <div className="inner__circle">
+              <img src={profile} alt="Header Portrait" />
+            </div>
+          </div>
+        )}
+
+        <div className="progress-area">
           {progressBarVisible && (
             <div 
               ref={progressBarRef}
@@ -281,8 +293,29 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               </div>
             </div>
           )}
+
+          {showProgressPrompt && (
+            <div 
+              ref={progressPromptRef}
+              className="progress-prompt"
+              onClick={handleProgressPromptClick}
+            >
+              <div className="tap-instruction" style={{ color: progressColor }}>
+                Tap to show progress
+              </div>
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(loadingProgress, 100)}%`,
+                    backgroundColor: progressColor
+                  }} 
+                />
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

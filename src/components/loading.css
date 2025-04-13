@@ -4,7 +4,6 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  touch-action: manipulation;
 }
 
 .loading-screen {
@@ -36,54 +35,6 @@ html, body {
   box-sizing: border-box;
 }
 
-.center-container.centered {
-  animation: subtleBounce 0.5s ease;
-}
-
-@keyframes subtleBounce {
-  0%, 100% { transform: translate(-50%, -50%); }
-  50% { transform: translate(-50%, -51%); }
-}
-
-/* Prompts */
-.center-prompt, .progress-prompt {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0,0,0,0.85);
-  color: white;
-  padding: 1.5rem 2rem;
-  border-radius: 12px;
-  z-index: 10000;
-  cursor: pointer;
-  text-align: center;
-  width: 80%;
-  max-width: 300px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  animation: pulse 2s infinite, fadeIn 0.3s ease-out;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.progress-prompt {
-  top: auto;
-  bottom: 20%;
-  transform: translateX(-50%);
-}
-
-.tap-instruction {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-@keyframes pulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.9; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
 /* Profile Area Styles */
 .loading-screen .profile__area {
   display: flex;
@@ -93,6 +44,7 @@ html, body {
   opacity: 1;
   transition: opacity 0.6s ease-out;
   z-index: 2;
+  /* No margins here - positioning is handled by the center-container */
 }
 
 .loading-screen .outer__circle {
@@ -150,23 +102,36 @@ html, body {
   overflow: hidden;
 }
 
-/* Progress Area */
+/* Progress Area - Part of the centered container now */
 .progress-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 7rem;
+  margin-top: 7rem; /* Consistent spacing from the profile */
   box-sizing: border-box;
 }
 
 /* Progress Bar Styles */
-.progress-container {
+.progress-container,
+.progress-prompt {
   width: 100%;
   max-width: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.progress-prompt {
+  cursor: pointer;
+  width: 100%;
+}
+
+.tap-instruction {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .progress-bar {
@@ -188,19 +153,23 @@ html, body {
   font-weight: 500;
 }
 
-/* Animations */
+/* Animations for prompt and progress bar */
 .fade-out {
-  animation: fadeOut 0.3s forwards !important;
+  animation: fadeOut 300ms forwards;
+}
+
+.fade-in {
+  animation: fadeIn 300ms forwards;
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Transition Effects */
@@ -242,7 +211,6 @@ html, body {
   }
   .loading-screen .tech-icon {
     width: 3rem;
-    font-size: 1rem;
   }
   .loading-screen .tech-icon:nth-child(1) {
     left: calc(50% - 1.5rem);
@@ -263,10 +231,6 @@ html, body {
   .progress-area {
     margin-top: 5rem;
   }
-  .center-prompt, .progress-prompt {
-    padding: 1.2rem 1.5rem;
-    font-size: 0.9rem;
-  }
 }
 
 @media screen and (max-height: 600px) {
@@ -278,11 +242,5 @@ html, body {
 @media screen and (max-height: 400px) {
   .progress-area {
     margin-top: 3rem;
-  }
-  .loading-screen .outer__circle {
-    width: 14rem;
-  }
-  .loading-screen .inner__circle {
-    width: 9rem;
   }
 }

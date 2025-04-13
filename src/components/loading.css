@@ -1,4 +1,4 @@
-/* Loading Screen Styles - Optimized for Chrome Mobile */
+/* Loading Screen Styles */
 html, body {
   overscroll-behavior: none;
   height: 100%;
@@ -18,8 +18,6 @@ html, body {
   align-items: center;
   z-index: 9999;
   transition: background-color 0.8s ease-out;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .content-container {
@@ -43,15 +41,7 @@ html, body {
   opacity: 1;
   transition: opacity 0.6s ease-out;
   z-index: 2;
-}
-
-.loading-screen .loading-profile {
-  position: relative;
-  margin-bottom: 6rem;
-}
-
-.loading-screen .profile__area.fade-out {
-  opacity: 0;
+  margin-bottom: 6rem; /* Fixed margin to prevent movement */
 }
 
 .loading-screen .outer__circle {
@@ -61,8 +51,6 @@ html, body {
   border-radius: 50%;
   position: relative;
   animation: move 30s linear infinite;
-  animation-play-state: running !important;
-  will-change: transform;
 }
 
 .loading-screen.dim-screen .keep-bright {
@@ -109,72 +97,60 @@ html, body {
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
-  will-change: transform, opacity;
 }
 
-/* Progress Bar Styles - Chrome Optimized */
-.loading-screen .progress-container {
+/* Progress Area - Fixed position */
+.progress-area {
   position: fixed;
   bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 80%;
+  width: 100%;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+/* Progress Bar Styles */
+.progress-container,
+.progress-prompt {
+  width: 100%;
   max-width: 400px;
-  z-index: 10001;
-  opacity: 1 !important;
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Chrome Mobile Specific Fixes */
-.loading-screen .progress-container.chrome-mobile {
-  -webkit-transform: translate3d(-50%, 0, 0) !important;
-  transform: translate3d(-50%, 0, 0) !important;
-  backface-visibility: hidden !important;
-  perspective: 1000px !important;
-  will-change: transform, opacity !important;
-  -webkit-backface-visibility: hidden !important;
-  -webkit-perspective: 1000px !important;
-  animation: chromeForceRender 0.1s forwards;
+.progress-container.hidden {
+  display: none;
 }
 
-.loading-screen .progress-bar {
+.progress-prompt {
+  cursor: pointer;
+}
+
+.progress-bar {
   width: 100%;
   height: 10px;
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   overflow: hidden;
-  transform: translateZ(0) !important;
-  -webkit-transform: translateZ(0) !important;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 }
 
-.loading-screen .progress-bar-fill {
+.progress-bar-fill {
   height: 100%;
   transition: width 0.3s ease;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: width;
-  box-shadow: 0 0 10px var(--color-primary);
 }
 
-.loading-screen .progress-text {
+.progress-text {
   margin-top: 1rem;
   font-size: 1.1rem;
   font-weight: 500;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Transition Effects */
-.loading-screen .progress-container.fade-out,
-.loading-screen .profile__area.fade-out {
-  opacity: 0;
-  transition: opacity 0.6s ease-out;
-}
-
 .loading-screen.dim-screen {
   background-color: rgba(0, 0, 0, 0.95) !important;
   color: white !important;
@@ -191,18 +167,6 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-@keyframes chromeForceRender {
-  0% { opacity: 0.999; }
-  100% { opacity: 1; }
-}
-
-/* Chrome-specific media queries */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .loading-screen .progress-container.chrome-mobile {
-    -webkit-animation: chromeForceRender 0.1s forwards;
-  }
-}
-
 /* Responsive Adjustments */
 @media screen and (max-width: 1023px) {
   .loading-screen .outer__circle {
@@ -211,7 +175,7 @@ html, body {
   .loading-screen .inner__circle {
     width: 15rem;
   }
-  .loading-screen .loading-profile {
+  .loading-screen .profile__area {
     margin-bottom: 5rem;
   }
 }
@@ -242,32 +206,28 @@ html, body {
     bottom: -1.5rem;
     left: calc(50% - 1.5rem);
   }
-  .loading-screen .loading-profile {
+  .loading-screen .profile__area {
     margin-bottom: 4rem;
   }
-  .loading-screen .progress-container {
+  .progress-area {
     bottom: 12%;
   }
 }
 
-/* Fix for very short screens */
 @media screen and (max-height: 600px) {
-  .loading-screen .loading-profile {
-    transform: scale(0.8);
+  .loading-screen .profile__area {
     margin-bottom: 3rem;
   }
-  .loading-screen .progress-container {
+  .progress-area {
     bottom: 6%;
   }
 }
 
-/* Fix for very small screens */
 @media screen and (max-height: 400px) {
-  .loading-screen .loading-profile {
-    transform: scale(0.6);
+  .loading-screen .profile__area {
     margin-bottom: 2rem;
   }
-  .loading-screen .progress-container {
+  .progress-area {
     bottom: 4%;
   }
 }

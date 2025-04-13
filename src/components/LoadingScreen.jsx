@@ -5,96 +5,6 @@ import { useThemeContext } from "../context/theme-context";
 import profile from '../assets/profile.png';
 import './loading.css';
 
-// Nuclear option for Chrome mobile rendering
-const forceChromeRender = (element) => {
-  if (!element) return;
-  
-  // Only apply to Chrome mobile
-  const isChromeMobile = /Android.*Chrome\//.test(navigator.userAgent);
-  if (!isChromeMobile) return;
-
-  // Create a temporary element to simulate touch
-  const touchSimulator = document.createElement('div');
-  touchSimulator.style.position = 'fixed';
-  touchSimulator.style.width = '1px';
-  touchSimulator.style.height = '1px';
-  touchSimulator.style.top = '0';
-  touchSimulator.style.left = '0';
-  touchSimulator.style.opacity = '0';
-  touchSimulator.style.pointerEvents = 'none';
-  touchSimulator.style.zIndex = '999999';
-  document.body.appendChild(touchSimulator);
-
-  // Simulate touch events
-  const simulateTouch = () => {
-    try {
-      // Create and dispatch touch events
-      const touchStart = new TouchEvent('touchstart', {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        touches: [new Touch({ identifier: 1, target: element, clientX: 0, clientY: 0 })],
-        changedTouches: [new Touch({ identifier: 1, target: element, clientX: 0, clientY: 0 })],
-        targetTouches: [new Touch({ identifier: 1, target: element, clientX: 0, clientY: 0 })]
-      });
-      
-      const touchEnd = new TouchEvent('touchend', {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      });
-
-      element.dispatchEvent(touchStart);
-      element.dispatchEvent(touchEnd);
-      
-      // Also trigger a click event for good measure
-      const clickEvent = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window
-      });
-      element.dispatchEvent(clickEvent);
-    } catch (e) {
-      console.log('Touch simulation error:', e);
-    }
-  };
-
-  // Apply aggressive styling to force rendering
-  element.style.transform = 'translateZ(0) scale(1.0001)';
-  element.style.willChange = 'transform, opacity';
-  element.style.backfaceVisibility = 'hidden';
-  element.style.perspective = '1000px';
-  element.style.opacity = '0.999';
-  
-  // Force layout and paint
-  void element.offsetHeight;
-  
-  // Simulate touch immediately
-  simulateTouch();
-  
-  // Continuous simulation for 2 seconds
-  let attempts = 0;
-  const maxAttempts = 20;
-  const interval = setInterval(() => {
-    simulateTouch();
-    attempts++;
-    if (attempts >= maxAttempts) {
-      clearInterval(interval);
-      document.body.removeChild(touchSimulator);
-    }
-  }, 100);
-
-  // Also force repaint through animation
-  let iteration = 0;
-  const animate = () => {
-    if (iteration >= 20) return;
-    iteration++;
-    element.style.transform = `translateZ(0) scale(${1 + (iteration % 2 * 0.0001)})`;
-    requestAnimationFrame(animate);
-  };
-  requestAnimationFrame(animate);
-};
-
 const LoadingScreen = ({ onLoadingComplete }) => {
   const { themeState } = useThemeContext();
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -104,15 +14,19 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const [portfolioReady, setPortfolioReady] = useState(false);
   
   const profileRef = useRef(null);
-  const outerCircleRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
-  const nativeProgressRef = useRef(null);
-  
+
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
   const textColor = isLightTheme ? '#100F0F' : 'white';
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
+  const progressColor = `hsl(${themeState.primaryHue}, 89%, 41%)`;
+
+  // Check if Chrome Mobile
+  const isChromeMobile = () => {
+    return /Android.*Chrome\//.test(navigator.userAgent);
+  };
 
   // Prevent scrolling while loading screen is visible
   useEffect(() => {
@@ -122,42 +36,32 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Chrome-specific rendering fixes
+  // Chrome Mobile-specific rendering solution
   useEffect(() => {
-    if (!progressBarRef.current) return;
-    
-    // Apply Chrome-specific fixes immediately
-    forceChromeRender(progressBarRef.current);
-    
-    // Also apply to native progress element if it exists
-    if (nativeProgressRef.current) {
-      forceChromeRender(nativeProgressRef.current);
+    if (!isChromeMobile()) return;
+
+    // Create a hidden iframe to force Chrome to render
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // Remove after a short delay
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+
+    // Force focus on the progress bar container
+    if (progressBarRef.current) {
+      progressBarRef.current.focus();
+      progressBarRef.current.setAttribute('tabindex', '0');
     }
-    
-    // Add event listeners to capture any real user interaction
-    const handleInteraction = () => {
-      if (progressBarRef.current) {
-        progressBarRef.current.style.opacity = '1';
-      }
-      if (nativeProgressRef.current) {
-        nativeProgressRef.current.style.opacity = '1';
-      }
-    };
-    
-    window.addEventListener('touchstart', handleInteraction);
-    window.addEventListener('click', handleInteraction);
-    
-    return () => {
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('click', handleInteraction);
-    };
   }, []);
 
   // Track loading progress
   useEffect(() => {
     // Initial jump to show something immediately
     setLoadingProgress(5);
-    
+
     // Simulate loading
     const simulateLoading = () => {
       const increment = () => {
@@ -201,41 +105,26 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       if (onLoadingComplete) onLoadingComplete(false);
       
       setTimeout(() => {
-        if (progressBarRef.current) {
-          progressBarRef.current.classList.add('fade-out');
-        }
-        if (nativeProgressRef.current) {
-          nativeProgressRef.current.classList.add('fade-out');
-        }
+        setProgressBarVisible(false);
         
         setTimeout(() => {
-          setProgressBarVisible(false);
+          setProfileVisible(false);
+          setPortfolioReady(true);
           
-          setTimeout(() => {
-            if (profileRef.current) {
-              profileRef.current.classList.add('fade-out');
-            }
+          if (loadingScreenRef.current) {
+            loadingScreenRef.current.classList.add('dim-screen');
             
             setTimeout(() => {
-              setProfileVisible(false);
-              setPortfolioReady(true);
+              loadingScreenRef.current.classList.add('brighten-screen');
               
-              if (loadingScreenRef.current) {
-                loadingScreenRef.current.classList.add('dim-screen');
-                
-                setTimeout(() => {
-                  loadingScreenRef.current.classList.add('brighten-screen');
-                  
-                  setTimeout(() => {
-                    setIsVisible(false);
-                    if (onLoadingComplete) onLoadingComplete(true);
-                  }, 700);
-                }, 500);
-              }
-            }, 300);
-          }, 800);
-        }, 400);
-      }, 300);
+              setTimeout(() => {
+                setIsVisible(false);
+                if (onLoadingComplete) onLoadingComplete(true);
+              }, 700);
+            }, 500);
+          }
+        }, 800);
+      }, 400);
     }
   }, [loadingProgress, onLoadingComplete]);
 
@@ -253,36 +142,32 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     >
       <div className="content-container">
         {profileVisible && (
-          <div 
-            ref={profileRef} 
-            className="profile__area loading-profile"
-          >
+          <div ref={profileRef} className="profile__area loading-profile">
             <div 
-              ref={outerCircleRef} 
               className="outer__circle keep-bright" 
-              style={{ borderColor: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+              style={{ borderColor: progressColor }}
             >
               <span 
                 className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
               >
                 <MdDesignServices />
               </span>
               <span 
                 className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
               >
                 <HiServer />
               </span>
               <span 
                 className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
               >
                 <MdCode />
               </span>
               <span 
                 className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: `hsl(${themeState.primaryHue}, 89%, 41%)` }}
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
               >
                 <MdVideoLibrary />
               </span>
@@ -294,41 +179,24 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         )}
         
         {progressBarVisible && (
-          <>
-            {/* Custom progress bar */}
-            <div 
-              ref={progressBarRef} 
-              className="progress-container chrome-fix"
-              style={{
-                touchAction: 'manipulation',
-                WebkitTapHighlightColor: 'transparent'
-              }}
-            >
-              <div className="progress-bar">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ 
-                    width: `${Math.min(loadingProgress, 100)}%`,
-                    backgroundColor: `hsl(${themeState.primaryHue}, 89%, 41%)` 
-                  }} 
-                />
-              </div>
-              <div className="progress-text">
-                Loading {formattedPercentage}
-              </div>
-            </div>
-            
-            {/* Native progress element as fallback */}
-            <div className="native-progress-container">
-              <progress 
-                ref={nativeProgressRef}
-                className="native-progress"
-                value={loadingProgress} 
-                max="100"
-                aria-hidden="true"
+          <div 
+            ref={progressBarRef}
+            className={`progress-container ${isChromeMobile() ? 'chrome-mobile' : ''}`}
+            tabIndex="-1"
+          >
+            <div className="progress-bar">
+              <div 
+                className="progress-bar-fill" 
+                style={{ 
+                  width: `${Math.min(loadingProgress, 100)}%`,
+                  backgroundColor: progressColor
+                }} 
               />
             </div>
-          </>
+            <div className="progress-text">
+              Loading {formattedPercentage}
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -1,15 +1,11 @@
-/* Aggressive CSS to ensure loading bar is ALWAYS visible on mobile without tap/click */
-/* Fix for inconsistent rendering on mobile browsers */
+/* Loading Screen Styles - Optimized for Chrome Mobile */
 html, body {
-  overscroll-behavior: none; /* Prevent pull-to-refresh which can cause rendering issues */
+  overscroll-behavior: none;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* Force mobile browsers to render immediately */
-.force-repaint {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
 .loading-screen {
   position: fixed;
   top: 0;
@@ -36,6 +32,7 @@ html, body {
   box-sizing: border-box;
 }
 
+/* Profile Area Styles */
 .loading-screen .profile__area {
   display: flex;
   justify-content: center;
@@ -48,7 +45,7 @@ html, body {
 
 .loading-screen .loading-profile {
   position: relative;
-  margin-bottom: 6rem; /* Ensure space for progress bar */
+  margin-bottom: 6rem;
 }
 
 .loading-screen .profile__area.fade-out {
@@ -63,6 +60,7 @@ html, body {
   position: relative;
   animation: move 30s linear infinite;
   animation-play-state: running !important;
+  will-change: transform;
 }
 
 .loading-screen.dim-screen .keep-bright {
@@ -109,187 +107,106 @@ html, body {
   aspect-ratio: 1/1;
   border-radius: 50%;
   overflow: hidden;
+  will-change: transform, opacity;
 }
 
-/* SUPER aggressive progress container positioning to ensure visibility */
+/* Progress Bar Styles - Chrome Optimized */
 .loading-screen .progress-container {
-  position: fixed; /* Fixed position to avoid layout shifts */
+  position: fixed;
   bottom: 15%;
   left: 50%;
-  transform: translateX(-50%) translateZ(0); /* Force GPU acceleration */
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  opacity: 1;
-  transition: opacity 0.6s ease-out;
-  z-index: 100; /* Super high z-index */
   width: 80%;
   max-width: 400px;
-  pointer-events: auto; /* CHANGED: Enable interactions for Chrome fixes */
-  -webkit-transform: translateX(-50%) translateZ(0); /* Safari/iOS specific */
-  -webkit-backface-visibility: hidden; /* Safari/iOS specific */
-  -webkit-perspective: 1000; /* Safari/iOS specific */
-  transform-style: preserve-3d; /* Keep in its own layer */
-  animation: forceDisplay 0.1s forwards; /* Force display immediately */
-  cursor: default; /* Show normal cursor */
+  z-index: 100;
+  opacity: 1 !important;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 
-/* Additional class for Chrome-specific fixes */
-.loading-screen .progress-container.chrome-fix {
-  /* Extra Chrome-specific properties */
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  visibility: visible !important;
-  /* Force Chrome to create a separate layer */
-  transform: translateX(-50%) translateZ(0) scale(1.00001);
-  -webkit-transform: translateX(-50%) translateZ(0) scale(1.00001);
-  /* Add a non-visible outline to force Chrome to maintain focus on the element */
-  outline: 1px solid rgba(0,0,0,0.01);
-  /* Ensure the element gets input priority */
-  z-index: 10000;
-  /* Force Chrome to keep this in the render tree */
-  content-visibility: auto;
+/* Chrome Mobile Specific Fixes */
+.loading-screen .progress-container.chrome-mobile {
+  -webkit-transform: translate3d(-50%, 0, 0);
+  transform: translate3d(-50%, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+  animation: chromeForcePaint 0.5s forwards;
 }
 
 .loading-screen .progress-bar {
   width: 100%;
-  height: 10px; /* Taller for guaranteed visibility */
-  background-color: rgba(0, 0, 0, 0.15); /* Slightly darker for better contrast */
+  height: 10px;
+  background-color: rgba(0, 0, 0, 0.15);
   border-radius: 5px;
   overflow: hidden;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1); /* Stronger shadow */
-  transform: translateZ(0); /* Force GPU acceleration */
-  -webkit-transform: translateZ(0); /* Safari/iOS */
-  animation: pulseAttention 2s infinite; /* Subtle pulse to force rendering */
-  will-change: transform, opacity; /* Hint to browser */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 }
 
 .loading-screen .progress-bar-fill {
   height: 100%;
-  background-color: var(--color-primary);
   transition: width 0.3s ease;
-  min-width: 10px; /* Always show a visible amount */
-  box-shadow: 0 0 10px var(--color-primary); /* Glow effect */
-  transform: translateZ(0); /* Force GPU acceleration */
-  -webkit-transform: translateZ(0); /* Safari/iOS */
-  will-change: width; /* Hint to browser */
-}
-
-/* Animation to force mobile browsers to render the progress bar */
-@keyframes pulseAttention {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.95; }
-}
-
-/* Force display animation */
-@keyframes forceDisplay {
-  0% { opacity: 0.99; }
-  100% { opacity: 1; }
-}
-
-/* New animation to force Chrome to paint the progress bar */
-@keyframes forcePaint {
-  0%, 100% { transform: translateZ(0); }
-  50% { transform: translateZ(0.01px); }
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: width;
+  box-shadow: 0 0 10px var(--color-primary);
 }
 
 .loading-screen .progress-text {
   margin-top: 1rem;
   font-size: 1.1rem;
   font-weight: 500;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2); /* Text shadow for better visibility */
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
-.loading-screen .progress-container.fade-out {
+/* Transition Effects */
+.loading-screen .progress-container.fade-out,
+.loading-screen .profile__area.fade-out {
   opacity: 0;
+  transition: opacity 0.6s ease-out;
 }
 
 .loading-screen.dim-screen {
   background-color: rgba(0, 0, 0, 0.95) !important;
   color: white !important;
+  transition: background-color 0.7s ease-in-out;
 }
 
 .loading-screen.brighten-screen {
   background-color: transparent !important;
-  transition: background-color 0.7s ease-in-out;
 }
 
+/* Animations */
 @keyframes move {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+@keyframes chromeForcePaint {
+  0% { opacity: 0.999; transform: translate3d(-50%, 0, 0) scale(1); }
+  50% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1.0001); }
+  100% { opacity: 1; transform: translate3d(-50%, 0, 0) scale(1); }
 }
 
-/* Performance optimizations */
-.loading-screen .outer__circle {
-  will-change: transform;
-}
-
-.loading-screen .inner__circle {
-  will-change: transform, opacity;
-}
-
-/* Chrome-specific fixes - ENHANCED */
+/* Chrome-specific media queries */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-  .progress-container {
-    -webkit-transform: translate3d(-50%, 0, 0) !important;
-    transform: translate3d(-50%, 0, 0) !important;
-    backface-visibility: visible !important;
-    will-change: transform, opacity !important;
-    opacity: 1 !important; /* Force Chrome to always show */
-    animation: forcePaint 0.5s infinite !important; /* Force continuous repaints */
+  .loading-screen .progress-container.chrome-mobile {
+    -webkit-animation: chromeForcePaint 0.5s infinite;
+    animation: chromeForcePaint 0.5s infinite;
   }
   
-  .progress-bar {
-    -webkit-animation: none !important; 
-    animation: forcePaint 0.5s infinite !important; /* Force continuous repaints */
-    opacity: 1 !important;
-  }
-  
-  .progress-bar-fill {
-    -webkit-transform: translateZ(0) scale(1.0001) !important;
-    transform: translateZ(0) scale(1.0001) !important;
-    /* Force constant minimal changes to ensure Chrome keeps rendering */
-    animation: forcePaint 0.3s infinite !important;
+  .loading-screen .progress-bar {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }
 
-/* Even more aggressive Chrome mobile rendering */
-@supports (-webkit-touch-callout: none) {
-  .progress-container {
-    -webkit-overflow-scrolling: touch !important;
-    /* Force Chrome to always maintain this element's visibility */
-    opacity: 1 !important;
-    display: flex !important;
-    visibility: visible !important;
-  }
-  
-  /* Force Chrome to create hardware-accelerated compositing layers */
-  .progress-bar, .progress-bar-fill, .progress-text {
-    transform: translateZ(0) !important;
-    -webkit-transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    -webkit-backface-visibility: hidden !important;
-    perspective: 1000 !important;
-    -webkit-perspective: 1000 !important;
-  }
-}
-
-/* Responsive adjustments */
+/* Responsive Adjustments */
 @media screen and (max-width: 1023px) {
   .loading-screen .outer__circle {
     width: 20rem;
@@ -331,7 +248,6 @@ html, body {
   .loading-screen .loading-profile {
     margin-bottom: 4rem;
   }
-  /* Ensure progress bar stays visible on small screens */
   .loading-screen .progress-container {
     bottom: 12%;
   }
@@ -359,82 +275,9 @@ html, body {
   }
 }
 
-/* Add these new styles to your existing loading.css */
-
-/* Native progress element styling */
-.native-progress-container {
-  position: fixed;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 400px;
-  z-index: 100;
-  opacity: 1;
-  visibility: visible;
-}
-
-.native-progress {
-  width: 100%;
-  height: 10px;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-}
-
-.native-progress::-webkit-progress-bar {
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 5px;
-}
-
-.native-progress::-webkit-progress-value {
-  background-color: var(--color-primary);
-  border-radius: 5px;
-  transition: width 0.3s ease;
-}
-
-.native-progress.fade-out {
-  opacity: 0;
-  transition: opacity 0.6s ease-out;
-}
-
-/* Enhanced Chrome-specific fixes */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  .progress-container,
-  .native-progress-container {
-    animation: chromeForcePaint 0.5s infinite !important;
-    transform: translate3d(-50%, 0, 0) scale(1.0001) !important;
-    -webkit-transform: translate3d(-50%, 0, 0) scale(1.0001) !important;
-    backface-visibility: visible !important;
-    will-change: transform, opacity !important;
-    opacity: 1 !important;
-  }
-  
-  .progress-bar,
-  .native-progress {
-    transform: translateZ(0) !important;
-    -webkit-transform: translateZ(0) !important;
-  }
-  
-  .progress-bar-fill,
-  .native-progress::-webkit-progress-value {
-    animation: chromeForcePaint 0.3s infinite !important;
-  }
-}
-
-@keyframes chromeForcePaint {
-  0%, 100% { opacity: 0.999; }
-  50% { opacity: 1; }
-}
-
-/* Hide native progress when custom progress is working */
-.progress-container:not(.fade-out) ~ .native-progress-container {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  width: 0 !important;
-  overflow: hidden !important;
+/* Force GPU Acceleration */
+.force-repaint {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }

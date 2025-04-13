@@ -12,6 +12,24 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
 
+  // Nuclear option for Chrome visibility
+  useEffect(() => {
+    const forceChromeRender = () => {
+      const elements = document.querySelectorAll('.progress-container, .progress-bar, .progress-bar-fill');
+      elements.forEach(el => {
+        el.style.transform = 'translateZ(0)';
+        el.style.willChange = 'transform';
+        el.style.backfaceVisibility = 'hidden';
+      });
+    };
+    
+    // Run immediately and again after a short delay
+    forceChromeRender();
+    const forceRenderTimeout = setTimeout(forceChromeRender, 300);
+    
+    return () => clearTimeout(forceRenderTimeout);
+  }, []);
+
   // Cleanup all intervals and timeouts
   useEffect(() => {
     return () => {
@@ -31,17 +49,27 @@ const LoadingScreen = ({ onLoadingComplete }) => {
           timeoutRef.current = setTimeout(() => {
             setIsVisible(false);
             onLoadingComplete();
+            // Ensure scrolling is re-enabled
+            document.documentElement.style.overflow = 'auto';
+            document.body.style.overflow = 'auto';
           }, 300);
         }
         setLoadingProgress(progress);
       }, 100);
     };
 
+    // Temporarily disable scrolling during loading
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    
     simulateLoading();
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      // Cleanup scroll lock if component unmounts early
+      document.documentElement.style.overflow = 'auto';
+      document.body.style.overflow = 'auto';
     };
   }, [onLoadingComplete]);
 

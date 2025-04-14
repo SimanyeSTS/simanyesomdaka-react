@@ -46,7 +46,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     if (!isChromeMobile()) return;
 
     promptTimeoutRef.current = setTimeout(() => {
-      // Check if progress bar exists but might not be visible
       const progressBarElement = progressBarRef.current;
       if (progressBarElement) {
         const computedStyle = window.getComputedStyle(progressBarElement);
@@ -63,7 +62,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       }
     }, 500);
 
-    // Add click listener to the entire document for Chrome mobile
     const handleDocumentClick = () => {
       if (showPrompt && !promptFading) {
         handlePromptClick();
@@ -80,32 +78,27 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [showPrompt, promptFading]);
 
-  // Handle prompt click
   const handlePromptClick = () => {
-    if (promptFading) return; // Prevent multiple clicks during animation
+    if (promptFading) return;
 
     setPromptFading(true);
 
-    // Start the fade out animation
     if (promptRef.current) {
       promptRef.current.classList.add('fade-out');
     }
 
-    // After fade out completes, show progress bar
     setTimeout(() => {
       setShowPrompt(false);
       setProgressBarVisible(true);
       setPromptFading(false);
 
-      // Force focus and redraw of progress bar
       if (progressBarRef.current) {
         progressBarRef.current.style.display = 'none';
-        // Trigger reflow
         const reflowTrigger = progressBarRef.current.offsetHeight;
         progressBarRef.current.style.display = 'flex';
         progressBarRef.current.classList.add('fade-in');
       }
-    }, 300); // Match this with the CSS fade-out duration
+    }, 300);
   };
 
   // Track loading progress
@@ -182,96 +175,95 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     : `${Math.min(loadingProgress, 100)}%`;
 
   return (
-    <>
-      <CustomAnimatedCursor />
-      <div 
-        ref={loadingScreenRef} 
-        className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
-        style={{ backgroundColor: backgroundColor, color: textColor }}
-      >
-        <div className="center-container">
-          {profileVisible && (
-            <div ref={profileRef} className="profile__area loading-profile">
-              <div 
-                className="outer__circle keep-bright" 
-                style={{ borderColor: progressColor }}
+    <div 
+      ref={loadingScreenRef} 
+      className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
+      style={{ backgroundColor: backgroundColor, color: textColor }}
+    >
+      <CustomAnimatedCursor loading={true} />
+      
+      <div className="center-container">
+        {profileVisible && (
+          <div ref={profileRef} className="profile__area loading-profile">
+            <div 
+              className="outer__circle keep-bright" 
+              style={{ borderColor: progressColor }}
+            >
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
               >
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdDesignServices />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <HiServer />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdCode />
-                </span>
-                <span 
-                  className="tech-icon" 
-                  style={{ backgroundColor: iconBgColor, color: progressColor }}
-                >
-                  <MdVideoLibrary />
-                </span>
+                <MdDesignServices />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <HiServer />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <MdCode />
+              </span>
+              <span 
+                className="tech-icon" 
+                style={{ backgroundColor: iconBgColor, color: progressColor }}
+              >
+                <MdVideoLibrary />
+              </span>
+            </div>
+            <div className="inner__circle">
+              <img src={profile} alt="Header Portrait" />
+            </div>
+          </div>
+        )}
+
+        <div className="progress-area">
+          {progressBarVisible && !showPrompt && (
+            <div 
+              ref={progressBarRef}
+              className="progress-container"
+            >
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(loadingProgress, 100)}%`,
+                    backgroundColor: progressColor
+                  }} 
+                />
               </div>
-              <div className="inner__circle">
-                <img src={profile} alt="Header Portrait" />
+              <div className="progress-text">
+                Loading {formattedPercentage}
               </div>
             </div>
           )}
 
-          <div className="progress-area">
-            {progressBarVisible && !showPrompt && (
-              <div 
-                ref={progressBarRef}
-                className="progress-container"
-              >
-                <div className="progress-bar">
-                  <div 
-                    className="progress-bar-fill" 
-                    style={{ 
-                      width: `${Math.min(loadingProgress, 100)}%`,
-                      backgroundColor: progressColor
-                    }} 
-                  />
-                </div>
-                <div className="progress-text">
-                  Loading {formattedPercentage}
-                </div>
+          {showPrompt && (
+            <div 
+              ref={promptRef}
+              className="progress-prompt"
+              onClick={handlePromptClick}
+            >
+              <div className="tap-instruction" style={{ color: progressColor }}>
+                Tap to show progress bar
               </div>
-            )}
-
-            {showPrompt && (
-              <div 
-                ref={promptRef}
-                className="progress-prompt"
-                onClick={handlePromptClick}
-              >
-                <div className="tap-instruction" style={{ color: progressColor }}>
-                  Tap to show progress bar
-                </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-bar-fill" 
-                    style={{ 
-                      width: `${Math.min(loadingProgress, 100)}%`,
-                      backgroundColor: progressColor
-                    }} 
-                  />
-                </div>
+              <div className="progress-bar">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(loadingProgress, 100)}%`,
+                    backgroundColor: progressColor
+                  }} 
+                />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

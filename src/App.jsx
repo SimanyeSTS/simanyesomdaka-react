@@ -15,23 +15,15 @@ import { useRef, useState, useEffect } from "react";
 
 const App = ({ onLoaded }) => {
   const { themeState } = useThemeContext();
-  
+
   useEffect(() => {
-    // Force scroll to top on load and clear any hash
     window.history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
-    if (window.location.hash) {
-      window.location.hash = '';
-    }
-    
-    // Signal that app is loaded
-    if (onLoaded) {
-      onLoaded();
-    }
+    if (window.location.hash) window.location.hash = '';
+    if (onLoaded) onLoaded();
   }, [onLoaded]);
 
   useEffect(() => {
-    // Update theme color meta tag
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
       themeColorMeta.setAttribute('content', `hsl(${themeState.primaryHue}, 89%, 41%)`);
@@ -39,38 +31,26 @@ const App = ({ onLoaded }) => {
   }, [themeState.primaryHue]);
 
   useEffect(() => {
-    // Update scrollbar colors based on theme
     const root = document.documentElement;
     root.style.setProperty("--scrollbar-thumb-color", `hsl(${themeState.primaryHue}, 89%, 41%)`);
-    if (themeState.background === "bg-1") {
-      root.style.setProperty("--scrollbar-track-color", "white");
-    } else if (themeState.background === "bg-2") {
-      root.style.setProperty("--scrollbar-track-color", "black");
-    }
+    root.style.setProperty("--scrollbar-track-color", 
+      themeState.background === "bg-1" ? "white" : "black");
   }, [themeState.primaryHue, themeState.background]);
 
   const mainRef = useRef();
   const [showFloatingNav, setShowFloatingNav] = useState(true);
   const [siteYPostion, setSiteYPosition] = useState(0);
 
-  const showFloatingNavHandler = () => {
-    setShowFloatingNav(true);
-  };
-
-  const hideFloatingNavHandler = () => {
-    setShowFloatingNav(false);
-  };
-
   const floatingNavToggleHandler = () => {
-    if (
-      siteYPostion < mainRef?.current?.getBoundingClientRect().y - 20 ||
-      siteYPostion > mainRef?.current?.getBoundingClientRect().y + 20
-    ) {
-      showFloatingNavHandler();
+    const mainRect = mainRef?.current?.getBoundingClientRect();
+    if (!mainRect) return;
+    
+    if (siteYPostion < mainRect.y - 20 || siteYPostion > mainRect.y + 20) {
+      setShowFloatingNav(true);
     } else {
-      hideFloatingNavHandler();
+      setShowFloatingNav(false);
     }
-    setSiteYPosition(mainRef?.current?.getBoundingClientRect().y);
+    setSiteYPosition(mainRect.y);
   };
 
   useEffect(() => {

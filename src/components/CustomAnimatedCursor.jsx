@@ -8,12 +8,33 @@ const CustomAnimatedCursor = () => {
   const [smallCursorPos, setSmallCursorPos] = useState({ x: 0, y: 0 });
   const [largeCursorPos, setLargeCursorPos] = useState({ x: 0, y: 0 });
   const [cursorType, setCursorType] = useState('default');
+  const [isMobile, setIsMobile] = useState(false);
 
   const smallCursorRef = useRef(null);
   const largeCursorRef = useRef(null);
 
   const smallCursorAnimationRef = useRef(null);
   const largeCursorAnimationRef = useRef(null);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const mobileDevices = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|tablet/i;
+      return mobileDevices.test(userAgent) || window.innerWidth <= 768;
+    };
+
+    const handleResize = () => {
+      setIsMobile(checkMobile());
+    };
+
+    // Set initial value
+    handleResize();
+
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const hslToRgb = (h, s, l) => {
@@ -51,6 +72,8 @@ const CustomAnimatedCursor = () => {
   }, [themeState.primaryHue]);
 
   useEffect(() => {
+    if (isMobile) return; // Don't set up mouse events on mobile
+    
     const handleMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
 
@@ -66,9 +89,11 @@ const CustomAnimatedCursor = () => {
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
+    if (isMobile) return; // Don't animate on mobile
+    
     const animateSmallCursor = () => {
       const dx = position.x - smallCursorPos.x;
       const dy = position.y - smallCursorPos.y;
@@ -91,9 +116,11 @@ const CustomAnimatedCursor = () => {
         cancelAnimationFrame(smallCursorAnimationRef.current);
       }
     };
-  }, [position, smallCursorPos]);
+  }, [position, smallCursorPos, isMobile]);
 
   useEffect(() => {
+    if (isMobile) return; // Don't animate on mobile
+    
     const animateLargeCursor = () => {
       const dx = smallCursorPos.x - largeCursorPos.x;
       const dy = smallCursorPos.y - largeCursorPos.y;
@@ -116,7 +143,7 @@ const CustomAnimatedCursor = () => {
         cancelAnimationFrame(largeCursorAnimationRef.current);
       }
     };
-  }, [smallCursorPos, largeCursorPos]);
+  }, [smallCursorPos, largeCursorPos, isMobile]);
 
   const getSmallCursorStyles = () => {
     const baseStyles = {
@@ -131,6 +158,7 @@ const CustomAnimatedCursor = () => {
       left: `${smallCursorPos.x}px`,
       top: `${smallCursorPos.y}px`,
       transition: 'width 0.3s, height 0.3s',
+      display: isMobile ? 'none' : 'block', // Hide on mobile
     };
 
     if (cursorType === 'pointer') {
@@ -171,6 +199,7 @@ const CustomAnimatedCursor = () => {
       transform: 'translate(-50%, -50%)',
       left: `${largeCursorPos.x}px`,
       top: `${largeCursorPos.y}px`,
+      display: isMobile ? 'none' : 'block', // Hide on mobile
     };
 
     if (cursorType === 'pointer') {
@@ -198,32 +227,26 @@ const CustomAnimatedCursor = () => {
     return baseStyles;
   };
 
+  // If it's a mobile device, don't render the cursor at all
+  if (isMobile) {
+    return null;
+  }
+
   return (
     <>
-      {}
       <div
         ref={smallCursorRef}
         className="cursor-small"
         style={getSmallCursorStyles()}
       />
-
-      {}
       <div
         ref={largeCursorRef}
         className="cursor-large"
         style={getLargeCursorStyles()}
       />
-
-      {}
       <style jsx>{`
-        .cursor-small {
+        .cursor-small, .cursor-large {
           will-change: transform;
-        }
-        .cursor-large {
-          will-change: transform;
-        }
-          .cursor-small, .cursor-large {
-           will-change: transform;
         }
       `}</style>
     </>

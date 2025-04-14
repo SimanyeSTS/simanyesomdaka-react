@@ -1,14 +1,15 @@
 import { useEffect, useState, useRef } from 'react';
 import { useThemeContext } from "../context/theme-context";
 
-const CustomAnimatedCursor = () => {
+const CustomAnimatedCursor = ({ loading = false }) => {
   const { themeState } = useThemeContext();
   const [cursorColor, setCursorColor] = useState('255, 0, 0');
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [smallCursorPos, setSmallCursorPos] = useState({ x: 0, y: 0 });
   const [largeCursorPos, setLargeCursorPos] = useState({ x: 0, y: 0 });
   const [cursorType, setCursorType] = useState('default');
-  const [isMobile, setIsMobile] = useState(false);
+  const [hasMouse, setHasMouse] = useState(false);
+  const [isTouchActive, setIsTouchActive] = useState(false);
 
   const smallCursorRef = useRef(null);
   const largeCursorRef = useRef(null);
@@ -16,26 +17,50 @@ const CustomAnimatedCursor = () => {
   const smallCursorAnimationRef = useRef(null);
   const largeCursorAnimationRef = useRef(null);
 
-  // Check if device is mobile
+  // Enhanced input detection
   useEffect(() => {
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-      const mobileDevices = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|tablet/i;
-      return mobileDevices.test(userAgent) || window.innerWidth <= 768;
+    const checkInputType = () => {
+      // Check if device has mouse capability
+      const mouseCapable = window.matchMedia('(pointer: fine)').matches;
+      setHasMouse(mouseCapable);
     };
 
-    const handleResize = () => {
-      setIsMobile(checkMobile());
+    // Initial check
+    checkInputType();
+
+    // Mouse movement handler
+    const handleMouseMove = () => {
+      if (!hasMouse) setHasMouse(true);
+      setIsTouchActive(false);
     };
 
-    // Set initial value
-    handleResize();
+    // Touch handler
+    const handleTouchStart = () => {
+      setIsTouchActive(true);
+    };
 
-    // Add resize listener
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Pointer change handler
+    const handlePointerChange = (e) => {
+      if (e.pointerType === 'mouse') {
+        setHasMouse(true);
+        setIsTouchActive(false);
+      } else if (e.pointerType === 'touch') {
+        setIsTouchActive(true);
+      }
+    };
 
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('pointerdown', handlePointerChange);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('pointerdown', handlePointerChange);
+    };
+  }, [hasMouse]);
+
+  // HSL to RGB conversion for cursor color
   useEffect(() => {
     const hslToRgb = (h, s, l) => {
       h = h % 360;
@@ -71,9 +96,10 @@ const CustomAnimatedCursor = () => {
     setCursorColor(hslToRgb(primaryHue, 89, 41));
   }, [themeState.primaryHue]);
 
+  // Mouse position tracking
   useEffect(() => {
-    if (isMobile) return; // Don't set up mouse events on mobile
-    
+    if (!hasMouse || isTouchActive) return;
+
     const handleMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
 
@@ -86,14 +112,13 @@ const CustomAnimatedCursor = () => {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [isMobile]);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [hasMouse, isTouchActive]);
 
+  // Small cursor animation
   useEffect(() => {
-    if (isMobile) return; // Don't animate on mobile
-    
+    if (!hasMouse || isTouchActive) return;
+
     const animateSmallCursor = () => {
       const dx = position.x - smallCursorPos.x;
       const dy = position.y - smallCursorPos.y;
@@ -110,17 +135,13 @@ const CustomAnimatedCursor = () => {
     };
 
     smallCursorAnimationRef.current = requestAnimationFrame(animateSmallCursor);
+    return () => cancelAnimationFrame(smallCursorAnimationRef.current);
+  }, [position, smallCursorPos, hasMouse, isTouchActive]);
 
-    return () => {
-      if (smallCursorAnimationRef.current) {
-        cancelAnimationFrame(smallCursorAnimationRef.current);
-      }
-    };
-  }, [position, smallCursorPos, isMobile]);
-
+  // Large cursor animation
   useEffect(() => {
-    if (isMobile) return; // Don't animate on mobile
-    
+    if (!hasMouse || isTouchActive || loading) return;
+
     const animateLargeCursor = () => {
       const dx = smallCursorPos.x - largeCursorPos.x;
       const dy = smallCursorPos.y - largeCursorPos.y;
@@ -137,98 +158,45 @@ const CustomAnimatedCursor = () => {
     };
 
     largeCursorAnimationRef.current = requestAnimationFrame(animateLargeCursor);
+    return () => cancelAnimationFrame(largeCursorAnimationRef.current);
+  }, [smallCursorPos, largeCursorPos, hasMouse, isTouchActive, loading]);
 
-    return () => {
-      if (largeCursorAnimationRef.current) {
-        cancelAnimationFrame(largeCursorAnimationRef.current);
-      }
-    };
-  }, [smallCursorPos, largeCursorPos, isMobile]);
+  // Cursor style definitions
+  const getSmallCursorStyles = () => ({
+    position: 'fixed',
+    width: cursorType === 'pointer' ? '14px' : 
+           cursorType === 'text' ? '8px' : '10px',
+    height: cursorType === 'pointer' ? '14px' : 
+            cursorType === 'text' ? '16px' : '10px',
+    borderRadius: cursorType === 'pointer' ? '50%' : 
+                 cursorType === 'text' ? '3px' : '50%',
+    backgroundColor: `rgb(${cursorColor})`,
+    pointerEvents: 'none',
+    zIndex: 10000,
+    transform: 'translate(-50%, -50%)',
+    left: `${smallCursorPos.x}px`,
+    top: `${smallCursorPos.y}px`,
+    transition: 'width 0.3s, height 0.3s',
+  });
 
-  const getSmallCursorStyles = () => {
-    const baseStyles = {
-      position: 'fixed',
-      width: '10px',
-      height: '10px',
-      borderRadius: '50%',
-      backgroundColor: `rgb(${cursorColor})`,
-      pointerEvents: 'none',
-      zIndex: 10000, // Ensure it's above everything
-      transform: 'translate(-50%, -50%)',
-      left: `${smallCursorPos.x}px`,
-      top: `${smallCursorPos.y}px`,
-      transition: 'width 0.3s, height 0.3s',
-      display: isMobile ? 'none' : 'block', // Hide on mobile
-    };
+  const getLargeCursorStyles = () => ({
+    position: 'fixed',
+    width: cursorType === 'pointer' ? '40px' : 
+           cursorType === 'text' ? '35px' : '50px',
+    height: cursorType === 'pointer' ? '40px' : 
+            cursorType === 'text' ? '45px' : '50px',
+    borderRadius: cursorType === 'pointer' ? '50%' : 
+                 cursorType === 'text' ? '10px' : '50%',
+    border: `2px solid rgb(${cursorColor})`,
+    backgroundColor: `rgba(${cursorColor}, 0.2)`,
+    pointerEvents: 'none',
+    zIndex: 9999,
+    transform: 'translate(-50%, -50%)',
+    left: `${largeCursorPos.x}px`,
+    top: `${largeCursorPos.y}px`,
+  });
 
-    if (cursorType === 'pointer') {
-      return {
-        ...baseStyles,
-        width: '14px',
-        height: '14px',
-      };
-    } else if (cursorType === 'grab' || cursorType === 'grabbing') {
-      return {
-        ...baseStyles,
-        width: '12px',
-        height: '12px',
-        borderRadius: '30%',
-      };
-    } else if (cursorType === 'text') {
-      return {
-        ...baseStyles,
-        width: '8px',
-        height: '16px',
-        borderRadius: '3px',
-      };
-    }
-
-    return baseStyles;
-  };
-
-  const getLargeCursorStyles = () => {
-    const baseStyles = {
-      position: 'fixed',
-      width: '50px',
-      height: '50px',
-      borderRadius: '50%',
-      border: `2px solid rgb(${cursorColor})`,
-      backgroundColor: `rgba(${cursorColor}, 0.2)`,
-      pointerEvents: 'none',
-      zIndex: 9999,
-      transform: 'translate(-50%, -50%)',
-      left: `${largeCursorPos.x}px`,
-      top: `${largeCursorPos.y}px`,
-      display: isMobile ? 'none' : 'block', // Hide on mobile
-    };
-
-    if (cursorType === 'pointer') {
-      return {
-        ...baseStyles,
-        width: '40px',
-        height: '40px',
-      };
-    } else if (cursorType === 'grab') {
-      return {
-        ...baseStyles,
-        width: '45px',
-        height: '45px',
-        borderRadius: '40%',
-      };
-    } else if (cursorType === 'text') {
-      return {
-        ...baseStyles,
-        width: '35px',
-        height: '45px',
-        borderRadius: '10px',
-      };
-    }
-
-    return baseStyles;
-  };
-
-  // If it's a mobile device, don't render the cursor at all
-  if (isMobile) {
+  if (!hasMouse || isTouchActive) {
     return null;
   }
 
@@ -239,16 +207,14 @@ const CustomAnimatedCursor = () => {
         className="cursor-small"
         style={getSmallCursorStyles()}
       />
-      <div
-        ref={largeCursorRef}
-        className="cursor-large"
-        style={getLargeCursorStyles()}
-      />
-      <style jsx>{`
-        .cursor-small, .cursor-large {
-          will-change: transform;
-        }
-      `}</style>
+      
+      {!loading && (
+        <div
+          ref={largeCursorRef}
+          className="cursor-large"
+          style={getLargeCursorStyles()}
+        />
+      )}
     </>
   );
 };

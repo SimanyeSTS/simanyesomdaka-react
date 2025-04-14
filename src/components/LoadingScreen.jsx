@@ -88,7 +88,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
       if (progressBarRef.current) {
         progressBarRef.current.style.display = 'none';
-        progressBarRef.current.offsetHeight; // Trigger reflow
+        // Force reflow before showing again
+        void progressBarRef.current.offsetWidth;
         progressBarRef.current.style.display = 'flex';
         progressBarRef.current.classList.add('fade-in');
       }

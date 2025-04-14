@@ -3,6 +3,7 @@ import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
 import { useThemeContext } from "../context/theme-context";
 import profile from '../assets/profile.png';
+import CustomAnimatedCursor from './CustomAnimatedCursor';
 import './loading.css';
 
 const LoadingScreen = ({ onLoadingComplete }) => {
@@ -181,93 +182,96 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     : `${Math.min(loadingProgress, 100)}%`;
 
   return (
-    <div 
-      ref={loadingScreenRef} 
-      className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
-      style={{ backgroundColor: backgroundColor, color: textColor }}
-    >
-      <div className="center-container">
-        {profileVisible && (
-          <div ref={profileRef} className="profile__area loading-profile">
-            <div 
-              className="outer__circle keep-bright" 
-              style={{ borderColor: progressColor }}
-            >
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
+    <>
+      <CustomAnimatedCursor />
+      <div 
+        ref={loadingScreenRef} 
+        className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
+        style={{ backgroundColor: backgroundColor, color: textColor }}
+      >
+        <div className="center-container">
+          {profileVisible && (
+            <div ref={profileRef} className="profile__area loading-profile">
+              <div 
+                className="outer__circle keep-bright" 
+                style={{ borderColor: progressColor }}
               >
-                <MdDesignServices />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <HiServer />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <MdCode />
-              </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
-                <MdVideoLibrary />
-              </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdDesignServices />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <HiServer />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdCode />
+                </span>
+                <span 
+                  className="tech-icon" 
+                  style={{ backgroundColor: iconBgColor, color: progressColor }}
+                >
+                  <MdVideoLibrary />
+                </span>
+              </div>
+              <div className="inner__circle">
+                <img src={profile} alt="Header Portrait" />
+              </div>
             </div>
-            <div className="inner__circle">
-              <img src={profile} alt="Header Portrait" />
-            </div>
+          )}
+
+          <div className="progress-area">
+            {progressBarVisible && !showPrompt && (
+              <div 
+                ref={progressBarRef}
+                className="progress-container"
+              >
+                <div className="progress-bar">
+                  <div 
+                    className="progress-bar-fill" 
+                    style={{ 
+                      width: `${Math.min(loadingProgress, 100)}%`,
+                      backgroundColor: progressColor
+                    }} 
+                  />
+                </div>
+                <div className="progress-text">
+                  Loading {formattedPercentage}
+                </div>
+              </div>
+            )}
+
+            {showPrompt && (
+              <div 
+                ref={promptRef}
+                className="progress-prompt"
+                onClick={handlePromptClick}
+              >
+                <div className="tap-instruction" style={{ color: progressColor }}>
+                  Tap to show progress bar
+                </div>
+                <div className="progress-bar">
+                  <div 
+                    className="progress-bar-fill" 
+                    style={{ 
+                      width: `${Math.min(loadingProgress, 100)}%`,
+                      backgroundColor: progressColor
+                    }} 
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="progress-area">
-          {progressBarVisible && !showPrompt && (
-            <div 
-              ref={progressBarRef}
-              className="progress-container"
-            >
-              <div className="progress-bar">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ 
-                    width: `${Math.min(loadingProgress, 100)}%`,
-                    backgroundColor: progressColor
-                  }} 
-                />
-              </div>
-              <div className="progress-text">
-                Loading {formattedPercentage}
-              </div>
-            </div>
-          )}
-
-          {showPrompt && (
-            <div 
-              ref={promptRef}
-              className="progress-prompt"
-              onClick={handlePromptClick}
-            >
-              <div className="tap-instruction" style={{ color: progressColor }}>
-                Tap to show progress bar
-              </div>
-              <div className="progress-bar">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ 
-                    width: `${Math.min(loadingProgress, 100)}%`,
-                    backgroundColor: progressColor
-                  }} 
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

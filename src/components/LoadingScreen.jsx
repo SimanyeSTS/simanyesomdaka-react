@@ -28,11 +28,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const iconBgColor = isLightTheme ? 'white' : '#100F0F';
   const progressColor = `hsl(${themeState.primaryHue}, 89%, 41%)`;
 
-  // Enhanced Chrome Mobile detection
-  const isChromeMobile = () => {
-    return /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
-  };
-
   // Prevent scrolling while loading screen is visible
   useEffect(() => {
     document.body.style.overflow = isVisible ? 'hidden' : 'auto';
@@ -41,8 +36,9 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     };
   }, [isVisible]);
 
-  // Show prompt if progress bar isn't visible after a short delay (Chrome Mobile only)
+  // Chrome Mobile detection and prompt handling
   useEffect(() => {
+    const isChromeMobile = () => /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
     if (!isChromeMobile()) return;
 
     promptTimeoutRef.current = setTimeout(() => {
@@ -63,24 +59,18 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     }, 500);
 
     const handleDocumentClick = () => {
-      if (showPrompt && !promptFading) {
-        handlePromptClick();
-      }
+      if (showPrompt && !promptFading) handlePromptClick();
     };
 
     document.addEventListener('click', handleDocumentClick);
-
     return () => {
-      if (promptTimeoutRef.current) {
-        clearTimeout(promptTimeoutRef.current);
-      }
+      if (promptTimeoutRef.current) clearTimeout(promptTimeoutRef.current);
       document.removeEventListener('click', handleDocumentClick);
     };
   }, [showPrompt, promptFading]);
 
   const handlePromptClick = () => {
     if (promptFading) return;
-
     setPromptFading(true);
 
     if (promptRef.current) {
@@ -94,14 +84,14 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
       if (progressBarRef.current) {
         progressBarRef.current.style.display = 'none';
-        const reflowTrigger = progressBarRef.current.offsetHeight;
+        progressBarRef.current.offsetHeight; // Trigger reflow
         progressBarRef.current.style.display = 'flex';
         progressBarRef.current.classList.add('fade-in');
       }
     }, 300);
   };
 
-  // Track loading progress
+  // Simulate loading progress
   useEffect(() => {
     setLoadingProgress(5);
 
@@ -114,31 +104,21 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       };
 
       const immediateTimer = setInterval(increment, 100);
-
       setTimeout(() => {
         clearInterval(immediateTimer);
         const slowTimer = setInterval(() => {
           increment();
-          if (loadingProgress >= 90) {
-            clearInterval(slowTimer);
-            setTimeout(() => {
-              setLoadingProgress(100);
-            }, 500);
-          }
+          if (loadingProgress >= 90) clearInterval(slowTimer);
         }, 200);
       }, 1000);
     };
 
     simulateLoading();
-
-    const fallbackTimer = setTimeout(() => {
-      setLoadingProgress(100);
-    }, 5000);
-
+    const fallbackTimer = setTimeout(() => setLoadingProgress(100), 5000);
     return () => clearTimeout(fallbackTimer);
   }, []);
 
-  // Handle completion
+  // Handle loading completion
   useEffect(() => {
     if (loadingProgress === 100) {
       if (onLoadingComplete) onLoadingComplete(false);
@@ -153,10 +133,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
           if (loadingScreenRef.current) {
             loadingScreenRef.current.classList.add('dim-screen');
-
             setTimeout(() => {
               loadingScreenRef.current.classList.add('brighten-screen');
-
               setTimeout(() => {
                 setIsVisible(false);
                 if (onLoadingComplete) onLoadingComplete(true);
@@ -178,39 +156,24 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     <div 
       ref={loadingScreenRef} 
       className={`loading-screen ${portfolioReady ? 'portfolio-ready' : ''}`}
-      style={{ backgroundColor: backgroundColor, color: textColor }}
+      style={{ backgroundColor, color: textColor }}
     >
       <CustomAnimatedCursor loading={true} />
       
       <div className="center-container">
         {profileVisible && (
           <div ref={profileRef} className="profile__area loading-profile">
-            <div 
-              className="outer__circle keep-bright" 
-              style={{ borderColor: progressColor }}
-            >
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
+            <div className="outer__circle keep-bright" style={{ borderColor: progressColor }}>
+              <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}>
                 <MdDesignServices />
               </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
+              <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}>
                 <HiServer />
               </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
+              <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}>
                 <MdCode />
               </span>
-              <span 
-                className="tech-icon" 
-                style={{ backgroundColor: iconBgColor, color: progressColor }}
-              >
+              <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}>
                 <MdVideoLibrary />
               </span>
             </div>
@@ -222,10 +185,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
         <div className="progress-area">
           {progressBarVisible && !showPrompt && (
-            <div 
-              ref={progressBarRef}
-              className="progress-container"
-            >
+            <div ref={progressBarRef} className="progress-container">
               <div className="progress-bar">
                 <div 
                   className="progress-bar-fill" 
@@ -242,11 +202,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
           )}
 
           {showPrompt && (
-            <div 
-              ref={promptRef}
-              className="progress-prompt"
-              onClick={handlePromptClick}
-            >
+            <div ref={promptRef} className="progress-prompt" onClick={handlePromptClick}>
               <div className="tap-instruction" style={{ color: progressColor }}>
                 Tap to show progress bar
               </div>

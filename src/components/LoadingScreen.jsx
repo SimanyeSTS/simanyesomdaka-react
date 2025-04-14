@@ -59,12 +59,16 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     }, 500);
 
     const handleDocumentClick = () => {
-      if (showPrompt && !promptFading) handlePromptClick();
+      if (showPrompt && !promptFading) {
+        handlePromptClick();
+      }
     };
 
     document.addEventListener('click', handleDocumentClick);
     return () => {
-      if (promptTimeoutRef.current) clearTimeout(promptTimeoutRef.current);
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
+      }
       document.removeEventListener('click', handleDocumentClick);
     };
   }, [showPrompt, promptFading]);
@@ -108,7 +112,9 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         clearInterval(immediateTimer);
         const slowTimer = setInterval(() => {
           increment();
-          if (loadingProgress >= 90) clearInterval(slowTimer);
+          if (loadingProgress >= 90) {
+            clearInterval(slowTimer);
+          }
         }, 200);
       }, 1000);
     };

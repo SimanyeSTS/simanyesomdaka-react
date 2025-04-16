@@ -1,4 +1,3 @@
-/* Loading Screen Styles */
 html, body {
   overscroll-behavior: none;
   height: 100%;
@@ -20,8 +19,7 @@ html, body {
   transition: background-color 0.8s ease-out;
 }
 
-/* Center container - keeps everything centered */
-.center-container {
+.fixed-layout-container {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -29,13 +27,28 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   width: 100%;
-  padding: 2rem;
   box-sizing: border-box;
 }
 
-/* Profile Area Styles */
+.profile-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  margin-bottom: 7rem;
+}
+
+.progress-area-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  min-height: 60px;
+}
+
 .loading-screen .profile__area {
   display: flex;
   justify-content: center;
@@ -44,7 +57,16 @@ html, body {
   opacity: 1;
   transition: opacity 0.6s ease-out;
   z-index: 2;
-  /* No margins here - positioning is handled by the center-container */
+}
+
+.profile__area.fade-out {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.progress-container.fade-out {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
 }
 
 .loading-screen .outer__circle {
@@ -78,17 +100,14 @@ html, body {
   left: calc(50% - 2rem);
   top: -2rem;
 }
-
 .loading-screen .tech-icon:nth-child(2) {
   right: -2rem;
   top: calc(50% - 2rem);
 }
-
 .loading-screen .tech-icon:nth-child(3) {
   left: -2rem;
   top: calc(50% - 2rem);
 }
-
 .loading-screen .tech-icon:nth-child(4) {
   bottom: -2rem;
   left: calc(50% - 2rem);
@@ -102,17 +121,15 @@ html, body {
   overflow: hidden;
 }
 
-/* Progress Area - Part of the centered container now */
 .progress-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 7rem; /* Consistent spacing from the profile */
   box-sizing: border-box;
+  padding: 0 2rem;
 }
 
-/* Progress Bar Styles */
 .progress-container,
 .progress-prompt {
   width: 100%;
@@ -153,7 +170,6 @@ html, body {
   font-weight: 500;
 }
 
-/* Animations for prompt and progress bar */
 .fade-out {
   animation: fadeOut 300ms forwards;
 }
@@ -172,7 +188,6 @@ html, body {
   to { opacity: 1; }
 }
 
-/* Transition Effects */
 .loading-screen.dim-screen {
   background-color: rgba(0, 0, 0, 0.95) !important;
   color: white !important;
@@ -181,66 +196,35 @@ html, body {
 
 .loading-screen.brighten-screen {
   background-color: transparent !important;
+  transition: background-color 0.7s ease-in-out;
 }
 
-/* Animations */
 @keyframes move {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive Adjustments */
 @media screen and (max-width: 1023px) {
-  .loading-screen .outer__circle {
-    width: 20rem;
-  }
-  .loading-screen .inner__circle {
-    width: 15rem;
-  }
-  .progress-area {
-    margin-top: 6rem;
-  }
+  .loading-screen .outer__circle { width: 20rem; }
+  .loading-screen .inner__circle { width: 15rem; }
+  .profile-container { margin-bottom: 6rem; }
 }
 
 @media screen and (max-width: 600px) {
-  .loading-screen .outer__circle {
-    width: 16rem;
-  }
-  .loading-screen .inner__circle {
-    width: 10rem;
-  }
-  .loading-screen .tech-icon {
-    width: 3rem;
-  }
-  .loading-screen .tech-icon:nth-child(1) {
-    left: calc(50% - 1.5rem);
-    top: -1.5rem;
-  }
-  .loading-screen .tech-icon:nth-child(2) {
-    right: -1.5rem;
-    top: calc(50% - 1.5rem);
-  }
-  .loading-screen .tech-icon:nth-child(3) {
-    left: -1.5rem;
-    top: calc(50% - 1.5rem);
-  }
-  .loading-screen .tech-icon:nth-child(4) {
-    bottom: -1.5rem;
-    left: calc(50% - 1.5rem);
-  }
-  .progress-area {
-    margin-top: 5rem;
-  }
+  .loading-screen .outer__circle { width: 16rem; }
+  .loading-screen .inner__circle { width: 10rem; }
+  .loading-screen .tech-icon { width: 3rem; }
+  .loading-screen .tech-icon:nth-child(1) { left: calc(50% - 1.5rem); top: -1.5rem; }
+  .loading-screen .tech-icon:nth-child(2) { right: -1.5rem; top: calc(50% - 1.5rem); }
+  .loading-screen .tech-icon:nth-child(3) { left: -1.5rem; top: calc(50% - 1.5rem); }
+  .loading-screen .tech-icon:nth-child(4) { bottom: -1.5rem; left: calc(50% - 1.5rem); }
+  .profile-container { margin-bottom: 5rem; }
 }
 
 @media screen and (max-height: 600px) {
-  .progress-area {
-    margin-top: 4rem;
-  }
+  .profile-container { margin-bottom: 4rem; }
 }
 
 @media screen and (max-height: 400px) {
-  .progress-area {
-    margin-top: 3rem;
-  }
+  .profile-container { margin-bottom: 3rem; }
 }

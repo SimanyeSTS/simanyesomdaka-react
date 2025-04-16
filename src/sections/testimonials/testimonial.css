@@ -1,4 +1,3 @@
-/* Base Styles */
 #resume {
   padding: 4rem 0;
 }
@@ -10,7 +9,6 @@
   padding: 50px 0;
 }
 
-/* These remain unchanged from your original CSS */
 h2 {
   font-size: 2.5rem;
   color: var(--color-primary);
@@ -24,7 +22,6 @@ h2 {
   color: var(--color-dark);
 }
 
-/* Education and Experience Tabs */
 .education-list,
 .job-list {
   display: flex;
@@ -71,7 +68,6 @@ h2 {
   filter: none;
 }
 
-/* Education and Experience Details */
 .education-details,
 .job-details {
   width: 65%;
@@ -91,7 +87,6 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* Responsive Styles - Updated to match Vue breakpoints */
 @media (max-width: 768px) {
   .subtext {
     font-size: 0.9rem;
@@ -119,11 +114,10 @@ h2 {
   }
 }
 
-/* This is the critical media query for mobile responsiveness */
 @media (max-width: 475px) {
   .education-list,
   .job-list {
-    flex-direction: row; /* Keep side-by-side on mobile */
+    flex-direction: row;
   }
 
   .education-tabs,
@@ -156,7 +150,6 @@ h2 {
     height: 25px;
   }
 
-  /* Add padding to the container to centralize content on mobile */
   #resume {
     padding-left: 1rem;
     padding-right: 1rem;

@@ -98,22 +98,33 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       const increment = () => {
         setLoadingProgress(prev => {
           const newProgress = prev + Math.random() * 5 + 2;
-          return newProgress >= 100 ? 100 : newProgress;
+          return newProgress >= 90 ? 90 : newProgress;
         });
       };
 
       const immediateTimer = setInterval(increment, 100);
+
       setTimeout(() => {
         clearInterval(immediateTimer);
-        const slowTimer = setInterval(() => {
-          increment();
-          if (loadingProgress >= 90) clearInterval(slowTimer);
-        }, 200);
+
+        import('./preloadAssets').then(({ preloadAssets }) => {
+          preloadAssets().then(() => {
+            const slowTimer = setInterval(() => {
+              setLoadingProgress(prev => {
+                const next = prev + 1;
+                if (next >= 100) {
+                  clearInterval(slowTimer);
+                }
+                return next;
+              });
+            }, 100);
+          });
+        });
       }, 1000);
     };
 
     simulateLoading();
-    const fallbackTimer = setTimeout(() => setLoadingProgress(100), 5000);
+    const fallbackTimer = setTimeout(() => setLoadingProgress(100), 8000);
     return () => clearTimeout(fallbackTimer);
   }, []);
 
@@ -154,9 +165,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   if (!isVisible) return null;
 
-  const formattedPercentage = loadingProgress >= 100 
-    ? '100.00%' 
-    : `${Math.min(loadingProgress, 100)}%`;
+  const formattedPercentage = `${Math.floor(Math.min(loadingProgress, 100))}%`;
 
   return (
     <div 
@@ -190,7 +199,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
                   <div className="progress-bar-fill" style={{ width: `${Math.min(loadingProgress, 100)}%`, backgroundColor: progressColor }} />
                 </div>
                 <div className="progress-text">
-                  Loading {formattedPercentage}
+                  Loading <span className="codey-number">{formattedPercentage}</span>
                 </div>
               </div>
             )}

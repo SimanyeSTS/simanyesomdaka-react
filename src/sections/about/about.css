@@ -88,6 +88,7 @@
   margin-bottom: 1rem;
   overflow: visible;
   touch-action: none;
+  transform: translateZ(0);
 }
 
 .skills__floating-area:active {
@@ -106,6 +107,7 @@
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
   pointer-events: auto;
   touch-action: none;
+  backface-visibility: hidden;
 }
 
 .skill__icon {
@@ -123,9 +125,9 @@
   backface-visibility: hidden;
   pointer-events: auto;
   touch-action: none;
+  will-change: transform, opacity;
 }
 
-.skill__icon:hover, 
 .skill__icon.active {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -151,6 +153,8 @@
   touch-action: pan-y;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  will-change: transform;
+  contain: content;
 }
 
 .skill__name {
@@ -163,6 +167,7 @@
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
+  flex-shrink: 0;
 }
 
 .skill__name.active {
@@ -170,8 +175,16 @@
   color: var(--color-white);
 }
 
-/* Only apply hover effects for non-touch devices - SKILLS NAMES ONLY */
-@media (hover: hover) and (pointer: fine) {
+/* Only apply hover effects when fine pointer is detected (mouse) */
+@media (pointer: fine) {
+  .skill__icon:hover,
+  .skill__icon.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: scale(1.2);
+    z-index: 1000 !important;
+  }
+
   .skill__name:hover {
     background-color: var(--color-primary);
     color: var(--color-white);

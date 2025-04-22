@@ -21,6 +21,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const progressBarRef = useRef(null);
   const promptRef = useRef(null);
   const promptTimeoutRef = useRef(null);
+  const failsafeTimerRef = useRef(null);
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -91,6 +92,60 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     }, 300);
   };
 
+  // Function to force complete the loading screen but with smooth transitions
+  const forceCompleteLoading = () => {
+    console.log("Failsafe triggered: Initiating smooth completion sequence");
+    
+    // First ensure progress bar is faded out if it's still visible
+    if (progressBarVisible) {
+      if (progressBarRef.current) {
+        progressBarRef.current.classList.add('fade-out');
+      }
+      setProgressBarVisible(false);
+      setShowPrompt(false);
+    }
+    
+    // Then handle profile fade out if it's still visible
+    if (profileVisible) {
+      if (profileRef.current) {
+        profileRef.current.classList.add('fade-out');
+      }
+      
+      setTimeout(() => {
+        setProfileVisible(false);
+        setPortfolioReady(true);
+        
+        // Start the screen transition effects
+        if (loadingScreenRef.current) {
+          loadingScreenRef.current.classList.add('dim-screen');
+          setTimeout(() => {
+            loadingScreenRef.current.classList.add('brighten-screen');
+            setTimeout(() => {
+              setIsVisible(false);
+              if (onLoadingComplete) onLoadingComplete(true);
+            }, 700);
+          }, 500);
+        }
+      }, 600);
+    } else if (portfolioReady) {
+      // If we're already at the screen transition part
+      if (loadingScreenRef.current) {
+        if (!loadingScreenRef.current.classList.contains('dim-screen')) {
+          loadingScreenRef.current.classList.add('dim-screen');
+        }
+        setTimeout(() => {
+          if (!loadingScreenRef.current.classList.contains('brighten-screen')) {
+            loadingScreenRef.current.classList.add('brighten-screen');
+          }
+          setTimeout(() => {
+            setIsVisible(false);
+            if (onLoadingComplete) onLoadingComplete(true);
+          }, 700);
+        }, 500);
+      }
+    }
+  };
+
   useEffect(() => {
     setLoadingProgress(5);
 
@@ -130,7 +185,16 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   useEffect(() => {
     if (loadingProgress === 100) {
+      // Call onLoadingComplete to signal that loading has reached 100%
       if (onLoadingComplete) onLoadingComplete(false);
+
+      // Clear any existing failsafe timer
+      if (failsafeTimerRef.current) {
+        clearTimeout(failsafeTimerRef.current);
+      }
+
+      // Set up the 5-second failsafe timer that will ensure animations complete smoothly
+      failsafeTimerRef.current = setTimeout(forceCompleteLoading, 5000);
 
       if (progressBarRef.current) {
         progressBarRef.current.classList.add('fade-out');
@@ -153,6 +217,11 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             setTimeout(() => {
               loadingScreenRef.current.classList.add('brighten-screen');
               setTimeout(() => {
+                // Clear the failsafe timer if the normal flow completes
+                if (failsafeTimerRef.current) {
+                  clearTimeout(failsafeTimerRef.current);
+                  failsafeTimerRef.current = null;
+                }
                 setIsVisible(false);
                 if (onLoadingComplete) onLoadingComplete(true);
               }, 700);
@@ -162,6 +231,15 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       }, 600);
     }
   }, [loadingProgress, onLoadingComplete]);
+
+  // Cleanup function to clear the failsafe timer when component unmounts
+  useEffect(() => {
+    return () => {
+      if (failsafeTimerRef.current) {
+        clearTimeout(failsafeTimerRef.current);
+      }
+    };
+  }, []);
 
   if (!isVisible) return null;
 

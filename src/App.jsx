@@ -11,7 +11,7 @@ import FloatingNav from "./sections/floating-nav/FloatingNav";
 import Theme from "./theme/Theme";
 import CustomAnimatedCursor from "./components/CustomAnimatedCursor";
 import { useThemeContext } from "./context/theme-context";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 const App = ({ onLoaded }) => {
   const { themeState } = useThemeContext();
@@ -41,7 +41,7 @@ const App = ({ onLoaded }) => {
   const [showFloatingNav, setShowFloatingNav] = useState(true);
   const [siteYPostion, setSiteYPosition] = useState(0);
 
-  const floatingNavToggleHandler = () => {
+  const floatingNavToggleHandler = useCallback(() => {
     const mainRect = mainRef?.current?.getBoundingClientRect();
     if (!mainRect) return;
     
@@ -51,12 +51,12 @@ const App = ({ onLoaded }) => {
       setShowFloatingNav(false);
     }
     setSiteYPosition(mainRect.y);
-  };
+  }, [siteYPostion]);
 
   useEffect(() => {
     const checkYPosition = setInterval(floatingNavToggleHandler, 2000);
     return () => clearInterval(checkYPosition);
-  }, [siteYPostion]);
+  }, [floatingNavToggleHandler]);
 
   return (
     <>

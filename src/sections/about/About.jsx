@@ -111,20 +111,20 @@ const About = memo(() => {
 
   const LazySkillIcon = ({ icon }) => {
     const [LoadedIcon, setLoadedIcon] = React.useState(() => () => null);
-
+  
     React.useEffect(() => {
       const loadIcon = async () => {
         try {
           const loadedIcon = await Promise.resolve(icon);
           setLoadedIcon(() => () => loadedIcon);
         } catch (error) {
-          alert('Icon loading failed', error);
+          alert('Icon loading failed: ' + (error.message || 'Unknown error'));
         }
       };
-
+  
       loadIcon();
     }, [icon]);
-
+  
     return <LoadedIcon />;
   };
 

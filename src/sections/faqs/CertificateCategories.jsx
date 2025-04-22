@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CategoryButton from "../portfolio/CategoryButton"; // Reusing the CategoryButton component
+import CategoryButton from "../portfolio/CategoryButton";
 
 const CertificateCategories = ({ categories, onFilterCertificates }) => {
   const [activeCategory, setActiveCategory] = useState("All");

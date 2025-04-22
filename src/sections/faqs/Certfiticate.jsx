@@ -15,14 +15,14 @@ const Certificate = ({ certificate }) => {
       </div>
       {showDetails && (
         <div className="certificate__details">
-          {/* Description with scrolling if needed */}
+          {}
           <div className="certificate__description-wrapper">
             <p className="certificate__description">
               {certificate.description || '\u00A0'}
             </p>
           </div>
           
-          {/* Meta information with fixed position */}
+          {}
           <div className="certificate__meta">
             <p className="certificate__issuer">
               {certificate.issuer ? `Issued by: ${certificate.issuer}` : '\u00A0'}
@@ -32,7 +32,7 @@ const Certificate = ({ certificate }) => {
             </p>
           </div>
           
-          {/* Button always at the bottom */}
+          {}
           <div className="certificate__button-wrapper">
             <a 
               href={certificate.credentialUrl} 

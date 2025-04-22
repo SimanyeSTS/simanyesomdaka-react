@@ -17,10 +17,8 @@ const Navbar = () => {
       setActiveLink(newActiveLink);
     };
     
-    // Add scroll event listener
     window.addEventListener("scroll", handleScroll);
     
-    // Initial check
     handleScroll();
     
     return () => {

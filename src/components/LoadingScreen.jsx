@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
 import { useThemeContext } from "../context/theme-context";
@@ -34,43 +34,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isVisible]);
 
-  useEffect(() => {
-    const isChromeMobile = () => /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
-    if (!isChromeMobile()) return;
-
-    promptTimeoutRef.current = setTimeout(() => {
-      const progressBarElement = progressBarRef.current;
-      if (progressBarElement) {
-        const computedStyle = window.getComputedStyle(progressBarElement);
-        if (progressBarElement.offsetHeight === 0 || 
-            computedStyle.visibility === 'hidden' || 
-            computedStyle.display === 'none' || 
-            computedStyle.opacity === '0') {
-          setShowPrompt(true);
-          setProgressBarVisible(false);
-        }
-      } else {
-        setShowPrompt(true);
-        setProgressBarVisible(false);
-      }
-    }, 500);
-
-    const handleDocumentClick = () => {
-      if (showPrompt && !promptFading) {
-        handlePromptClick();
-      }
-    };
-
-    document.addEventListener('click', handleDocumentClick);
-    return () => {
-      if (promptTimeoutRef.current) {
-        clearTimeout(promptTimeoutRef.current);
-      }
-      document.removeEventListener('click', handleDocumentClick);
-    };
-  }, [showPrompt, promptFading]);
-
-  const handlePromptClick = () => {
+  const handlePromptClick = useCallback(() => {
     if (promptFading) return;
     setPromptFading(true);
 
@@ -90,13 +54,9 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         progressBarRef.current.classList.add('fade-in');
       }
     }, 300);
-  };
+  }, [promptFading]);
 
-  // Function to force complete the loading screen but with smooth transitions
-  const forceCompleteLoading = () => {
-    console.log("Failsafe triggered: Initiating smooth completion sequence");
-    
-    // First ensure progress bar is faded out if it's still visible
+  const forceCompleteLoading = useCallback(() => {
     if (progressBarVisible) {
       if (progressBarRef.current) {
         progressBarRef.current.classList.add('fade-out');
@@ -105,7 +65,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       setShowPrompt(false);
     }
     
-    // Then handle profile fade out if it's still visible
     if (profileVisible) {
       if (profileRef.current) {
         profileRef.current.classList.add('fade-out');
@@ -115,7 +74,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         setProfileVisible(false);
         setPortfolioReady(true);
         
-        // Start the screen transition effects
         if (loadingScreenRef.current) {
           loadingScreenRef.current.classList.add('dim-screen');
           setTimeout(() => {
@@ -128,7 +86,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         }
       }, 600);
     } else if (portfolioReady) {
-      // If we're already at the screen transition part
       if (loadingScreenRef.current) {
         if (!loadingScreenRef.current.classList.contains('dim-screen')) {
           loadingScreenRef.current.classList.add('dim-screen');
@@ -144,7 +101,46 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         }, 500);
       }
     }
-  };
+  }, [profileVisible, portfolioReady, progressBarVisible, onLoadingComplete]);
+
+  useEffect(() => {
+    const isChromeMobile = () => /Android.*Chrome\/[.0-9]*/.test(navigator.userAgent);
+    if (!isChromeMobile()) return;
+
+    promptTimeoutRef.current = setTimeout(() => {
+      try {
+        const progressBarElement = progressBarRef.current;
+        if (progressBarElement) {
+          const computedStyle = window.getComputedStyle(progressBarElement);
+          if (progressBarElement.offsetHeight === 0 || 
+              computedStyle.visibility === 'hidden' || 
+              computedStyle.display === 'none' || 
+              computedStyle.opacity === '0') {
+            setShowPrompt(true);
+            setProgressBarVisible(false);
+          }
+        } else {
+          setShowPrompt(true);
+          setProgressBarVisible(false);
+        }
+      } catch (error) {
+      }
+    }, 500);
+
+    const handleDocumentClick = () => {
+      if (showPrompt && !promptFading) {
+        handlePromptClick();
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick);
+    return () => {
+      if (promptTimeoutRef.current) {
+        clearTimeout(promptTimeoutRef.current);
+      }
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, [showPrompt, promptFading, handlePromptClick]);
 
   useEffect(() => {
     setLoadingProgress(5);
@@ -173,7 +169,11 @@ const LoadingScreen = ({ onLoadingComplete }) => {
                 return next;
               });
             }, 100);
+          }).catch(() => {
+            setLoadingProgress(100);
           });
+        }).catch(() => {
+          setLoadingProgress(100);
         });
       }, 1000);
     };
@@ -185,15 +185,12 @@ const LoadingScreen = ({ onLoadingComplete }) => {
 
   useEffect(() => {
     if (loadingProgress === 100) {
-      // Call onLoadingComplete to signal that loading has reached 100%
       if (onLoadingComplete) onLoadingComplete(false);
 
-      // Clear any existing failsafe timer
       if (failsafeTimerRef.current) {
         clearTimeout(failsafeTimerRef.current);
       }
 
-      // Set up the 5-second failsafe timer that will ensure animations complete smoothly
       failsafeTimerRef.current = setTimeout(forceCompleteLoading, 5000);
 
       if (progressBarRef.current) {
@@ -217,7 +214,6 @@ const LoadingScreen = ({ onLoadingComplete }) => {
             setTimeout(() => {
               loadingScreenRef.current.classList.add('brighten-screen');
               setTimeout(() => {
-                // Clear the failsafe timer if the normal flow completes
                 if (failsafeTimerRef.current) {
                   clearTimeout(failsafeTimerRef.current);
                   failsafeTimerRef.current = null;
@@ -230,9 +226,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         }, 600);
       }, 600);
     }
-  }, [loadingProgress, onLoadingComplete]);
+  }, [loadingProgress, onLoadingComplete, forceCompleteLoading]);
 
-  // Cleanup function to clear the failsafe timer when component unmounts
   useEffect(() => {
     return () => {
       if (failsafeTimerRef.current) {

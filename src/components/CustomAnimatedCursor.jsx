@@ -68,10 +68,8 @@ const CustomAnimatedCursor = ({ loading = false }) => {
     setCursorColor(hslToRgb(primaryHue, 89, 41));
   }, [themeState.primaryHue]);
 
-  // Function to detect if the cursor is over a scrollbar
   const isScrollbarDetected = (x, y) => {
-    // First, check for the main window/app scrollbar
-    const scrollbarThickness = 16; // typical scrollbar width
+    const scrollbarThickness = 16;
     const overVerticalScrollbar = x >= window.innerWidth - scrollbarThickness;
     const overHorizontalScrollbar = y >= window.innerHeight - scrollbarThickness;
     
@@ -79,24 +77,18 @@ const CustomAnimatedCursor = ({ loading = false }) => {
       return true;
     }
     
-    // Now check for element scrollbars
     const elementAtPoint = document.elementFromPoint(x, y);
     if (!elementAtPoint) return false;
 
-    // Check if we're near the edge of an element with overflow
     const rect = elementAtPoint.getBoundingClientRect();
     
-    // Check if we're near the right edge (vertical scrollbar)
     const isNearRightEdge = x >= rect.right - 16 && x <= rect.right;
     
-    // Check if we're near the bottom edge (horizontal scrollbar)
     const isNearBottomEdge = y >= rect.bottom - 16 && y <= rect.bottom;
     
-    // Check if the element or its parent has scrollbars
     const hasVerticalScrollbar = elementAtPoint.scrollHeight > elementAtPoint.clientHeight;
     const hasHorizontalScrollbar = elementAtPoint.scrollWidth > elementAtPoint.clientWidth;
     
-    // Detect if we're over an element scrollbar
     const isOverElementScrollbarVertical = isNearRightEdge && hasVerticalScrollbar;
     const isOverElementScrollbarHorizontal = isNearBottomEdge && hasHorizontalScrollbar;
     
@@ -108,11 +100,9 @@ const CustomAnimatedCursor = ({ loading = false }) => {
     const handleMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
       
-      // Check if cursor is over a scrollbar
       const scrollbarDetected = isScrollbarDetected(e.clientX, e.clientY);
       setIsOverScrollbar(scrollbarDetected);
       
-      // Only check cursor type if we're not over a scrollbar (improves detection reliability)
       if (!scrollbarDetected) {
         const element = document.elementFromPoint(e.clientX, e.clientY);
         if (element) {

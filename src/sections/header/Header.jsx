@@ -42,7 +42,7 @@ const Header = () => {
           <h1>Software Engineer | Backend & Cloud-Focused | Problem-Solver Across the Stack</h1>
           <h3>Hi, I'm Simanye...</h3>
           <p>
-            I'm a Junior Software Engineer with <span className="highlight">Backend & Cloud expertise</span>, applying strong engineering principles to build scalable and secure systems. As an <span className="highlight">Applications Development student at CPUT</span>, I approach software challenges with a problem-solving mindset, ensuring efficiency across different tech stacks. Always eager to learn, adapt, and tackle new opportunities in the ever-evolving tech landscape.
+            A Junior Software Engineer with <span className="highlight">Backend & Cloud expertise</span>, applying strong engineering principles to build scalable and secure systems. As an <span className="highlight">Applications Development student at CPUT</span>, I approach software challenges with a problem-solving mindset, ensuring efficiency across different tech stacks. Always eager to learn, adapt, and tackle new opportunities in the ever-evolving tech landscape.
           </p>
           <a 
             href="#contact" 

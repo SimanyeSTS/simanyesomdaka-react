@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, memo, useState } from "react";
+import React, { useEffect, useRef, useMemo, memo } from "react";
 import { throttle } from 'lodash';
 import CV from "../../assets/Simanye Somdaka's Resume (OA).PDF";
 import { HiDownload } from "react-icons/hi";
@@ -23,7 +23,6 @@ import {
 } from "react-icons/si";
 
 const About = memo(() => {
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
   const skillsContainerRef = useRef(null);
   const floatingAreaRef = useRef(null);
   const animationRef = useRef(null);
@@ -39,15 +38,6 @@ const About = memo(() => {
   const touchStartTimeRef = useRef(0);
   const isTapRef = useRef(false);
   const touchMovedRef = useRef(false);
-
-  useEffect(() => {
-    const checkTouchDevice = () => {
-      return (('ontouchstart' in window) ||
-        (navigator.maxTouchPoints > 0) ||
-        (navigator.msMaxTouchPoints > 0));
-    };
-    setIsTouchDevice(checkTouchDevice());
-  }, []);
 
   const skillsData = useMemo(() => [
     // Core Programming Languages

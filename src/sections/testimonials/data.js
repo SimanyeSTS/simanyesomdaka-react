@@ -1,4 +1,4 @@
-export default {
+const resumeData = {
   education: [
     {
       institution: "Cape Peninsula University of Technology",
@@ -38,3 +38,5 @@ export default {
     },
   ],
 };
+
+export default resumeData;

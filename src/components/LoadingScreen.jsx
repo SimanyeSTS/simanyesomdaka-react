@@ -22,6 +22,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const promptRef = useRef(null);
   const promptTimeoutRef = useRef(null);
   const failsafeTimerRef = useRef(null);
+  
+  const isMounted = useRef(true);
 
   const isLightTheme = themeState.background === 'bg-1';
   const backgroundColor = isLightTheme ? 'white' : '#100F0F';
@@ -34,8 +36,17 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isVisible]);
 
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      
+      if (promptTimeoutRef.current) clearTimeout(promptTimeoutRef.current);
+      if (failsafeTimerRef.current) clearTimeout(failsafeTimerRef.current);
+    };
+  }, []);
+
   const handlePromptClick = useCallback(() => {
-    if (promptFading) return;
+    if (promptFading || !isMounted.current) return;
     setPromptFading(true);
 
     if (promptRef.current) {
@@ -43,6 +54,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     }
 
     setTimeout(() => {
+      if (!isMounted.current) return;
+      
       setShowPrompt(false);
       setProgressBarVisible(true);
       setPromptFading(false);
@@ -57,6 +70,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   }, [promptFading]);
 
   const forceCompleteLoading = useCallback(() => {
+    if (!isMounted.current) return;
+    
     if (progressBarVisible) {
       if (progressBarRef.current) {
         progressBarRef.current.classList.add('fade-out');
@@ -71,14 +86,21 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       }
       
       setTimeout(() => {
+        if (!isMounted.current) return;
+        
         setProfileVisible(false);
         setPortfolioReady(true);
         
-        if (loadingScreenRef.current) {
-          loadingScreenRef.current.classList.add('dim-screen');
+        const loadingScreen = loadingScreenRef.current;
+        if (loadingScreen) {
+          loadingScreen.classList.add('dim-screen');
           setTimeout(() => {
-            loadingScreenRef.current.classList.add('brighten-screen');
+            if (!isMounted.current || !loadingScreen) return;
+            
+            loadingScreen.classList.add('brighten-screen');
             setTimeout(() => {
+              if (!isMounted.current) return;
+              
               setIsVisible(false);
               if (onLoadingComplete) onLoadingComplete(true);
             }, 700);
@@ -86,15 +108,20 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         }
       }, 600);
     } else if (portfolioReady) {
-      if (loadingScreenRef.current) {
-        if (!loadingScreenRef.current.classList.contains('dim-screen')) {
-          loadingScreenRef.current.classList.add('dim-screen');
+      const loadingScreen = loadingScreenRef.current;
+      if (loadingScreen) {
+        if (!loadingScreen.classList.contains('dim-screen')) {
+          loadingScreen.classList.add('dim-screen');
         }
         setTimeout(() => {
-          if (!loadingScreenRef.current.classList.contains('brighten-screen')) {
-            loadingScreenRef.current.classList.add('brighten-screen');
+          if (!isMounted.current || !loadingScreen) return;
+          
+          if (!loadingScreen.classList.contains('brighten-screen')) {
+            loadingScreen.classList.add('brighten-screen');
           }
           setTimeout(() => {
+            if (!isMounted.current) return;
+            
             setIsVisible(false);
             if (onLoadingComplete) onLoadingComplete(true);
           }, 700);
@@ -108,6 +135,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     if (!isChromeMobile()) return;
 
     promptTimeoutRef.current = setTimeout(() => {
+      if (!isMounted.current) return;
+      
       try {
         const progressBarElement = progressBarRef.current;
         if (progressBarElement) {
@@ -156,11 +185,21 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       const immediateTimer = setInterval(increment, 100);
 
       setTimeout(() => {
+        if (!isMounted.current) {
+          clearInterval(immediateTimer);
+          return;
+        }
+        
         clearInterval(immediateTimer);
 
         import('./preloadAssets').then(({ preloadAssets }) => {
           preloadAssets().then(() => {
             const slowTimer = setInterval(() => {
+              if (!isMounted.current) {
+                clearInterval(slowTimer);
+                return;
+              }
+              
               setLoadingProgress(prev => {
                 const next = prev + 1;
                 if (next >= 100) {
@@ -170,16 +209,19 @@ const LoadingScreen = ({ onLoadingComplete }) => {
               });
             }, 100);
           }).catch(() => {
-            setLoadingProgress(100);
+            if (isMounted.current) setLoadingProgress(100);
           });
         }).catch(() => {
-          setLoadingProgress(100);
+          if (isMounted.current) setLoadingProgress(100);
         });
       }, 1000);
     };
 
     simulateLoading();
-    const fallbackTimer = setTimeout(() => setLoadingProgress(100), 8000);
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted.current) setLoadingProgress(100);
+    }, 8000);
+    
     return () => clearTimeout(fallbackTimer);
   }, []);
 
@@ -191,13 +233,17 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         clearTimeout(failsafeTimerRef.current);
       }
 
-      failsafeTimerRef.current = setTimeout(forceCompleteLoading, 5000);
+      failsafeTimerRef.current = setTimeout(() => {
+        if (isMounted.current) forceCompleteLoading();
+      }, 5000);
 
       if (progressBarRef.current) {
         progressBarRef.current.classList.add('fade-out');
       }
 
       setTimeout(() => {
+        if (!isMounted.current) return;
+        
         setProgressBarVisible(false);
         setShowPrompt(false);
 
@@ -206,14 +252,21 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         }
 
         setTimeout(() => {
+          if (!isMounted.current) return;
+          
           setProfileVisible(false);
           setPortfolioReady(true);
 
-          if (loadingScreenRef.current) {
-            loadingScreenRef.current.classList.add('dim-screen');
+          const loadingScreen = loadingScreenRef.current;
+          if (loadingScreen) {
+            loadingScreen.classList.add('dim-screen');
             setTimeout(() => {
-              loadingScreenRef.current.classList.add('brighten-screen');
+              if (!isMounted.current || !loadingScreen) return;
+              
+              loadingScreen.classList.add('brighten-screen');
               setTimeout(() => {
+                if (!isMounted.current) return;
+                
                 if (failsafeTimerRef.current) {
                   clearTimeout(failsafeTimerRef.current);
                   failsafeTimerRef.current = null;

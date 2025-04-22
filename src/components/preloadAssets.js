@@ -1,6 +1,6 @@
 export const preloadAssets = async () => {
     const assetsToPreload = [
-      require('../assets/profile.png'), // critical asset shown on loading screen
+      require('../assets/profile.png'),
     ];
   
     const preloadImage = (src) =>
@@ -13,7 +13,6 @@ export const preloadAssets = async () => {
   
     const imagePromises = assetsToPreload.map(preloadImage);
   
-    // Wait for fonts to be ready (Montserrat, etc.)
     const fontPromise = document.fonts.ready;
   
     await Promise.all([...imagePromises, fontPromise]);

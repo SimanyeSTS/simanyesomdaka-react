@@ -68,7 +68,7 @@ const About = memo(() => {
     // Database
     { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
     { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
-    { id: 22, name: "Firebase", icon: <SiFirebase />, category: "database" },
+    { id: 22, name: "Firebase & Firestore", icon: <SiFirebase />, category: "database" },
 
     // Cloud & Hosting
     { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },

@@ -15,12 +15,16 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const [progressBarVisible, setProgressBarVisible] = useState(true);
   const [profileVisible, setProfileVisible] = useState(true);
   const [portfolioReady, setPortfolioReady] = useState(false);
+  const [showCenteringPrompt, setShowCenteringPrompt] = useState(false);
+  const [centeringPromptFading, setCenteringPromptFading] = useState(false);
 
   const profileRef = useRef(null);
   const loadingScreenRef = useRef(null);
   const progressBarRef = useRef(null);
   const promptRef = useRef(null);
+  const centeringPromptRef = useRef(null);
   const promptTimeoutRef = useRef(null);
+  const centeringPromptTimeoutRef = useRef(null);
   const failsafeTimerRef = useRef(null);
   
   const isMounted = useRef(true);
@@ -41,6 +45,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       isMounted.current = false;
       
       if (promptTimeoutRef.current) clearTimeout(promptTimeoutRef.current);
+      if (centeringPromptTimeoutRef.current) clearTimeout(centeringPromptTimeoutRef.current);
       if (failsafeTimerRef.current) clearTimeout(failsafeTimerRef.current);
     };
   }, []);
@@ -68,6 +73,27 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       }
     }, 300);
   }, [promptFading]);
+
+  const handleCenteringPromptClick = useCallback(() => {
+    if (centeringPromptFading || !isMounted.current) return;
+    setCenteringPromptFading(true);
+
+    if (centeringPromptRef.current) {
+      centeringPromptRef.current.classList.add('fade-out');
+    }
+
+    setTimeout(() => {
+      if (!isMounted.current) return;
+      
+      setShowCenteringPrompt(false);
+      setCenteringPromptFading(false);
+
+      const fixedLayoutContainer = document.querySelector('.fixed-layout-container');
+      if (fixedLayoutContainer) {
+        fixedLayoutContainer.classList.add('force-center');
+      }
+    }, 300);
+  }, [centeringPromptFading]);
 
   const forceCompleteLoading = useCallback(() => {
     if (!isMounted.current) return;
@@ -156,9 +182,31 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       }
     }, 500);
 
+    centeringPromptTimeoutRef.current = setTimeout(() => {
+      if (!isMounted.current) return;
+      
+      try {
+        const fixedLayoutContainer = document.querySelector('.fixed-layout-container');
+        if (fixedLayoutContainer) {
+          const rect = fixedLayoutContainer.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          const elementCenterY = rect.top + rect.height / 2;
+          const windowCenterY = windowHeight / 2;
+          
+          if (Math.abs(elementCenterY - windowCenterY) > 30) {
+            setShowCenteringPrompt(true);
+          }
+        }
+      } catch (error) {
+      }
+    }, 700);
+
     const handleDocumentClick = () => {
       if (showPrompt && !promptFading) {
         handlePromptClick();
+      }
+      if (showCenteringPrompt && !centeringPromptFading) {
+        handleCenteringPromptClick();
       }
     };
 
@@ -167,9 +215,12 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       if (promptTimeoutRef.current) {
         clearTimeout(promptTimeoutRef.current);
       }
+      if (centeringPromptTimeoutRef.current) {
+        clearTimeout(centeringPromptTimeoutRef.current);
+      }
       document.removeEventListener('click', handleDocumentClick);
     };
-  }, [showPrompt, promptFading, handlePromptClick]);
+  }, [showPrompt, promptFading, handlePromptClick, showCenteringPrompt, centeringPromptFading, handleCenteringPromptClick]);
 
   useEffect(() => {
     setLoadingProgress(5);
@@ -246,6 +297,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         
         setProgressBarVisible(false);
         setShowPrompt(false);
+        setShowCenteringPrompt(false);
 
         if (profileRef.current) {
           profileRef.current.classList.add('fade-out');
@@ -300,47 +352,60 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       style={{ backgroundColor, color: textColor }}
     >
       <CustomAnimatedCursor loading={true} />
-      <div className="fixed-layout-container">
-        <div className="profile-container">
-          {profileVisible && (
-            <div ref={profileRef} className="profile__area loading-profile">
-              <div className="outer__circle keep-bright" style={{ borderColor: progressColor }}>
-                <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdDesignServices /></span>
-                <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><HiServer /></span>
-                <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdCode /></span>
-                <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdVideoLibrary /></span>
-              </div>
-              <div className="inner__circle">
-                <img src={profile} alt="Header Portrait" />
-              </div>
-            </div>
-          )}
+      {showCenteringPrompt ? (
+        <div 
+          ref={centeringPromptRef} 
+          className="centering-prompt"
+          onClick={handleCenteringPromptClick}
+          style={{ backgroundColor, color: textColor }}
+        >
+          <div className="tap-instruction-center" style={{ color: progressColor }}>
+            Tap to center
+          </div>
         </div>
-
-        <div className="progress-area-container">
-          <div className="progress-area">
-            {progressBarVisible && !showPrompt && (
-              <div ref={progressBarRef} className="progress-container">
-                <div className="progress-bar">
-                  <div className="progress-bar-fill" style={{ width: `${Math.min(loadingProgress, 100)}%`, backgroundColor: progressColor }} />
+      ) : (
+        <div className={`fixed-layout-container ${showCenteringPrompt ? '' : ''}`}>
+          <div className="profile-container">
+            {profileVisible && (
+              <div ref={profileRef} className="profile__area loading-profile">
+                <div className="outer__circle keep-bright" style={{ borderColor: progressColor }}>
+                  <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdDesignServices /></span>
+                  <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><HiServer /></span>
+                  <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdCode /></span>
+                  <span className="tech-icon" style={{ backgroundColor: iconBgColor, color: progressColor }}><MdVideoLibrary /></span>
                 </div>
-                <div className="progress-text">
-                  Loading <span className="codey-number">{formattedPercentage}</span>
-                </div>
-              </div>
-            )}
-
-            {showPrompt && (
-              <div ref={promptRef} className="progress-prompt" onClick={handlePromptClick}>
-                <div className="tap-instruction" style={{ color: progressColor }}>Tap to show progress bar</div>
-                <div className="progress-bar">
-                  <div className="progress-bar-fill" style={{ width: `${Math.min(loadingProgress, 100)}%`, backgroundColor: progressColor }} />
+                <div className="inner__circle">
+                  <img src={profile} alt="Header Portrait" />
                 </div>
               </div>
             )}
           </div>
+
+          <div className="progress-area-container">
+            <div className="progress-area">
+              {progressBarVisible && !showPrompt && (
+                <div ref={progressBarRef} className="progress-container">
+                  <div className="progress-bar">
+                    <div className="progress-bar-fill" style={{ width: `${Math.min(loadingProgress, 100)}%`, backgroundColor: progressColor }} />
+                  </div>
+                  <div className="progress-text">
+                    Loading <span className="codey-number">{formattedPercentage}</span>
+                  </div>
+                </div>
+              )}
+
+              {showPrompt && (
+                <div ref={promptRef} className="progress-prompt" onClick={handlePromptClick}>
+                  <div className="tap-instruction" style={{ color: progressColor }}>Tap to show progress bar</div>
+                  <div className="progress-bar">
+                    <div className="progress-bar-fill" style={{ width: `${Math.min(loadingProgress, 100)}%`, backgroundColor: progressColor }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

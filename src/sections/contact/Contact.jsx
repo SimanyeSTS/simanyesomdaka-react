@@ -1,7 +1,7 @@
 import data from "./data";
 import "./contact.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
-
+import { MdOutlineLocationOn } from "react-icons/md";
 const Contact = () => {
   return (
     <section id="contact">
@@ -20,11 +20,13 @@ const Contact = () => {
         ))}
       </div>
       <div className="address-container" data-aos="fade-up">
-        <FaMapMarkerAlt className="address-icon" />
+        <div className="address-icon-container">
+          <FaMapMarkerAlt className="address-icon filled" />
+          <MdOutlineLocationOn className="address-icon outline" />
+        </div>
         <p className="address-text">Brooklyn, Cape Town, South Africa</p>
       </div>
     </section>
   );
 };
-
 export default Contact;

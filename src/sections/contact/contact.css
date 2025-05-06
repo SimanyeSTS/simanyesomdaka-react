@@ -4,6 +4,7 @@
   justify-content: center;
   gap: 3rem;
 }
+
 .contact__container a {
   width: 5rem;
   aspect-ratio: 1/1;
@@ -15,6 +16,7 @@
   border: 2px solid transparent;
   border-radius: var(--border-radius-1);
 }
+
 .contact__container a:hover {
   background: transparent;
   border-color: var(--color-primary);
@@ -22,7 +24,6 @@
   transform: translateY(-0.5rem);
 }
 
-/* Added address styling */
 .address-container {
   margin-top: 2rem;
   display: flex;
@@ -30,23 +31,51 @@
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.address-icon-container {
+  position: relative;
+  height: 1.2rem;
+  width: 1.2rem;
 }
 
 .address-icon {
   color: var(--color-primary);
   font-size: 1.2rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.3s ease;
+}
+
+.address-icon.outline {
+  opacity: 0;
+}
+
+.address-icon.filled {
+  opacity: 1;
+}
+
+.address-container:hover .address-icon.outline {
+  opacity: 1;
+}
+
+.address-container:hover .address-icon.filled {
+  opacity: 0;
 }
 
 .address-text {
   color: var(--color-black);
   font-size: 1rem;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .address-container:hover .address-text {
   color: var(--color-primary);
+  font-weight: 500;
 }
-
 
 /* MEDIA QUERIES (phones) */
 @media screen and (max-width: 600px) {

@@ -1,5 +1,5 @@
 import { links, socials } from "./data";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { updateActiveLinkByScroll, scrollToSection } from "../../components/navUtils";
 import "./footer.css";
 
@@ -7,46 +7,26 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [activeLink, setActiveLink] = useState("#");
   const [hoveredLink, setHoveredLink] = useState(null);
-  const [isManualScrolling, setIsManualScrolling] = useState(false);
-  const scrollTimeoutRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      const newActiveLink = updateActiveLinkByScroll(isManualScrolling, activeLink);
-      if (!isManualScrolling) {
-        setActiveLink(newActiveLink);
-      }
+      const newActiveLink = updateActiveLinkByScroll();
+      setActiveLink(newActiveLink);
     };
     
     window.addEventListener("scroll", handleScroll);
     
-    if (!isManualScrolling) {
-      setActiveLink(updateActiveLinkByScroll(false, null));
-    }
+    handleScroll();
     
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
     };
-  }, [isManualScrolling, activeLink]);
+  }, []);
 
   const handleLinkClick = (e, link) => {
     e.preventDefault();
-    
     setActiveLink(link);
-    setIsManualScrolling(true);
-    
     scrollToSection(link);
-    
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    
-    scrollTimeoutRef.current = setTimeout(() => {
-      setIsManualScrolling(false);
-    }, 1000);
   };
 
   return (

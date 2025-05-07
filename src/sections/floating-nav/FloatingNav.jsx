@@ -7,7 +7,7 @@ import "./floating-nav.css";
 const FloatingNav = () => {
   const [showNav, setShowNav] = useState(true);
   const [activeLink, setActiveLink] = useState("#");
-  const [isManualScrolling, setIsManualScrolling] = useState(false);
+  const isManualScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef(null);
 
   const isAtTop = () => window.scrollY <= 10;
@@ -20,8 +20,8 @@ const FloatingNav = () => {
     }, 5000);
 
     const handleScroll = () => {
-      const newActiveLink = updateActiveLinkByScroll(isManualScrolling, activeLink);
-      if (!isManualScrolling) {
+      if (!isManualScrollingRef.current) {
+        const newActiveLink = updateActiveLinkByScroll(false, null);
         setActiveLink(newActiveLink);
       }
 
@@ -31,7 +31,6 @@ const FloatingNav = () => {
 
     const handleClick = (e) => {
       const target = e.target;
-
       const isInteractive =
         target.tagName === 'A' ||
         target.tagName === 'BUTTON' ||
@@ -50,9 +49,7 @@ const FloatingNav = () => {
     window.addEventListener("scroll", handleScroll);
     document.addEventListener("click", handleClick);
 
-    if (!isManualScrolling) {
-      setActiveLink(updateActiveLinkByScroll(false, null));
-    }
+    setActiveLink(updateActiveLinkByScroll(false, null));
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -62,13 +59,13 @@ const FloatingNav = () => {
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [isManualScrolling, activeLink]);
+  }, []);
 
   const handleLinkClick = (e, link) => {
     e.preventDefault();
     
     setActiveLink(link);
-    setIsManualScrolling(true);
+    isManualScrollingRef.current = true;
     
     scrollToSection(link);
     
@@ -79,8 +76,8 @@ const FloatingNav = () => {
     }
     
     scrollTimeoutRef.current = setTimeout(() => {
-      setIsManualScrolling(false);
-    }, 1000);
+      isManualScrollingRef.current = false;
+    }, 1500);
   };
 
   return (

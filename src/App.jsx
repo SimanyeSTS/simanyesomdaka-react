@@ -12,6 +12,7 @@ import Theme from "./theme/Theme";
 import CustomAnimatedCursor from "./components/CustomAnimatedCursor";
 import { useThemeContext } from "./context/theme-context";
 import { useRef, useState, useEffect, useCallback } from "react";
+import { NavigationProvider } from "./context/navigation-context";
 
 const App = ({ onLoaded }) => {
   const { themeState } = useThemeContext();
@@ -60,20 +61,22 @@ const App = ({ onLoaded }) => {
 
   return (
     <>
-      <CustomAnimatedCursor />
-      <main className={`${themeState.primary} ${themeState.background}`} ref={mainRef}>
-        <Navbar />
-        <Header />
-        <About id="about" />
-        <Services id="services" />
-        <Portfolio id="portfolio" />
-        <Testimonials id="testimonials" />
-        <FAQs id="faqs" />
-        <Contact id="contact" />
-        <Footer />
-        <Theme />
-        {showFloatingNav && <FloatingNav />}
-      </main>
+      <NavigationProvider>
+        <CustomAnimatedCursor />
+        <main className={`${themeState.primary} ${themeState.background}`} ref={mainRef}>
+          <Navbar />
+          <Header />
+          <About id="about" />
+          <Services id="services" />
+          <Portfolio id="portfolio" />
+          <Testimonials id="testimonials" />
+          <FAQs id="faqs" />
+          <Contact id="contact" />
+          <Footer />
+          <Theme />
+          {showFloatingNav && <FloatingNav />}
+        </main>
+      </NavigationProvider>
     </>
   );
 };

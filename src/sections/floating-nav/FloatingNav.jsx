@@ -1,14 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { debounce } from 'lodash';
 import data from "./data";
-import { updateActiveLinkByScroll, scrollToSection } from "../../components/navUtils";
+import { useNavigation } from "../../context/navigation-context";
 import "./floating-nav.css";
 
 const FloatingNav = () => {
   const [showNav, setShowNav] = useState(true);
-  const [activeLink, setActiveLink] = useState("#");
-  const isManualScrollingRef = useRef(false);
-  const scrollTimeoutRef = useRef(null);
+  const { activeLink, handleNavigation } = useNavigation();
 
   const isAtTop = () => window.scrollY <= 10;
 
@@ -18,16 +16,6 @@ const FloatingNav = () => {
         setShowNav(false);
       }
     }, 5000);
-
-    const handleScroll = () => {
-      if (!isManualScrollingRef.current) {
-        const newActiveLink = updateActiveLinkByScroll(false, null);
-        setActiveLink(newActiveLink);
-      }
-
-      setShowNav(true);
-      debouncedHideNav();
-    };
 
     const handleClick = (e) => {
       const target = e.target;
@@ -46,38 +34,18 @@ const FloatingNav = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
     document.addEventListener("click", handleClick);
 
-    setActiveLink(updateActiveLinkByScroll(false, null));
-
     return () => {
-      window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("click", handleClick);
       debouncedHideNav.cancel();
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
     };
   }, []);
 
   const handleLinkClick = (e, link) => {
     e.preventDefault();
-    
-    setActiveLink(link);
-    isManualScrollingRef.current = true;
-    
-    scrollToSection(link);
-    
+    handleNavigation(link);
     setShowNav(true);
-    
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-    
-    scrollTimeoutRef.current = setTimeout(() => {
-      isManualScrollingRef.current = false;
-    }, 1500);
   };
 
   return (

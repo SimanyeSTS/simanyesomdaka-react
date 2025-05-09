@@ -4,23 +4,20 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
+import { useNavigation } from "../../context/navigation-context";
 import profile from "../../assets/profile.png";
 import "./header.css";
 
 const Header = () => {
+  const { handleNavigation } = useNavigation();
+
   useEffect(() => {
     AOS.init({ duration: 2000 });
   }, []);
 
   const handleButtonClick = (e) => {
     e.preventDefault();
-    const contactSection = document.querySelector("#contact");
-    if (contactSection) {
-      window.scrollTo({
-        top: contactSection.offsetTop,
-        behavior: "smooth",
-      });
-    }
+    handleNavigation("#contact");
   };
 
   return (

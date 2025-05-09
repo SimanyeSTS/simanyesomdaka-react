@@ -1,8 +1,4 @@
-export const updateActiveLinkByScroll = (isManualScrolling, manualActiveLink) => {
-    if (isManualScrolling && manualActiveLink) {
-        return manualActiveLink;
-    }
-    
+export const updateActiveLinkByScroll = () => {
     const sections = {
         home: document.querySelector("header"),
         about: document.querySelector("#about"),

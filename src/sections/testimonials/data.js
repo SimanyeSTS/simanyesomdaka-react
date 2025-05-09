@@ -34,7 +34,7 @@ const resumeData = {
       position: "Full-Stack Developer (Capstone Project)",
       year: "August 2024 - September 2024",
       description:
-        "Developed FortuneTrack, an AI-driven stock market analysis platform, utilizing Vue.js, Node.js, and MySQL for a full-stack solution. Implemented JWT authentication, crafted RESTful APIs for real-time financial data, and created interactive visualizations with Chart.js. Engineered automated data refresh pipelines via GitHub Actions and deployed on Firebase Hosting with CI/CD integration, resulting in a robust platform delivering comprehensive market insights through intuitive, responsive dashboards.",
+        "Built FortuneTrack, an AI-driven stock market analysis platform using Vue.js, Node.js, and MySQL. Implemented JWT authentication, RESTful APIs for real-time financial data, and interactive visualizations. Deployed on Firebase with GitHub Actions automation, delivering comprehensive market insights through responsive dashboards.",
     },
     {
       company: "The Western Cape Government",

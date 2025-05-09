@@ -29,6 +29,14 @@ const resumeData = {
         "Gained experience in cloud computing, backend architecture, and frontend development; completed AWS Cloud Practitioner, Python, and C++ courses; provided consultative insights on backend solutions. Currently leading Flutter-based Android development while mentoring teammates and fostering collaboration in an Agile environment.",
     },
     {
+      company: "Life Choices Academy",
+      image: "https://i.postimg.cc/g2wJXtJ9/LC.png",
+      position: "Full-Stack Developer (Capstone Project)",
+      year: "August 2024 - September 2024",
+      description:
+        "Developed FortuneTrack, an AI-driven stock market analysis platform, utilizing Vue.js, Node.js, and MySQL for a full-stack solution. Implemented JWT authentication, crafted RESTful APIs for real-time financial data, and created interactive visualizations with Chart.js. Engineered automated data refresh pipelines via GitHub Actions and deployed on Firebase Hosting with CI/CD integration, resulting in a robust platform delivering comprehensive market insights through intuitive, responsive dashboards.",
+    },
+    {
       company: "The Western Cape Government",
       image: "https://i.postimg.cc/90Z3HTXn/wcg.png",
       position: "Job Shadowing - Nurse",

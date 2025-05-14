@@ -36,7 +36,7 @@ const resumeData = {
     },
     {
       company: "Life Choices Academy",
-      image: "https://i.postimg.cc/g2wJXtJ9/LC.png",
+      image: LCA,
       position: "Full-Stack Developer (Capstone Project)",
       year: "August 2024 - September 2024",
       description:

@@ -1,20 +1,26 @@
+import CPUT from "../../assets/CPUT.png";
+import LCA from "../../assets/LCA.png";
+import OHS from "../../assets/OHS.png";
+import LCS from "../../assets/LCS.png";
+import WCG from "../../assets/WCG.png";
+
 const resumeData = {
   education: [
     {
       institution: "Cape Peninsula University of Technology",
-      image: "https://i.postimg.cc/MphGy0Mn/cput.png",
+      image: CPUT,
       year: "January 2025 - Present",
       qualification: "Diploma in ICT: Applications Development",
     },
     {
       institution: "Life Choices Academy",
-      image: "https://i.postimg.cc/g2wJXtJ9/LC.png",
+      image: LCA,
       year: "April 2024 - September 2024",
       qualification: "Full-Stack Web Development Bootcamp",
     },
     {
       institution: "Oaklands High School",
-      image: "https://i.postimg.cc/TYs26jct/Oaklands_High.png",
+      image: OHS,
       year: "January 2019 - December 2023",
       qualification: "National Senior Certificate",
     },
@@ -22,7 +28,7 @@ const resumeData = {
   experience: [
     {
       company: "LC Studio",
-      image: "https://i.postimg.cc/HskjHk1k/LC_Studio_logo.png",
+      image: LCS,
       position: "Software Engineering Intern",
       year: "September 2024 - Present",
       description:
@@ -30,7 +36,7 @@ const resumeData = {
     },
     {
       company: "The Western Cape Government",
-      image: "https://i.postimg.cc/90Z3HTXn/wcg.png",
+      image: WCG,
       position: "Job Shadowing - Nurse",
       year: "November 2021 - June 2022",
       description:

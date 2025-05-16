@@ -32,7 +32,7 @@ const resumeData = {
       position: "Software Engineering Intern",
       year: "September 2024 - Present",
       description:
-        "Gained experience in cloud computing, backend architecture, and frontend development; completed AWS Cloud Practitioner, Python, and C++ courses; provided consultative insights on backend solutions. Currently leading Flutter-based Android development while mentoring teammates and fostering collaboration in an Agile environment.",
+        "Developing Flutter Android apps and working with cloud-based solutions in an Agile environment.\nCompleted AWS Cloud Practitioner certification and advanced Python/C++ coursework.\nMentoring team members while providing consultation on backend architecture.",
     },
     {
       company: "Life Choices Academy",
@@ -40,7 +40,7 @@ const resumeData = {
       position: "Full-Stack Developer (Capstone Project)",
       year: "August 2024 - September 2024",
       description:
-        "Built FortuneTrack, an AI-driven stock market analysis platform using Vue.js, Node.js, and MySQL. Implemented JWT authentication, RESTful APIs for real-time financial data, and interactive visualizations. Deployed on Firebase with GitHub Actions automation, delivering comprehensive market insights through responsive dashboards.",
+        "Built FortuneTrack, an AI stock analysis platform with Vue.js, Node.js, and MySQL.\nImplemented secure authentication and APIs for real-time financial data visualization.\nDeployed on Firebase with automated CI/CD workflows via GitHub Actions.",
     },
     {
       company: "The Western Cape Government",
@@ -48,7 +48,7 @@ const resumeData = {
       position: "Job Shadowing - Nurse",
       year: "November 2021 - June 2022",
       description:
-        "Assisted nurses and doctors with patient care, wound dressing, and medication delivery. Provided logistical support and worked night shifts to ensure continuous patient care. Gained hands-on experience in hospital operations and emergency response.",
+        "Assisted clinical staff with patient care, wound dressing, and medication administration.\nProvided support during night shifts and emergency response situations.\nGained practical experience in hospital operations and patient-centered care.",
     },
   ],
 };

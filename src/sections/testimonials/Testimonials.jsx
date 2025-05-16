@@ -6,13 +6,20 @@ const Resume = () => {
   const [selectedEduIndex, setSelectedEduIndex] = useState(0);
   const [selectedExpIndex, setSelectedExpIndex] = useState(0);
 
+  const renderDescription = (text) => {
+    return text.split('\n').map((line, i) => (
+      <p key={i} className="description-line">{line}</p>
+    ));
+  };
+
   return (
     <section id="resume">
-      {}
+      {/* Education Section */}
       <div className="education-section" data-aos="fade-in">
         <h2>Education</h2>
         <p className="subtext">
-        Growth is not just about what you learn, but how you apply it to create meaningful change.        </p>
+          Growth is not just about what you learn, but how you apply it to create meaningful change.
+        </p>
         <div className="education-list">
           <ul className="education-tabs">
             {data.education.map((edu, index) => (
@@ -41,11 +48,12 @@ const Resume = () => {
         </div>
       </div>
 
-      {}
+      {/* Experience Section */}
       <div className="experience-section">
         <h2>Work Experience</h2>
         <p className="subtext">
-        Every challenge is an opportunity to grow, refine skills, and drive impact.        </p>
+          Every challenge is an opportunity to grow, refine skills, and drive impact.
+        </p>
         <div className="job-list">
           <ul className="job-tabs">
             {data.experience.map((job, index) => (
@@ -72,7 +80,7 @@ const Resume = () => {
             <p className="job-duration">
               {data.experience[selectedExpIndex].year}
             </p>
-            <p>{data.experience[selectedExpIndex].description}</p>
+            {renderDescription(data.experience[selectedExpIndex].description)}
           </div>
         </div>
       </div>

@@ -71,6 +71,10 @@ h2 {
 .education-details,
 .job-details {
   width: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .education-details h3,
@@ -85,6 +89,12 @@ h2 {
   font-size: 1rem;
   color: var(--color-dark);
   margin-bottom: 20px;
+}
+
+.description-line {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -102,6 +112,10 @@ h2 {
   .job-details h3 {
     font-size: 1.5rem;
   }
+  
+  .description-line {
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -110,6 +124,10 @@ h2 {
   }
 
   p {
+    font-size: 0.8rem;
+  }
+  
+  .description-line {
     font-size: 0.8rem;
   }
 }
@@ -137,6 +155,9 @@ h2 {
     width: 50%;
     text-align: left;
     padding-left: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .education-details h3,
@@ -153,5 +174,9 @@ h2 {
   #resume {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+  
+  .description-line {
+    font-size: 0.75rem;
   }
 }

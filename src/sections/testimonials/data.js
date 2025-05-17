@@ -32,7 +32,7 @@ const resumeData = {
       position: "Software Engineering Intern",
       year: "September 2024 - Present",
       description:
-        "Developing Flutter Android apps and working with cloud-based solutions in an Agile environment.\nCompleted AWS Cloud Practitioner certification and advanced Python/C++ coursework.\nMentoring team members while providing consultation on backend architecture.",
+        "• Developing Flutter Android apps and working with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner certification and advanced Python/C++ coursework.\n• Mentoring team members while providing consultation on backend architecture.",
     },
     {
       company: "Life Choices Academy",
@@ -40,7 +40,7 @@ const resumeData = {
       position: "Full-Stack Developer (Capstone Project)",
       year: "August 2024 - September 2024",
       description:
-        "Built FortuneTrack, an AI stock analysis platform with Vue.js, Node.js, and MySQL.\nImplemented secure authentication and APIs for real-time financial data visualization.\nDeployed on Firebase with automated CI/CD workflows via GitHub Actions.",
+        "• Built FortuneTrack, an AI stock analysis platform with Vue.js, Node.js, and MySQL.\n• Implemented secure authentication and APIs for real-time financial data visualization.\n• Deployed on Firebase with automated CI/CD workflows via GitHub Actions.",
     },
     {
       company: "The Western Cape Government",
@@ -48,7 +48,7 @@ const resumeData = {
       position: "Job Shadowing - Nurse",
       year: "November 2021 - June 2022",
       description:
-        "Assisted clinical staff with patient care, wound dressing, and medication administration.\nProvided support during night shifts and emergency response situations.\nGained practical experience in hospital operations and patient-centered care.",
+        "• Assisted clinical staff with patient care, wound dressing, and medication administration.\n• Provided support during night shifts and emergency response situations.\n• Gained practical experience in hospital operations and patient-centered care.",
     },
   ],
 };

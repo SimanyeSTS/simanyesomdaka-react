@@ -1,6 +1,7 @@
 import CPUT from "../../assets/CPUT.png";
 import LCA from "../../assets/LCA.png";
 import OHS from "../../assets/OHS.png";
+import Beeline from "../../assets/Beeline.png";
 import LCS from "../../assets/LCS.png";
 import WCG from "../../assets/WCG.png";
 
@@ -27,12 +28,20 @@ const resumeData = {
   ],
   experience: [
     {
+      company: "Beeline Learn",
+      image: Beeline,
+      position: "Product & QA Intern",
+      year: "June 2025 – Present",
+      description:
+        "• Collaborating with Product Team on QA testing, UX improvements, and release stability.\n• Creating and executing manual test cases for core user flows and maintaining QA Playbook in Notion.\n• Conducting UI/UX audits, logging bugs, and performing post-deployment testing with weekly QA reporting.",
+    },
+    {
       company: "LC Studio",
       image: LCS,
       position: "Software Engineering Intern",
-      year: "September 2024 - Present",
+      year: "September 2024 - June 2025",
       description:
-        "• Developing Flutter Android apps and working with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner certification and advanced Python/C++ coursework.\n• Mentoring team members while providing consultation on backend architecture.",
+        "• Developed Flutter Android apps and worked with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner certification and advanced Python/C++ coursework.\n• Mentored team members while providing consultation on backend architecture.",
     },
     {
       company: "Life Choices Academy",

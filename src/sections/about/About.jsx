@@ -96,7 +96,7 @@ const About = memo(() => {
     { id: 37, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
     { id: 38, name: "Figma", icon: <SiFigma />, category: "tools" },
     { id: 39, name: "Postman", icon: <SiPostman />, category: "tools" },
-    { id: 40, name: "Testing", icon: <SiTestinglibrary />, category: "tools" },
+    { id: 40, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
   ], []);
 
   const LazySkillIcon = ({ icon }) => {

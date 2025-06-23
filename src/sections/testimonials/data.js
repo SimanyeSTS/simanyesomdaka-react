@@ -31,7 +31,7 @@ const resumeData = {
       company: "Beeline Learn",
       image: Beeline,
       position: "Product & QA Intern",
-      year: "June 2025 – Present",
+      year: "June 2025 - Present",
       description:
         "• Collaborating with Product Team on QA testing, UX improvements, and release stability.\n• Creating and executing manual test cases for core user flows and maintaining QA Playbook in Notion.\n• Conducting UI/UX audits, logging bugs, and performing post-deployment testing with weekly QA reporting.",
     },

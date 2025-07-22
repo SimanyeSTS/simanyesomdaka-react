@@ -33,7 +33,7 @@ const resumeData = {
       position: "Product & QA Intern",
       year: "June 2025 - Present",
       description:
-        "• Collaborating with Product Team on QA testing, UX improvements, and release stability.\n• Creating and executing manual test cases for core user flows and maintaining QA Playbook in Notion.\n• Conducting UI/UX audits, logging bugs, and performing post-deployment testing with weekly QA reporting.",
+        "• Collaborating with the Product team to enhance platform quality and learner experience.\n• Executing manual test cases for core user flows and maintaining scalable QA documentation in Notion.\n• Supporting ADAPT prioritization, logging bugs, and analyzing post-training data for product improvements.",
     },
     {
       company: "LC Studio",

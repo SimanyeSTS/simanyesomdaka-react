@@ -28,7 +28,7 @@ const resumeData = {
   ],
   experience: [
     {
-      company: "Beeline Learn",
+      company: "Beeline",
       image: Beeline,
       position: "Product & QA Intern",
       year: "June 2025 - Present",

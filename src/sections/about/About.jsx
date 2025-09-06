@@ -19,7 +19,7 @@ import {
   SiNetlify, SiPostman, SiVisualstudio,
   SiFlask, SiUnity, SiApache,
   SiRender, SiMicrosoftazure, SiGooglecloud,
-  SiTypescript, SiDotnet, SiPlaywright
+  SiTypescript, SiDotnet, SiPlaywright, SiGitlab
 } from "react-icons/si";
 
 const About = memo(() => {
@@ -89,8 +89,9 @@ const About = memo(() => {
     // DevOps & Tools
     { id: 33, name: "Git", icon: <FaGitAlt />, category: "devops" },
     { id: 34, name: "GitHub", icon: <FaGithub />, category: "devops" },
-    { id: 35, name: "NPM", icon: <FaNpm />, category: "devops" },
-    { id: 36, name: "Docker", icon: <FaDocker />, category: "devops" },
+    { id: 35, name: "GitLab", icon: <SiGitlab />, category: "devops" },
+    { id: 36, name: "NPM", icon: <FaNpm />, category: "devops" },
+    { id: 37, name: "Docker", icon: <FaDocker />, category: "devops" },
 
     // IDE & Design
     { id: 38, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },

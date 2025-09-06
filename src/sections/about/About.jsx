@@ -99,7 +99,7 @@ const About = memo(() => {
     { id: 41, name: "Postman", icon: <SiPostman />, category: "tools" },
     { id: 42, name: "Playwright", icon: <SiPlaywright />, category: "tools" },
     { id: 43, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
-  ], []); &&&
+  ], []);
 
   const LazySkillIcon = ({ icon }) => {
     const [LoadedIcon, setLoadedIcon] = React.useState(() => () => null);

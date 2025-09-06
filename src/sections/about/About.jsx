@@ -8,7 +8,7 @@ import "./about.css";
 import {
   FaReact, FaNode, FaJava, FaPython,
   FaHtml5, FaCss3Alt, FaGitAlt, FaGithub, FaBootstrap,
-  FaVuejs, FaAws, FaNpm, FaAndroid, FaCloud
+  FaVuejs, FaAws, FaNpm, FaAndroid, FaCloud, FaDocker
 } from "react-icons/fa";
 import {
   SiJavascript, SiTailwindcss, SiMongodb,
@@ -19,7 +19,7 @@ import {
   SiNetlify, SiPostman, SiVisualstudio,
   SiFlask, SiUnity, SiApache,
   SiRender, SiMicrosoftazure, SiGooglecloud,
-  SiTypescript, SiDotnet
+  SiTypescript, SiDotnet, SiPlaywright
 } from "react-icons/si";
 
 const About = memo(() => {
@@ -90,14 +90,16 @@ const About = memo(() => {
     { id: 33, name: "Git", icon: <FaGitAlt />, category: "devops" },
     { id: 34, name: "GitHub", icon: <FaGithub />, category: "devops" },
     { id: 35, name: "NPM", icon: <FaNpm />, category: "devops" },
+    { id: 36, name: "Docker", icon: <FaDocker />, category: "devops" },
 
     // IDE & Design
-    { id: 36, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
-    { id: 37, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
-    { id: 38, name: "Figma", icon: <SiFigma />, category: "tools" },
-    { id: 39, name: "Postman", icon: <SiPostman />, category: "tools" },
-    { id: 40, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
-  ], []);
+    { id: 38, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
+    { id: 39, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
+    { id: 40, name: "Figma", icon: <SiFigma />, category: "tools" },
+    { id: 41, name: "Postman", icon: <SiPostman />, category: "tools" },
+    { id: 42, name: "Playwright", icon: <SiPlaywright />, category: "tools" },
+    { id: 43, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
+  ], []); &&&
 
   const LazySkillIcon = ({ icon }) => {
     const [LoadedIcon, setLoadedIcon] = React.useState(() => () => null);

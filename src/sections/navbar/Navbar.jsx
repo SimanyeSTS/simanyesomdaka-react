@@ -3,7 +3,7 @@ import { IoIosColorPalette } from "react-icons/io";
 import { useModalContext } from "../../context/modal-context";
 import { useState } from "react";
 import { useNavigation } from "../../context/navigation-context";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/SimanyeProfessional.png";
 import "./navbar.css";
 
 const Navbar = () => {

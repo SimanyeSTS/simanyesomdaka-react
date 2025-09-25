@@ -31,9 +31,9 @@ const resumeData = {
       company: "Beeline",
       image: Beeline,
       position: "Product & QA Intern",
-      year: "June 2025 - Present",
+      year: "June 2025 - September 2025",
       description:
-        "• Collaborating with the Product team to enhance platform quality and learner experience.\n• Executing manual test cases for core user flows and maintaining scalable QA documentation in Notion.\n• Supporting ADAPT prioritization, logging bugs, and analyzing post-training data for product improvements.",
+        "• Conducted end-to-end QA testing and user journey reviews to ensure a seamless learning platform.\n• Automated high-priority QA flows and built Notion-based dashboards to streamline workflows.\n• Documented user flows and Jobs-To-Be-Done (JTBD) to support clearer product insights.",
     },
     {
       company: "LC Studio",

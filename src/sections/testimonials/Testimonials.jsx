@@ -49,7 +49,7 @@ const Resume = () => {
       </div>
 
       {/* Experience Section */}
-      <div className="experience-section">
+      <div className="experience-section" data-aos="fade-up">
         <h2>Work Experience</h2>
         <p className="subtext">
           Every challenge is an opportunity to grow, refine skills, and drive impact.

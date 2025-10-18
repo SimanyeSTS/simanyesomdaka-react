@@ -40,7 +40,8 @@ nav {
   content: "";
   position: absolute;
   bottom: -5px;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 0;
   height: 2px;
   background-color: white;
@@ -50,19 +51,16 @@ nav {
 /* Hover animation */
 .nav__menu a.hovered::after {
   width: 100%;
-  transition: width 0.3s ease;
 }
 
 /* Active animation */
 .nav__menu a.active::after {
   width: 100%;
-  transition: width 0.3s ease;
 }
 
 /* Prevent redrawing active style */
 .nav__menu a.active.hovered::after {
   width: 100%;
-  transition: width 0.3s ease;
 }
 
 #theme__icon {

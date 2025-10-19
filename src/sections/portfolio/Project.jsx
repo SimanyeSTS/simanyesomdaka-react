@@ -56,7 +56,7 @@ const Project = ({ project }) => {
       {}
       <div className="portfolio__project-cta">
         <a href={demo} className="btn sm primary" target="_blank" rel="noopener noreferrer">
-          Demo
+          {category === "UI/UX" ? "View" : "Demo"}
         </a>
         {category !== "UI/UX" && (
           <a href={github} className="btn sm" target="_blank" rel="noopener noreferrer">

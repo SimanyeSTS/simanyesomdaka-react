@@ -6,7 +6,7 @@ const Contact = () => {
   return (
     <section id="contact">
       <h2>Get In Touch</h2>
-      <p>Feel free to reach out via any of the links below!</p>
+      <p>Let's start a conversation. Choose your platform below.</p>
       <div className="container contact__container" data-aos="fade-up">
         {data.map((contact) => (
           <a
@@ -24,7 +24,7 @@ const Contact = () => {
           <FaMapMarkerAlt className="address-icon filled" />
           <MdOutlineLocationOn className="address-icon outline" />
         </div>
-        <p className="address-text">Brooklyn, Cape Town, South Africa</p>
+        <p className="address-text">Philippi, Cape Town, South Africa</p>
       </div>
     </section>
   );

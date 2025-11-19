@@ -34,8 +34,7 @@ const Portfolio = () => {
     <section id="portfolio">
       <h2>Recent Projects</h2>
       <p>
-        Here are some of the projects I've worked on, including personal projects, freelance work, and portfolio pieces.  
-        Use the buttons to filter projects by category.
+        Browse my work: a curated collection of personal, freelance, and portfolio projects. Filter by category below.
       </p>
       <div className="container portfolio__container">
         <ProjectsCategories

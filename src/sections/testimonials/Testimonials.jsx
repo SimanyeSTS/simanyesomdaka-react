@@ -18,7 +18,7 @@ const Resume = () => {
       <div className="education-section" data-aos="fade-in">
         <h2>Education</h2>
         <p className="subtext">
-          Growth is not just about what you learn, but how you apply it to create meaningful change.
+          Growth happens when learning is translated into action and meaningful change.
         </p>
         <div className="education-list">
           <ul className="education-tabs">
@@ -52,7 +52,7 @@ const Resume = () => {
       <div className="experience-section" data-aos="fade-up">
         <h2>Work Experience</h2>
         <p className="subtext">
-          Every challenge is an opportunity to grow, refine skills, and drive impact.
+          I leverage challenges to grow, sharpen my skills, and deliver meaningful impact.
         </p>
         <div className="job-list">
           <ul className="job-tabs">

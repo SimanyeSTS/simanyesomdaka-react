@@ -5,7 +5,7 @@ import "aos/dist/aos.css";
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
 import { useNavigation } from "../../context/navigation-context";
-import profile from "../../assets/profile.png";
+import profile from "../../assets/ProfilePic.png";
 import "./header.css";
 
 const Header = () => {

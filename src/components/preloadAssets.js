@@ -1,6 +1,6 @@
 export const preloadAssets = async () => {
     const assetsToPreload = [
-      require('../assets/profile.png'),
+      require('../assets/ProfilePic.png'),
     ];
   
     const preloadImage = (src) =>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo, memo } from "react";
 import { throttle } from 'lodash';
-import CV from "../../assets/Simanye Somdaka's Resume (OA).PDF";
+import CV from "../../assets/Simanye Somdaka's Resume (OA).pdf";
 import { HiDownload } from "react-icons/hi";
 import data from "./data";
 import Card from "../../components/Card";
@@ -19,7 +19,8 @@ import {
   SiNetlify, SiPostman, SiVisualstudio,
   SiFlask, SiUnity, SiApache,
   SiRender, SiMicrosoftazure, SiGooglecloud,
-  SiTypescript, SiDotnet, SiPlaywright, SiGitlab
+  SiTypescript, SiDotnet, SiPlaywright, SiGitlab,
+  SiPostgresql, SiFastify, SiPrisma
 } from "react-icons/si";
 
 const About = memo(() => {
@@ -64,11 +65,14 @@ const About = memo(() => {
     { id: 17, name: "Express.js", icon: <SiExpress />, category: "backend" },
     { id: 18, name: "Flask", icon: <SiFlask />, category: "backend" },
     { id: 19, name: ".NET & ASP.NET Core", icon: <SiDotnet />, category: "backend" },
+    { id: 44, name: "Fastify", icon: <SiFastify />, category: "backend" },
 
     // Database
     { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
     { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
     { id: 22, name: "Firebase & Firestore", icon: <SiFirebase />, category: "database" },
+    { id: 45, name: "PostgreSQL", icon: <SiPostgresql />, category: "database" },
+    { id: 46, name: "Prisma ORM", icon: <SiPrisma />, category: "database" },
 
     // Cloud & Hosting
     { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
@@ -532,7 +536,7 @@ const About = memo(() => {
       <div className="container about__container" data-aos="fade-in">
         <div className="about__content-container">
           <h2>About Me</h2>
-          <p>Every journey has a story—here's mine.</p>
+          <p>Every path leaves a trail of stories. Walk with me.</p>
           <div className="about__cards">
             {data.map((item) => (
               <Card key={item.id} className="about__card">
@@ -560,7 +564,7 @@ const About = memo(() => {
 
         <div className="skills__container" ref={skillsContainerRef}>
           <h2>Skills</h2>
-          <p>Empowered by knowledge, driven by skills—here's what I bring to the table.</p>
+          <p>My value proposition: empowered by knowledge, driven by skills.</p>
           <div 
             className="skills__floating-area" 
             ref={floatingAreaRef}

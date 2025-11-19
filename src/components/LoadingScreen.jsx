@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MdDesignServices, MdCode, MdVideoLibrary } from "react-icons/md";
 import { HiServer } from "react-icons/hi";
 import { useThemeContext } from "../context/theme-context";
-import profile from '../assets/profile.png';
+import profile from '../assets/ProfilePic.png';
 import CustomAnimatedCursor from './CustomAnimatedCursor';
 import './loading.css';
 

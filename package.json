@@ -47,6 +47,12 @@
     ]
   },
   "devDependencies": {
+    "baseline-browser-mapping": "^2.8.29",
     "cross-env": "^7.0.3"
+  },
+  "overrides": {
+    "nth-check": "^2.1.1",
+    "postcss": "^8.4.31",
+    "svgo": "^3.0.0"
   }
 }

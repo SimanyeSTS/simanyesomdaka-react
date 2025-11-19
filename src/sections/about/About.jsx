@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo, memo } from "react";
 import { throttle } from 'lodash';
-import CV from "../../assets/Simanye Somdaka's Resume (OA).pdf";
+import CV from "../../assets/Simanye-Somdaka-Resume.pdf";
 import { HiDownload } from "react-icons/hi";
 import data from "./data";
 import Card from "../../components/Card";

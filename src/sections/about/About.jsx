@@ -39,6 +39,7 @@ const About = memo(() => {
   const touchStartTimeRef = useRef(0);
   const isTapRef = useRef(false);
   const touchMovedRef = useRef(false);
+  const resumeTimeoutRef = useRef(null);
 
   const skillsData = useMemo(() => [
     // Core Programming Languages
@@ -140,6 +141,19 @@ const About = memo(() => {
     });
   }, []);
 
+  const restartMotion = React.useCallback(() => {
+    if (animatingToFrontRef.current) {
+      resumeTimeoutRef.current = setTimeout(restartMotion, 500);
+      return;
+    }
+    clearAllActiveStates();
+    rotationSpeedRef.current = {
+      x: (Math.random() - 0.5) * 0.01,
+      y: (Math.random() - 0.5) * 0.01
+    };
+    useDefaultRotationRef.current = false;
+  }, [clearAllActiveStates]);
+
   const activateSkillPair = React.useCallback((index) => {
     if (!skillsContainerRef.current) return;
 
@@ -214,7 +228,15 @@ const About = memo(() => {
     animatingToFrontRef.current = true;
     useDefaultRotationRef.current = false;
     rotationSpeedRef.current = { x: 0, y: 0 };
-  }, [activateSkillPair]);
+
+    // Reset any existing resume timeout and schedule a new one
+    if (resumeTimeoutRef.current) {
+      clearTimeout(resumeTimeoutRef.current);
+    }
+    resumeTimeoutRef.current = setTimeout(() => {
+      restartMotion();
+    }, 5000);
+  }, [activateSkillPair, restartMotion]);
 
   const handleIconTouchStart = (e) => {
     touchStartPosRef.current = {
@@ -530,6 +552,15 @@ const About = memo(() => {
       window.removeEventListener('resize', handleResize);
     };
   }, [centerSkillIcon, skillsData, clearAllActiveStates]);
+
+  // Cleanup resume timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <section id="about">

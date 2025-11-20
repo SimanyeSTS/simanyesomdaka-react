@@ -17,7 +17,7 @@ const resumeData = {
       institution: "Life Choices Academy",
       image: LCA,
       year: "April 2024 - September 2024",
-      qualification: "Full-Stack Web Development Bootcamp",
+      qualification: "Coding Course (Full-Stack)",
     },
     {
       institution: "Oaklands High School",

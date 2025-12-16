@@ -41,7 +41,7 @@ const resumeData = {
       position: "Software Engineering Intern",
       year: "September 2024 - June 2025",
       description:
-        "• Developed Flutter Android apps and worked with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner certification and advanced Python/C++ coursework.\n• Mentored team members while providing consultation on backend architecture.",
+        "• Developed Flutter Android apps and worked with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner training and advanced Python/C++ coursework.\n• Mentored team members while providing consultation on backend architecture.",
     },
     {
       company: "Life Choices Academy",

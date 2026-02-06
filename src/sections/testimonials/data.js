@@ -1,6 +1,7 @@
 import CPUT from "../../assets/CPUT.png";
 import LCA from "../../assets/LCA.png";
 import OHS from "../../assets/OHS.png";
+import InuGrp from "../../assets/Inuversal.jpg";
 import Beeline from "../../assets/Beeline.png";
 import LCS from "../../assets/LCS.png";
 import WCG from "../../assets/WCG.png";
@@ -27,6 +28,14 @@ const resumeData = {
     },
   ],
   experience: [
+    {
+      company: "InUversal Group",
+      image: InuGrp,
+      position: "Software Developer Intern",
+      year: "January 2026 - Present",
+      description: 
+        "• Architect scalable backend microservices using .NET 10 and Azure for the InUTech ecosystem.\n• Drive mobile engineering using React Native (Expo/Redux) and manage App Store/Play Store releases.\n• Optimize CI/CD pipelines and cloud infrastructure using Docker, Kubernetes, and Azure DevOps.",
+    },
     {
       company: "Beeline",
       image: Beeline,

@@ -8,7 +8,7 @@ import "./about.css";
 import {
   FaReact, FaNode, FaJava, FaPython,
   FaHtml5, FaCss3Alt, FaGitAlt, FaGithub, FaBootstrap,
-  FaVuejs, FaAws, FaNpm, FaAndroid, FaCloud, FaDocker
+  FaVuejs, FaAws, FaNpm, FaCloud, FaDocker
 } from "react-icons/fa";
 import {
   SiJavascript, SiTailwindcss, SiMongodb,
@@ -20,7 +20,10 @@ import {
   SiFlask, SiUnity, SiApache,
   SiRender, SiMicrosoftazure, SiGooglecloud,
   SiTypescript, SiDotnet, SiPlaywright, SiGitlab,
-  SiPostgresql, SiFastify, SiPrisma
+  SiPostgresql, SiFastify, SiPrisma,
+  SiExpo, SiRedux, SiBlazor,
+  SiKubernetes, SiAzuredevops, SiMicrosoftsqlserver,
+  SiAndroidstudio
 } from "react-icons/si";
 
 const About = memo(() => {
@@ -54,57 +57,63 @@ const About = memo(() => {
     // Frontend
     { id: 8, name: "HTML5", icon: <FaHtml5 />, category: "frontend" },
     { id: 9, name: "CSS3", icon: <FaCss3Alt />, category: "frontend" },
-    { id: 10, name: "React", icon: <FaReact />, category: "frontend" },
-    { id: 11, name: "Vue.js", icon: <FaVuejs />, category: "frontend" },
-    { id: 12, name: "Next.js", icon: <SiNextdotjs />, category: "frontend" },
-    { id: 13, name: "Bootstrap", icon: <FaBootstrap />, category: "frontend" },
-    { id: 14, name: "Tailwind CSS", icon: <SiTailwindcss />, category: "frontend" },
-    { id: 15, name: "Vite", icon: <SiVite />, category: "frontend" },
+    { id: 10, name: "React & React Native", icon: <FaReact />, category: "frontend" },
+    { id: 11, name: "Redux", icon: <SiRedux />, category: "frontend" },
+    { id: 12, name: "Vue.js", icon: <FaVuejs />, category: "frontend" },
+    { id: 13, name: "Next.js", icon: <SiNextdotjs />, category: "frontend" },
+    { id: 14, name: "Blazor", icon: <SiBlazor />, category: "frontend" },
+    { id: 15, name: "Bootstrap", icon: <FaBootstrap />, category: "frontend" },
+    { id: 16, name: "Tailwind CSS", icon: <SiTailwindcss />, category: "frontend" },
+    { id: 17, name: "Vite", icon: <SiVite />, category: "frontend" },
 
     // Backend
-    { id: 16, name: "Node.js", icon: <FaNode />, category: "backend" },
-    { id: 17, name: "Express.js", icon: <SiExpress />, category: "backend" },
-    { id: 18, name: "Flask", icon: <SiFlask />, category: "backend" },
-    { id: 19, name: ".NET & ASP.NET Core", icon: <SiDotnet />, category: "backend" },
-    { id: 44, name: "Fastify", icon: <SiFastify />, category: "backend" },
+    { id: 18, name: "Node.js", icon: <FaNode />, category: "backend" },
+    { id: 19, name: "Express.js", icon: <SiExpress />, category: "backend" },
+    { id: 20, name: "Fastify", icon: <SiFastify />, category: "backend" },
+    { id: 21, name: "Flask", icon: <SiFlask />, category: "backend" },
+    { id: 22, name: ".NET & ASP.NET Core", icon: <SiDotnet />, category: "backend" },
 
     // Database
-    { id: 20, name: "MongoDB", icon: <SiMongodb />, category: "database" },
-    { id: 21, name: "MySQL", icon: <SiMysql />, category: "database" },
-    { id: 22, name: "Firebase & Firestore", icon: <SiFirebase />, category: "database" },
-    { id: 45, name: "PostgreSQL", icon: <SiPostgresql />, category: "database" },
-    { id: 46, name: "Prisma ORM", icon: <SiPrisma />, category: "database" },
+    { id: 23, name: "SQL Server", icon: <SiMicrosoftsqlserver />, category: "database" },
+    { id: 24, name: "PostgreSQL", icon: <SiPostgresql />, category: "database" },
+    { id: 25, name: "MySQL", icon: <SiMysql />, category: "database" },
+    { id: 26, name: "MongoDB", icon: <SiMongodb />, category: "database" },
+    { id: 27, name: "Firebase & Firestore", icon: <SiFirebase />, category: "database" },
+    { id: 28, name: "Prisma ORM", icon: <SiPrisma />, category: "database" },
 
     // Cloud & Hosting
-    { id: 23, name: "AWS", icon: <FaAws />, category: "cloud" },
-    { id: 24, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
-    { id: 25, name: "Google Cloud", icon: <SiGooglecloud />, category: "cloud" },
-    { id: 26, name: "Vercel", icon: <SiVercel />, category: "cloud" },
-    { id: 27, name: "Netlify", icon: <SiNetlify />, category: "cloud" },
-    { id: 28, name: "Render", icon: <SiRender />, category: "cloud" },
-    { id: 29, name: "Clever Cloud", icon: <FaCloud />, category: "cloud" },
+    { id: 29, name: "AWS", icon: <FaAws />, category: "cloud" },
+    { id: 30, name: "Azure", icon: <SiMicrosoftazure />, category: "cloud" },
+    { id: 31, name: "Google Cloud", icon: <SiGooglecloud />, category: "cloud" },
+    { id: 32, name: "Vercel", icon: <SiVercel />, category: "cloud" },
+    { id: 33, name: "Netlify", icon: <SiNetlify />, category: "cloud" },
+    { id: 34, name: "Render", icon: <SiRender />, category: "cloud" },
+    { id: 35, name: "Clever Cloud", icon: <FaCloud />, category: "cloud" },
 
     // Mobile Development
-    { id: 30, name: "Flutter", icon: <SiFlutter />, category: "mobile" },
-    { id: 31, name: "Android Studio", icon: <FaAndroid />, category: "mobile" },
+    { id: 36, name: "Expo", icon: <SiExpo />, category: "mobile" },
+    { id: 37, name: "Flutter", icon: <SiFlutter />, category: "mobile" },
+    { id: 38, name: "Android Studio", icon: <SiAndroidstudio />, category: "mobile" },
 
     // Game Development
-    { id: 32, name: "Unity", icon: <SiUnity />, category: "game" },
+    { id: 39, name: "Unity", icon: <SiUnity />, category: "game" },
 
     // DevOps & Tools
-    { id: 33, name: "Git", icon: <FaGitAlt />, category: "devops" },
-    { id: 34, name: "GitHub", icon: <FaGithub />, category: "devops" },
-    { id: 35, name: "GitLab", icon: <SiGitlab />, category: "devops" },
-    { id: 36, name: "NPM", icon: <FaNpm />, category: "devops" },
-    { id: 37, name: "Docker", icon: <FaDocker />, category: "devops" },
+    { id: 40, name: "Git", icon: <FaGitAlt />, category: "devops" },
+    { id: 41, name: "GitHub", icon: <FaGithub />, category: "devops" },
+    { id: 42, name: "GitLab", icon: <SiGitlab />, category: "devops" },
+    { id: 43, name: "Azure DevOps", icon: <SiAzuredevops />, category: "devops" },
+    { id: 44, name: "Docker", icon: <FaDocker />, category: "devops" },
+    { id: 45, name: "Kubernetes", icon: <SiKubernetes />, category: "devops" },
+    { id: 46, name: "NPM", icon: <FaNpm />, category: "devops" },
 
     // IDE & Design
-    { id: 38, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
-    { id: 39, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
-    { id: 40, name: "Figma", icon: <SiFigma />, category: "tools" },
-    { id: 41, name: "Postman", icon: <SiPostman />, category: "tools" },
-    { id: 42, name: "Playwright", icon: <SiPlaywright />, category: "tools" },
-    { id: 43, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
+    { id: 47, name: "Visual Studio & VS Code", icon: <SiVisualstudio />, category: "tools" },
+    { id: 48, name: "Apache Netbeans", icon: <SiApache />, category: "tools" },
+    { id: 49, name: "Figma", icon: <SiFigma />, category: "tools" },
+    { id: 50, name: "Postman", icon: <SiPostman />, category: "tools" },
+    { id: 51, name: "Playwright", icon: <SiPlaywright />, category: "tools" },
+    { id: 52, name: "Testing (Manual, Automated, UI & QA)", icon: <SiTestinglibrary />, category: "tools" },
   ], []);
 
   const LazySkillIcon = ({ icon }) => {

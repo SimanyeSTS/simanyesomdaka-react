@@ -34,7 +34,7 @@ const resumeData = {
       position: "Software Developer Intern",
       year: "January 2026 - Present",
       description: 
-        "• Architect scalable backend microservices using .NET 10 and Azure for the InUTech ecosystem.\n• Drive mobile engineering using React Native (Expo/Redux) and manage App Store/Play Store releases.\n• Optimize CI/CD pipelines and cloud infrastructure using Docker, Kubernetes, and Azure DevOps.",
+        "• Upgraded 50% of microservices to .NET 10, refactoring package dependencies and DevOps pipelines.\n• Drive React Native (Expo) mobile engineering and manage App Store/Play Store deployments.\n• Architected custom Zenoti forms, reducing software dependencies and saving R80,000 - R100,000.\n• Authored comprehensive data dictionaries and technical specifications for custom CRM and GA4 integration.",
     },
     {
       company: "Beeline",
@@ -42,7 +42,7 @@ const resumeData = {
       position: "Product & QA Intern",
       year: "June 2025 - September 2025",
       description:
-        "• Conducted end-to-end QA testing and user journey reviews to ensure a seamless learning platform.\n• Automated high-priority QA flows and built Notion-based dashboards to streamline workflows.\n• Documented user flows and Jobs-To-Be-Done (JTBD) to support clearer product insights.",
+        "• Headed the ADAPT bug prioritization workflow, refining the team Playbook to optimize sprint capacity.\n• Served as Support DRI during Agile sprints, accelerating resolution times and reducing queues.\n• Built internal workspace databases and operational progress tracking dashboards inside Notion.\n• Assisted with automated regression testing scripts for core user journeys to reduce manual gates.",
     },
     {
       company: "LC Studio",
@@ -50,7 +50,7 @@ const resumeData = {
       position: "Software Engineering Intern",
       year: "September 2024 - June 2025",
       description:
-        "• Developed Flutter Android apps and worked with cloud-based solutions in an Agile environment.\n• Completed AWS Cloud Practitioner training and advanced Python/C++ coursework.\n• Mentored team members while providing consultation on backend architecture.",
+        "• Scaled the frontend development team from a solo engineer to an Agile squad of 8 interns.\n• Spearheaded codebase setup and app shell development for a native Flutter Android app.\n• Partnered with backend team to implement database views and caching, reducing load times by 30%.\n• Provided cloud infrastructure consultation, evaluating strategies for AWS Lambda, S3, Docker, and Kubernetes.",
     },
     {
       company: "Life Choices Academy",

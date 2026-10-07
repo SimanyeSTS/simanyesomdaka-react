@@ -32,7 +32,7 @@ const resumeData = {
       company: "InUversal Group",
       image: InuGrp,
       position: "Software Developer Intern",
-      year: "January 2026 - Present",
+      year: "January 2026 - September 2026",
       description: 
         "• Upgraded 50% of microservices to .NET 10, refactoring package dependencies and DevOps pipelines.\n• Drive React Native (Expo) mobile engineering and manage App Store/Play Store deployments.\n• Architected custom Zenoti forms, reducing software dependencies and saving R80,000 - R100,000.\n• Authored comprehensive data dictionaries and technical specifications for custom CRM and GA4 integration.",
     },
